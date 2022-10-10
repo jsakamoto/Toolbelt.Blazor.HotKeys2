@@ -1,0 +1,122 @@
+﻿@page "/test/barcodescanneraltmode"
+@implements IDisposable
+@inject HotKeys HotKeys
+
+<h1>Test Barcode Scanner Alt Mode event</h1>
+
+<form>
+    <div class="form-group row">
+        <label for="scanPrefix" class="col-sm-3 col-form-label">Prefix ASCII Code decimal</label>
+        <input type="text" class="col-sm-9"
+               value=@_prefix
+               @onchange="@((ChangeEventArgs __e) => { _prefix = Convert.ToInt16(__e.Value); ClearInputs(); })"
+               id="scanPrefix">
+    </div>
+    <div class="form-group row">
+        <label for="scanSuffix" class="col-sm-3 col-form-label">Suffix ASCII Code decimal</label>
+        <input type="text" class="col-sm-9"
+               value=@_suffix
+               @onchange="@((ChangeEventArgs __e) => { _suffix = Convert.ToInt16(__e.Value); ClearInputs(); })"
+               id="scanSuffix">
+    </div>
+    <div class="form-group row">
+        <label for="maxLengthNumpads" class="col-sm-3 col-form-label">Length numpads</label>
+        <input type="text" class="col-sm-9"
+               value=@_maxLengthNum
+               @onchange="@((ChangeEventArgs __e) => { _maxLengthNum = Convert.ToInt16(__e.Value); ClearInputs(); })"
+               id="maxLengthNumpads">
+    </div>
+</form>
+
+@if (!_isBusy)
+{
+    <input type="text" id="scannedCodeResult" class="form-control" style="min-width: 100px;"
+       @bind-value=@_scannedCode
+       placeholder="Scanned BarCode" />
+
+    <input type="text" class="form-control" style="min-width: 100px;"
+       @bind-value=@_scannedNumpads
+       placeholder="Scanned Numpads" />
+}
+else
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Scanning...</span>
+    </div>
+}
+
+@code
+{
+    private bool _isBusy = false;
+
+    private string _currentNumpads = "";
+    private int _maxLengthNum = 3; //ALT Mode + 3 digits
+
+    private int _prefix = 126;  // ~ tilde
+    private int _suffix = 13;   // CR Enter
+
+    private string _scannedCode = "";
+    private string _scannedNumpads = "";
+
+    protected override void OnInitialized()
+    {
+        this.HotKeys.CreateContext();
+        this.HotKeys.KeyDown += BarcodeScanner_OnKeyDown;
+    }
+
+    private void BarcodeScanner_OnKeyDown(object sender, HotKeyDownEventArgs e)
+    {
+        Console.WriteLine($"[BarcodeScanner_OnKeyDown] _prefix:{_prefix}, _suffix:{_suffix}, _maxLengthNum:{_maxLengthNum}");
+        Console.WriteLine($"[BarcodeScanner_OnKeyDown] HotKeyDownEventArgs:{e.Modifiers}, nativecode:{e.Code}, key:{e.Key}");
+        if (e.Modifiers == ModCodes.Alt)
+        {
+            e.PreventDefault = true;
+            if (e.Code.StartsWith("Numpad") && _currentNumpads.Length <= _maxLengthNum)
+            {
+                _currentNumpads += e.Code.Replace("Numpad", string.Empty);
+                if (_currentNumpads.Length == _maxLengthNum)
+                {
+                    _scannedNumpads += _currentNumpads + ",";
+                    Console.WriteLine($"[BarcodeScanner_OnKeyDown] _currentNumpads:{_currentNumpads}");
+                    var asciicode = Convert.ToInt16(_currentNumpads);
+                    if (_prefix == asciicode)
+                    {
+                        Console.WriteLine($"[BarcodeScanner_OnKeyDown] Barcode scanner detected prefix:{(char)(asciicode)}");
+                        _scannedCode = "";
+                        _scannedNumpads = _currentNumpads + ",";
+                        _currentNumpads = "";
+                        _isBusy = true;
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        if (_suffix == asciicode)
+                        {
+                            Console.WriteLine($"[BarcodeScanner_OnKeyDown] suffix detected, _scannedCode:{_scannedCode}");
+                            _currentNumpads = "";
+                            _isBusy = false;
+                            StateHasChanged();
+                        }
+                        else
+                        {
+                            _currentNumpads = "";
+                            _scannedCode += (char)(asciicode);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void ClearInputs()
+    {
+        _scannedCode = "";
+        _scannedNumpads = "";
+        StateHasChanged();
+    }
+
+    public void Dispose() // <- Add "Dispose" method.
+    {
+        this.HotKeys.KeyDown -= BarcodeScanner_OnKeyDown;
+    }
+}

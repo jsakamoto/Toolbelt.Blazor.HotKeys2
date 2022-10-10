@@ -1,0 +1,53 @@
+﻿@page "/counter"
+@using System.Runtime.InteropServices
+@implements IDisposable
+@inject HotKeys HotKeys
+
+<h1>Counter</h1>
+
+<p>Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@if (IsWasm)
+{
+    // "PreventDefault = true" will works only on a Blazor WebAssembly app.
+    <div class="hot-keys-cheat-sheet alert alert-secondary mt-4">
+        In this page, <span class="key">Ctrl</span>+<span class="key">A</span> (select all of the contents) is disallowed.
+    </div>
+}
+
+@code {
+    private readonly bool IsWasm = RuntimeInformation.OSDescription == "web" || RuntimeInformation.OSDescription == "Browser";
+
+    private int currentCount = 0;
+
+    private HotKeysContext HotKeysContext;
+
+    protected override void OnInitialized()
+    {
+        this.HotKeysContext = this.HotKeys.CreateContext()
+            .Add(Code.U, this.IncrementCount);
+        this.HotKeys.KeyDown += HotKeys_KeyDown;
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+        this.StateHasChanged();
+    }
+
+    private void HotKeys_KeyDown(object sender, HotKeyDownEventArgs e)
+    {
+        if (e.Modifiers == ModCodes.Ctrl && e.Code == Code.A && e.IsWasm)
+        {
+            e.PreventDefault = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        this.HotKeys.KeyDown -= HotKeys_KeyDown;
+        this.HotKeysContext?.Dispose();
+    }
+}

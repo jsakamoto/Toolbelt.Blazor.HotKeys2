@@ -1,0 +1,33 @@
+name: github pages
+
+#on:
+#  push:
+#    branches:
+#      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+
+      # Install .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+      - name: Install .NET WebAssembly Tools
+        run: dotnet workload install wasm-tools
+
+      # Publish the site
+      - name: Publish
+        run: dotnet publish SampleSites/Client/SampleSite.Client.csproj -c:Release -o:public -p:GHPages=true -f:net6.0
+
+      # Deploy the site
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: public/wwwroot
+          force_orphan: true

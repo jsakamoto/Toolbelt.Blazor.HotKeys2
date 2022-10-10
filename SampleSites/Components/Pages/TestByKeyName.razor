@@ -1,0 +1,35 @@
+﻿@page "/test/bykeyname"
+@implements IDisposable
+@inject HotKeys HotKeys
+
+<h1>Test by Key Name</h1>
+
+<p>This page captures media keys (next/prev/stop/pause) by key name string.</p>
+
+<EnteredKeyList @ref="EnteredKeyList" />
+
+@code{
+    private EnteredKeyList EnteredKeyList;
+
+    private HotKeysContext HotKeysContext;
+
+    protected override void OnInitialized()
+    {
+        this.HotKeysContext = this.HotKeys.CreateContext()
+            .Add(new Key("MediaTrackNext"), OnHotKey)
+            .Add(new Key("MediaTrackPrevious"), OnHotKey)
+            .Add(new Key("MediaPlayPause"), OnHotKey)
+            .Add(new Key("MediaStop"), OnHotKey);
+    }
+
+    private void OnHotKey(HotKeyEntryByKey hotKeyEntry)
+    {
+        EnteredKeyList.OnEnteredKey(hotKeyEntry);
+    }
+
+    public void Dispose()
+    {
+        this.HotKeysContext?.Dispose();
+    }
+
+}

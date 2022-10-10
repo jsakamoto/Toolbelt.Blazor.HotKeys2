@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Toolbelt.Blazor.HotKeys2" Version="1.0.0-preview.1.7" />
+    <!--<ProjectReference Include="..\..\HotKeys2\Toolbelt.Blazor.HotKeys2.csproj" />-->
+  </ItemGroup>
+
+</Project>

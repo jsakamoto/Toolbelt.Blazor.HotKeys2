@@ -1,0 +1,30 @@
+﻿<div class="pop-item hot-keys-cheat-sheet alert alert-secondary mt-4" @onclick:stopPropagation>
+    <div><strong>Hot keys cheat sheet</strong></div>
+    <ul>
+        @foreach (var key in this.HotKeysContext.Keys.Where(k => !string.IsNullOrEmpty(k.Description)))
+        {
+            <li>
+                <span class="key">@key.ToString("{0}")</span> ... <span class="description">@key.ToString("{1}")</span>
+            </li>
+        }
+        <li>
+            <span class="key">@@</span> ... <span class="description">(only "Home") change greeting message.</span>
+        </li>
+        <li>
+            <span class="key">U</span> ... <span class="description">(only "Counter") Increment counter.</span>
+        </li>
+    </ul>
+    <p>The hot key <span class="key">H</span> will work even if input element has focus.</p>
+    <p>
+        * Input element for the hot key <span class="key">H</span>: <input type="text" value="" class="form-control-sm" />
+    </p>
+    <p>The hot key <span class="key">C</span> will work when a non-text input element, like a checkbox or radio, has focus.</p>
+    <p>
+        * Input element for the hot key <span class="key">C</span>: <input type="checkbox" value="" class="form-control-sm" />
+    </p>
+</div>
+
+@code {
+    [Parameter]
+    public HotKeysContext HotKeysContext { get; set; }
+}

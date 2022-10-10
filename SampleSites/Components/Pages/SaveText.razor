@@ -1,0 +1,22 @@
+﻿@page "/save-text"
+
+<p>
+    <fieldset>
+        <legend>Input text</legend>
+        <input id="text-box-1" type="text" @ref="InputElement" @bind="InpuText" />
+    </fieldset>
+</p>
+
+<div class="hot-keys-cheat-sheet alert alert-secondary mt-4">
+    In this page, <span class="key">Ctrl</span>+<span class="key">S</span> will save the input text.
+</div>
+
+<fieldset>
+    <legend>Saved text</legend>
+    <div id="saved-text-list">
+        @foreach (var savedText in this.SavedTexts)
+        {
+            <div>"@(savedText)"</div>
+        }
+    </div>
+</fieldset>

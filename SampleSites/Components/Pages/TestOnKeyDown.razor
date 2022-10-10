@@ -1,0 +1,27 @@
+﻿@page "/test/onkeydown"
+@implements IDisposable
+@inject HotKeys HotKeys
+
+<h1>Test HotKeys.OnKeyDown event</h1>
+
+<EnteredKeyList @ref="EnteredKeyList" />
+
+@code
+{
+    private EnteredKeyList EnteredKeyList;
+
+    protected override void OnInitialized()
+    {
+        this.HotKeys.KeyDown += HotKeys_OnKeyDown;
+    }
+
+    private void HotKeys_OnKeyDown(object sender, HotKeyDownEventArgs e)
+    {
+        EnteredKeyList.OnEnteredKey(e);
+    }
+
+    public void Dispose()
+    {
+        this.HotKeys.KeyDown -= HotKeys_OnKeyDown;
+    }
+}

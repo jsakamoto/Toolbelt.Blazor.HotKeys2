@@ -1,0 +1,51 @@
+﻿@page "/"
+@implements IDisposable
+@inject HotKeys HotKeys
+
+<h1>@Greeting</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<p>
+    <button class="btn btn-secondary" @onclick="OnClickRemoveHotKey">
+        Remove the hot key "G"
+    </button>
+</p>
+
+@code {
+    private const string GreetingA = "Hello, world!";
+    private const string GreetingB = "Hi, there!";
+    private const string GreetingC = "How's it going?";
+
+    private string Greeting = GreetingA;
+
+    private HotKeysContext HotKeysContext;
+
+    protected override void OnInitialized()
+    {
+        this.HotKeysContext = this.HotKeys.CreateContext()
+            .Add(Code.G, OnHotKey)
+            .Add(Key.At, OnHotKey);
+    }
+
+    private void OnHotKey()
+    {
+        this.Greeting =
+            this.Greeting == GreetingA ? GreetingB :
+            this.Greeting == GreetingB ? GreetingC :
+            GreetingA;
+        this.StateHasChanged();
+    }
+
+    private void OnClickRemoveHotKey()
+    {
+        this.HotKeysContext.Remove(Code.G);
+    }
+
+    public void Dispose()
+    {
+        this.HotKeysContext?.Dispose();
+    }
+}

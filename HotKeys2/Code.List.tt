@@ -1,0 +1,56 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+namespace Toolbelt.Blazor.HotKeys2;
+
+public partial struct Code
+{
+<#
+var lines = File.ReadAllLines(Path.Combine("HotKeys2", "KeyList.csv"));
+foreach (var line in lines.Skip(1))
+{
+    if (string.IsNullOrEmpty(line.Trim())) continue;
+
+    var state = "default";
+    var colValues = new List<string>();
+    var text = new List<char>();
+    foreach (var c in line.Append(','))
+    {
+        switch (state)
+        {
+            case "in-quote":
+                if (c == '"') state = "out-quote";
+                else text.Add(c);
+                break;
+            case "out-quote":
+                if (c == '"') { state = "in-quote"; text.Add(c); }
+                else if (c == ',') { state = "default"; colValues.Add(new string(text.ToArray())); text.Clear(); }
+                else throw new FormatException($"Expected ',', but was '{c}'.");
+                break;
+            default:
+                if (c == '"') state = "in-quote";
+                else if (c == ',') { colValues.Add(new string(text.ToArray())); text.Clear(); }
+                else text.Add(c);
+                break;
+        }
+    }
+
+    var propertyName = colValues.First().Trim();
+    var key = (colValues.Skip(1).First() ?? "").Trim();
+    var code = (colValues.Skip(2).First() ?? "").Trim();
+    var description = (colValues.Skip(3).First() ?? "").Trim();
+
+    if (string.IsNullOrEmpty(code)) continue;
+
+    description = description.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+#>
+    /// <summary><#= description #></summary>
+    public static Code <#= propertyName #> => new("<#= code #>");
+
+<# } #>
+}

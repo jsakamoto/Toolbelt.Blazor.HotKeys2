@@ -1,0 +1,70 @@
+﻿@using System.Runtime.InteropServices
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">
+        <div class="site-title">Blazor Hotkeys2 Demo</div>
+        <div class="framework-description">@RuntimeInformation.FrameworkDescription / @RuntimeInformation.ProcessArchitecture</div>
+    </a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="material-icons" aria-hidden="true">home</span> Home
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="material-icons" aria-hidden="true">add_circle_outline</span> Counter
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="material-icons" aria-hidden="true">view_list</span> Fetch data
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="save-text">
+                <span class="material-icons" aria-hidden="true">download</span> Save text
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="test/bykeyname">
+                <span class="material-icons" aria-hidden="true">keyboard</span> Test by Key Name
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="test/onkeydown">
+                <span class="material-icons" aria-hidden="true">keyboard</span> Test OnKeyDown
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="test/exclude-contenteditable">
+                <span class="material-icons md-36" aria-hidden="true">keyboard</span> Test Exclude Content Editable
+            </NavLink>
+        </li>
+        @if (@RuntimeInformation.ProcessArchitecture.ToString() == "Wasm")
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="test/barcodescanneraltmode">
+                    <span class="material-icons" aria-hidden="true">keyboard</span> Barcode alt mode
+                </NavLink>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

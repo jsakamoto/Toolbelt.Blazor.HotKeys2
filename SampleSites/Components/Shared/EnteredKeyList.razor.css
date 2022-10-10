@@ -1,0 +1,8 @@
+﻿.entered-keys th,
+.entered-keys td {
+    padding: 4px 8px;
+}
+
+.entered-keys td {
+    font-family: monospace;
+}
