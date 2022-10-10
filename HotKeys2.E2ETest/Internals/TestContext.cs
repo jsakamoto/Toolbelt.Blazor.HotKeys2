@@ -27,6 +27,8 @@ public class TestContext
         public string Browser { get; set; } = "";
 
         public bool Headless { get; set; } = true;
+
+        public bool SkipInstallBrowser { get; set; } = false;
     }
 
     private readonly TestOptions _Options = new();
@@ -52,7 +54,10 @@ public class TestContext
 
         Instance = this;
 
-        Microsoft.Playwright.Program.Main(new[] { "install" });
+        if (!this._Options.SkipInstallBrowser)
+        {
+            Microsoft.Playwright.Program.Main(new[] { "install" });
+        }
     }
 
     public async ValueTask<IPage> GetPageAsync()

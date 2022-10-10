@@ -43,7 +43,7 @@ public class SampleSite
             $"publish -f:{this.TargetFramework} -c:Release -p:BlazorEnableCompression=false -p:UsingBrowserRuntimeWorkload=false",
             projDir)
             .WaitForExitAsync();
-        publishCommand.ExitCode.Is(0);
+        publishCommand.ExitCode.Is(0, message: publishCommand.Output);
 
         // Serve it.
         var serverDllName = $"SampleSite.{this.ProjectSubFolder}.dll";
@@ -54,7 +54,11 @@ public class SampleSite
 
         // ... for Blazor WebAssembly
         else
+        {
+            using var restoreToolsCommand = await Start("dotnet", "tool restore", solutionDir).WaitForExitAsync();
+            restoreToolsCommand.ExitCode.Is(0, message: restoreToolsCommand.Output);
             this.dotnetCLI = Start("dotnet", $"serve -d:\"{wwwroothDir}\" -p:{this.ListenPort}", projDir);
+        }
 
         // Wait for listening
         var success = await this.dotnetCLI.WaitForOutputAsync(output => output.Contains(this.GetUrl()), millsecondsTimeout: 15000);
