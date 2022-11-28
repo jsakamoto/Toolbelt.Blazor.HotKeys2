@@ -64,7 +64,7 @@ public abstract class HotKeyEntry : IDisposable
 
     protected abstract void InvokeCallbackAction();
 
-    [JSInvokable(nameof(InvokeAction)), EditorBrowsable(Never), RequiresUnreferencedCode("This is JSInvokable method")]
+    [JSInvokable(nameof(InvokeAction)), EditorBrowsable(Never)]
     public void InvokeAction() => this.InvokeCallbackAction();
 
     /// <summary>

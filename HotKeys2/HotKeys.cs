@@ -102,7 +102,7 @@ public class HotKeys : IAsyncDisposable
     /// <param name="key">The value of the "key" property in the DOM event object</param>
     /// <param name="code">The value of the "code" property in the DOM event object</param>
     /// <returns></returns>
-    [JSInvokable(nameof(OnKeyDown)), EditorBrowsable(EditorBrowsableState.Never), RequiresUnreferencedCode("This is JSInvokable method")]
+    [JSInvokable(nameof(OnKeyDown)), EditorBrowsable(EditorBrowsableState.Never)]
     public bool OnKeyDown(ModCodes modifiers, string srcElementTagName, string srcElementTypeName, string key, string code)
     {
         var args = new HotKeyDownEventArgs(modifiers, srcElementTagName, srcElementTypeName, this._IsWasm, key, code);
