@@ -2,8 +2,8 @@
 
 public enum HostingModel
 {
-    Wasm50,
     Wasm60,
-    Server50,
+    Wasm70,
     Server60,
+    Server70,
 }

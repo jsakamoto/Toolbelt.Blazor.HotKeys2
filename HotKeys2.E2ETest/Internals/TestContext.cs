@@ -10,10 +10,10 @@ public class TestContext
     public static TestContext Instance { get; private set; } = null!;
 
     private readonly IReadOnlyDictionary<HostingModel, SampleSite> SampleSites = new Dictionary<HostingModel, SampleSite> {
-            { HostingModel.Wasm50, new SampleSite(5012, "Client", "net5.0") },
-            { HostingModel.Wasm60, new SampleSite(5013, "Client", "net6.0") },
-            { HostingModel.Server50, new SampleSite(5015, "Server", "net5.0") },
-            { HostingModel.Server60, new SampleSite(5016, "Server", "net6.0") },
+            { HostingModel.Wasm60, new SampleSite(5012, "Client", "net6.0") },
+            { HostingModel.Wasm70, new SampleSite(5013, "Client", "net7.0") },
+            { HostingModel.Server60, new SampleSite(5015, "Server", "net6.0") },
+            { HostingModel.Server70, new SampleSite(5016, "Server", "net7.0") },
         };
 
     private IPlaywright? _Playwrite;

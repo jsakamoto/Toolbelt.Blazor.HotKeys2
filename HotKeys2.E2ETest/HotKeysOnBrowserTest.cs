@@ -5,15 +5,15 @@ namespace Toolbelt.Blazor.HotKeys2.E2ETest;
 public class HotKeysOnBrowserTest
 {
     public static IEnumerable<HostingModel> AllHostingModels { get; } = new[] {
-            HostingModel.Wasm50,
             HostingModel.Wasm60,
-            HostingModel.Server50,
+            HostingModel.Wasm70,
             HostingModel.Server60,
+            HostingModel.Server70,
         };
 
     public static IEnumerable<HostingModel> WasmHostingModels { get; } = new[] {
-            HostingModel.Wasm50,
             HostingModel.Wasm60,
+            HostingModel.Wasm70,
         };
 
     [Test]
