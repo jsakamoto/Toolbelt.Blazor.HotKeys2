@@ -23,9 +23,9 @@
 </div>
 
 @code {
-    private readonly List<EnteredKey> EnteredKeys = new List<EnteredKey>();
+    private readonly List<EnteredKey> EnteredKeys = new();
 
-    private EnteredKey LastEnteredKey = null;
+    private EnteredKey? LastEnteredKey = null;
 
     public void OnEnteredKey(HotKeyEntryByKey hotKeyEntry)
     {

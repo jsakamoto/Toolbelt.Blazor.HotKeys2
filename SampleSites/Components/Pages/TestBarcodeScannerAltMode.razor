@@ -64,7 +64,7 @@ else
         this.HotKeys.KeyDown += BarcodeScanner_OnKeyDown;
     }
 
-    private void BarcodeScanner_OnKeyDown(object sender, HotKeyDownEventArgs e)
+    private void BarcodeScanner_OnKeyDown(object? sender, HotKeyDownEventArgs e)
     {
         Console.WriteLine($"[BarcodeScanner_OnKeyDown] _prefix:{_prefix}, _suffix:{_suffix}, _maxLengthNum:{_maxLengthNum}");
         Console.WriteLine($"[BarcodeScanner_OnKeyDown] HotKeyDownEventArgs:{e.Modifiers}, nativecode:{e.Code}, key:{e.Key}");

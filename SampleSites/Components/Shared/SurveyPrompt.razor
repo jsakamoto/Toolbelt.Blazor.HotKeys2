@@ -11,6 +11,6 @@
 
 @code {
     // Demonstrates how a parent component can supply parameters
-    [Parameter]
-    public string Title { get; set; }
+    [Parameter, EditorRequired]
+    public string? Title { get; set; }
 }

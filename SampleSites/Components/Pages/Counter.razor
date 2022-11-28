@@ -22,7 +22,7 @@
 
     private int currentCount = 0;
 
-    private HotKeysContext HotKeysContext;
+    private HotKeysContext? HotKeysContext;
 
     protected override void OnInitialized()
     {
@@ -37,7 +37,7 @@
         this.StateHasChanged();
     }
 
-    private void HotKeys_KeyDown(object sender, HotKeyDownEventArgs e)
+    private void HotKeys_KeyDown(object? sender, HotKeyDownEventArgs e)
     {
         if (e.Modifiers == ModCodes.Ctrl && e.Code == Code.A && e.IsWasm)
         {

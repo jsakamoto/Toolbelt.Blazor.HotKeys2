@@ -21,7 +21,7 @@ Welcome to your new app.
 
     private string Greeting = GreetingA;
 
-    private HotKeysContext HotKeysContext;
+    private HotKeysContext? HotKeysContext;
 
     protected override void OnInitialized()
     {
@@ -41,7 +41,7 @@ Welcome to your new app.
 
     private void OnClickRemoveHotKey()
     {
-        this.HotKeysContext.Remove(Code.G);
+        this.HotKeysContext?.Remove(Code.G);
     }
 
     public void Dispose()

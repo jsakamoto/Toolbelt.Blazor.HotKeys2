@@ -1,7 +1,7 @@
 ﻿<div class="pop-item hot-keys-cheat-sheet alert alert-secondary mt-4" @onclick:stopPropagation>
     <div><strong>Hot keys cheat sheet</strong></div>
     <ul>
-        @foreach (var key in this.HotKeysContext.Keys.Where(k => !string.IsNullOrEmpty(k.Description)))
+        @foreach (var key in this.HotKeysContext?.Keys.Where(k => !string.IsNullOrEmpty(k.Description)) ?? Enumerable.Empty<HotKeyEntry>())
         {
             <li>
                 <span class="key">@key.ToString("{0}")</span> ... <span class="description">@key.ToString("{1}")</span>
@@ -25,6 +25,6 @@
 </div>
 
 @code {
-    [Parameter]
-    public HotKeysContext HotKeysContext { get; set; }
+    [Parameter, EditorRequired]
+    public HotKeysContext? HotKeysContext { get; set; }
 }

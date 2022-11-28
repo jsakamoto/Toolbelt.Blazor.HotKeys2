@@ -8,16 +8,16 @@
 
 @code
 {
-    private EnteredKeyList EnteredKeyList;
+    private EnteredKeyList? EnteredKeyList;
 
     protected override void OnInitialized()
     {
         this.HotKeys.KeyDown += HotKeys_OnKeyDown;
     }
 
-    private void HotKeys_OnKeyDown(object sender, HotKeyDownEventArgs e)
+    private void HotKeys_OnKeyDown(object? sender, HotKeyDownEventArgs e)
     {
-        EnteredKeyList.OnEnteredKey(e);
+        EnteredKeyList?.OnEnteredKey(e);
     }
 
     public void Dispose()

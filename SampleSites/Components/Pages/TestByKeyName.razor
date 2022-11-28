@@ -9,9 +9,9 @@
 <EnteredKeyList @ref="EnteredKeyList" />
 
 @code{
-    private EnteredKeyList EnteredKeyList;
+    private EnteredKeyList? EnteredKeyList;
 
-    private HotKeysContext HotKeysContext;
+    private HotKeysContext? HotKeysContext;
 
     protected override void OnInitialized()
     {
@@ -24,7 +24,7 @@
 
     private void OnHotKey(HotKeyEntryByKey hotKeyEntry)
     {
-        EnteredKeyList.OnEnteredKey(hotKeyEntry);
+        EnteredKeyList?.OnEnteredKey(hotKeyEntry);
     }
 
     public void Dispose()
