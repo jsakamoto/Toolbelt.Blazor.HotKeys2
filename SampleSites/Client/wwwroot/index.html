@@ -32,7 +32,7 @@
             "Decimal": "Period",
         };
         function convertToKeyName(ev) {
-            return convertToKeyNameMap[ev,key] || ev.key;
+            return convertToKeyNameMap[ev.key] || ev.key;
         }
         document.addEventListener('keydown', ev => {
             const keyName = convertToKeyName(ev);
