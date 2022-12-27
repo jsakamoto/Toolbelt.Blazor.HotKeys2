@@ -1,5 +1,9 @@
 ﻿namespace Toolbelt.Blazor.HotKeys2;
 
+/// <summary>
+/// The flags of modifier keys.
+/// </summary>
+[Flags]
 public enum ModCodes
 {
     None = 0,
