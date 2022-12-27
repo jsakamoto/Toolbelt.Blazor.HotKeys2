@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.0-preview.1.8</Version>
+    <Version>1.0.0-preview.1.10</Version>
     <Copyright>Copyright © 2022 J.Sakamoto, Mozilla Public License 2.0</Copyright>
     <Authors>J.Sakamoto</Authors>
     <PackageProjectUrl>https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/</PackageProjectUrl>

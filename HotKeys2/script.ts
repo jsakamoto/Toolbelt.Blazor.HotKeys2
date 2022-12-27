@@ -90,15 +90,16 @@
 
             const byCode = entry.mode === HotKeyMode.ByCode;
             const eventKeyEntry = byCode ? code : key;
-            if (entry.keyEntry !== eventKeyEntry) return;
+            const keyEntry = entry.keyEntry;
+
+            if (keyEntry !== eventKeyEntry) return;
 
             const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ ModCodes.Shift));
             let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ ModCodes.Shift));
-            switch (entry.keyEntry) {
-                case "Shift": if (byCode) entryModKeys |= ModCodes.Shift; break;
-                case "Control": entryModKeys |= ModCodes.Control; break;
-                case "Alt": entryModKeys |= ModCodes.Alt; break;
-            }
+            if (keyEntry.startsWith("Shift") && byCode) entryModKeys |= ModCodes.Shift;
+            if (keyEntry.startsWith("Control")) entryModKeys |= ModCodes.Control;
+            if (keyEntry.startsWith("Alt")) entryModKeys |= ModCodes.Alt;
+            if (keyEntry.startsWith("Meta")) entryModKeys |= ModCodes.Meta;
             if (eventModkeys !== entryModKeys) return;
 
             if (!isAllowedIn(entry, srcElement, tagName, type)) return;

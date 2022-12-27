@@ -61,22 +61,19 @@ export var Toolbelt;
                 hotKeyEntries.forEach(entry => {
                     const byCode = entry.mode === 1;
                     const eventKeyEntry = byCode ? code : key;
-                    if (entry.keyEntry !== eventKeyEntry)
+                    const keyEntry = entry.keyEntry;
+                    if (keyEntry !== eventKeyEntry)
                         return;
                     const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ 1));
                     let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ 1));
-                    switch (entry.keyEntry) {
-                        case "Shift":
-                            if (byCode)
-                                entryModKeys |= 1;
-                            break;
-                        case "Control":
-                            entryModKeys |= 2;
-                            break;
-                        case "Alt":
-                            entryModKeys |= 4;
-                            break;
-                    }
+                    if (keyEntry.startsWith("Shift") && byCode)
+                        entryModKeys |= 1;
+                    if (keyEntry.startsWith("Control"))
+                        entryModKeys |= 2;
+                    if (keyEntry.startsWith("Alt"))
+                        entryModKeys |= 4;
+                    if (keyEntry.startsWith("Meta"))
+                        entryModKeys |= 8;
                     if (eventModkeys !== entryModKeys)
                         return;
                     if (!isAllowedIn(entry, srcElement, tagName, type))
