@@ -71,6 +71,21 @@ public static class PlaywrightExtensions
         return page.EvaluateAsync<bool>("getSelection().type === 'Range'");
     }
 
+    public static async ValueTask FireOnKeyDown(this IPage page,
+        string key, string code, int keyCode,
+        bool shiftKey = false,
+        bool ctrlKey = false,
+        bool altKey = false,
+        bool metaKey = false,
+        string selector = "body")
+    {
+        await page.EvaluateAsync("Toolbelt.Blazor.fireOnKeyDown", new
+        {
+            selector,
+            options = new { key, code, keyCode, shiftKey, ctrlKey, altKey, metaKey }
+        });
+        await Task.Delay(100);
+    }
 
     //public static void Counter_Should_Be(this IWebDriver driver, int count)
     //{

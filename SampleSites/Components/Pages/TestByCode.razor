@@ -1,0 +1,41 @@
+@page "/test/bycode"
+@implements IDisposable
+@inject HotKeys HotKeys
+
+<h1>Test by Code</h1>
+
+<p>This page distinguish between left and right modifier keys.</p>
+
+<EnteredKeyList @ref="EnteredKeyList" />
+
+@code {
+    private EnteredKeyList? EnteredKeyList;
+
+    private HotKeysContext? HotKeysContext;
+
+    protected override void OnInitialized()
+    {
+        this.HotKeysContext = this.HotKeys.CreateContext()
+            .Add(Code.Escape, () => EnteredKeyList?.Clear())
+            .Add(Code.A, OnHotKey)
+            .Add(Code.B, OnHotKey)
+            .Add(Code.ShiftLeft, OnHotKey)
+            .Add(Code.ShiftRight, OnHotKey)
+            .Add(Code.ControlLeft, OnHotKey)
+            .Add(Code.ControlRight, OnHotKey)
+            .Add(Code.AltLeft, OnHotKey)
+            .Add(Code.AltRight, OnHotKey)
+            .Add(Code.MetaLeft, OnHotKey)
+            .Add(Code.MetaRight, OnHotKey);
+    }
+
+    private void OnHotKey(HotKeyEntryByCode hotKeyEntry)
+    {
+        EnteredKeyList?.OnEnteredKey(hotKeyEntry, appendLast: true);
+    }
+
+    public void Dispose()
+    {
+        this.HotKeysContext?.Dispose();
+    }
+}

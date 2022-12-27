@@ -27,9 +27,14 @@
 
     private EnteredKey? LastEnteredKey = null;
 
-    public void OnEnteredKey(HotKeyEntryByKey hotKeyEntry)
+    public void OnEnteredKey(HotKeyEntryByCode hotKeyEntry, bool appendLast = false)
     {
-        OnEnteredKey(new EnteredKey(hotKeyEntry.Modifiers, hotKeyEntry.Key));
+        OnEnteredKey(new EnteredKey(hotKeyEntry.Modifiers, code: hotKeyEntry.Code), appendLast);
+    }
+
+    public void OnEnteredKey(HotKeyEntryByKey hotKeyEntry, bool appendLast = false)
+    {
+        OnEnteredKey(new EnteredKey(hotKeyEntry.Modifiers, key: hotKeyEntry.Key), appendLast);
     }
 
     public void OnEnteredKey(HotKeyDownEventArgs e)
@@ -37,7 +42,7 @@
         OnEnteredKey(new EnteredKey(e.Modifiers, e.Key, e.Code));
     }
 
-    public void OnEnteredKey(EnteredKey enteredKey)
+    public void OnEnteredKey(EnteredKey enteredKey, bool appendLast = false)
     {
         if (LastEnteredKey == enteredKey)
         {
@@ -46,10 +51,18 @@
         else
         {
             LastEnteredKey = enteredKey;
-            EnteredKeys.Insert(0, enteredKey);
-            if (EnteredKeys.Count > 10) EnteredKeys.RemoveAt(10);
+            if (appendLast) EnteredKeys.Add(enteredKey);
+            else EnteredKeys.Insert(0, enteredKey);
+
+            if (EnteredKeys.Count > 10) EnteredKeys.RemoveAt(appendLast ? 0: 10);
         }
         this.StateHasChanged();
     }
 
+    public void Clear()
+    {
+        this.EnteredKeys.Clear();
+        this.LastEnteredKey = null;
+        this.StateHasChanged();
+    }
 }

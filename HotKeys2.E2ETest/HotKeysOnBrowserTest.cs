@@ -271,43 +271,73 @@ public class HotKeysOnBrowserTest
     public async Task ByNativeKey_Test(HostingModel hostingModel)
     {
         var context = TestContext.Instance;
-        await context.StartHostAsync(hostingModel);
+        var host = await context.StartHostAsync(hostingModel);
+        var page = await context.GetPageAsync();
 
         // Navigate to the "Home" page,
-        var page = await context.GetPageAsync();
-        await page.GotoAndWaitForReadyAsync(context.GetHostUrl(hostingModel));
-
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/"));
         var h1 = page.Locator("h1");
-        var h1TextBefore = await h1.TextContentAsync();
-        h1TextBefore.Is("Hello, world!");
+        await page.AssertEqualsAsync(_ => h1.TextContentAsync(), "Hello, world!");
 
         // US
-        await page.EvaluateAsync("Toolbelt.Blazor.fireOnKeyDown", new
-        {
-            selector = "body",
-            options = new { key = "@", code = "Digit2", keyCode = 0x32, shiftKey = true }
-        });
-        await page.WaitForAsync(async _ => (await h1.TextContentAsync()) == "Hi, there!");
+        await page.FireOnKeyDown(key: "@", code: "Digit2", keyCode: 0x32, shiftKey: true);
+        await page.AssertEqualsAsync(_ => h1.TextContentAsync(), "Hi, there!");
 
         // Japanese JIS
-        await page.EvaluateAsync("Toolbelt.Blazor.fireOnKeyDown", new
-        {
-            selector = "body",
-            options = new { key = "@", code = "BlaceLeft", keyCode = 0xc0, shiftKey = false }
-        });
-        await page.WaitForAsync(async _ => (await h1.TextContentAsync()) == "How's it going?");
+        await page.FireOnKeyDown(key: "@", code: "BlaceLeft", keyCode: 0xc0, shiftKey: false);
+        await page.AssertEqualsAsync(_ => h1.TextContentAsync(), "How's it going?");
     }
+
+    [Test]
+    [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
+    public async Task ByCode_Test(HostingModel hostingModel)
+    {
+        var context = TestContext.Instance;
+        var host = await context.StartHostAsync(hostingModel);
+        var page = await context.GetPageAsync();
+
+        // Given: Navigate to the "Test by Code" page,
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/test/bycode"));
+        await page.AssertH1IsAsync("Test by Code");
+
+        var list = page.Locator("tbody");
+
+        // When
+        await page.FireOnKeyDown(key: "Shift", code: "ShiftLeft", keyCode: 0x10, shiftKey: true);
+        await page.FireOnKeyDown(key: "Shift", code: "ShiftRight", keyCode: 0x10, shiftKey: true);
+        await page.FireOnKeyDown(key: "Shift", code: "ShiftRight", keyCode: 0x10, shiftKey: true);
+        await page.FireOnKeyDown(key: "Control", code: "ControlLeft", keyCode: 0x11, ctrlKey: true);
+        await page.FireOnKeyDown(key: "Alt", code: "AltLeft", keyCode: 0x12, altKey: true);
+        await page.FireOnKeyDown(key: "Alt", code: "AltRight", keyCode: 0x12, altKey: true);
+        await page.FireOnKeyDown(key: "Alt", code: "AltRight", keyCode: 0x12, altKey: true);
+        await page.FireOnKeyDown(key: "Meta", code: "MetaLeft", keyCode: 0x5b, metaKey: true);
+        await page.FireOnKeyDown(key: "Meta", code: "MetaLeft", keyCode: 0x5b, metaKey: true);
+        await page.FireOnKeyDown(key: "Meta", code: "MetaRight", keyCode: 0x5b, metaKey: true);
+        await page.FireOnKeyDown(key: "Control", code: "ControlRight", keyCode: 0x11, ctrlKey: true);
+
+        // Then
+        await page.AssertEqualsAsync(_ => list.InnerTextAsync(),
+            "\t\tShiftLeft\tx 1" + "\n" +
+            "\t\tShiftRight\tx 2" + "\n" +
+            "\t\tControlLeft\tx 1" + "\n" +
+            "\t\tAltLeft\tx 1" + "\n" +
+            "\t\tAltRight\tx 2" + "\n" +
+            "\t\tMetaLeft\tx 2" + "\n" +
+            "\t\tMetaRight\tx 1" + "\n" +
+            "\t\tControlRight\tx 1");
+    }
+
 
     [Test]
     [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
     public async Task Remove_Test(HostingModel hostingModel)
     {
         var context = TestContext.Instance;
-        await context.StartHostAsync(hostingModel);
+        var host = await context.StartHostAsync(hostingModel);
 
         // Navigate to the "Home" page,
         var page = await context.GetPageAsync();
-        await page.GotoAndWaitForReadyAsync(context.GetHostUrl(hostingModel));
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/"));
 
         var h1 = page.Locator("h1");
         var h1TextBefore = await h1.TextContentAsync();

@@ -38,11 +38,6 @@ public class TestContext
         return this.SampleSites[hostingModel].StartAsync();
     }
 
-    public string GetHostUrl(HostingModel hostingModel)
-    {
-        return this.SampleSites[hostingModel].GetUrl();
-    }
-
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
