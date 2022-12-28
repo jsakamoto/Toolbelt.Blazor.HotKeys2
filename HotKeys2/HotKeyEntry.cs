@@ -87,7 +87,14 @@ public abstract class HotKeyEntry : IDisposable
                 keyCombo.Add(Enum.GetName(this._TypeOfModifiers, modFlag) ?? ("" + modFlag));
             }
         }
-        keyCombo.Add(this._KeyEntry);
+
+        var keyDisplayName =
+            this._KeyEntry.StartsWith("Key") ? this._KeyEntry.Substring(3) :
+            this._KeyEntry.StartsWith("Digit") ? this._KeyEntry.Substring(5) :
+            this._KeyEntry == "Control" ? "Ctrl" :
+            this._KeyEntry;
+        keyCombo.Add(keyDisplayName);
+
         var keyComboText = string.Join(" + ", keyCombo);
         return string.Format(format, keyComboText, this.Description);
     }

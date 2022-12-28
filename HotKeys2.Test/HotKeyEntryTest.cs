@@ -26,7 +26,13 @@ public class HotKeyEntryTest
     [Test]
     public void ToString_for_ByCode_Test()
     {
-        var hotKeyEntry = new HotKeyEntryByCode(ModCodes.Ctrl | ModCodes.Alt, Code.F12, Exclude.None, "Set the volume level to 10.", _ => ValueTask.CompletedTask);
-        hotKeyEntry.ToString().Is("Ctrl + Alt + F12: Set the volume level to 10.");
+        var ctrl_alt_f12 = new HotKeyEntryByCode(ModCodes.Ctrl | ModCodes.Alt, Code.F12, Exclude.None, "Set the volume level to 10.", _ => ValueTask.CompletedTask);
+        ctrl_alt_f12.ToString().Is("Ctrl + Alt + F12: Set the volume level to 10.");
+
+        var meta_one = new HotKeyEntryByCode(ModCodes.Meta, Code.Num1, Exclude.None, "Launch the notepad.", _ => ValueTask.CompletedTask);
+        meta_one.ToString().Is("Meta + 1: Launch the notepad.");
+
+        var u = new HotKeyEntryByCode(ModCodes.None, Code.U, Exclude.None, "Increment counter.", _ => ValueTask.CompletedTask);
+        u.ToString().Is("U: Increment counter.");
     }
 }
