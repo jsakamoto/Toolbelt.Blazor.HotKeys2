@@ -9,4 +9,6 @@ public readonly partial struct Code
     public override string ToString() => this._Velus;
 
     public static implicit operator string(Code code) => code._Velus;
+
+    public static CodeCombo operator +(ModCode mod, Code code) => new(mod, code);
 }
