@@ -99,7 +99,7 @@ Please remember that you have to keep the `HotKeys Context` object in the compon
 > You can also specify the async method to the callback action argument.
 
 > **Note**  
-> The method of the callback action can take an argument which is `HotKeyEntry` object.
+> The method of the callback action can take an argument which is `HotKeyEntryByCode` or `HotKeyEntryByKey` object.
 
 
 **Step.4** Dispose the `HotKeysContext` object when the component is disposing, in the `Dispose()` method of the component.
