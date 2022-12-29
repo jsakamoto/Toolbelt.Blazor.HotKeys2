@@ -1,12 +1,10 @@
-﻿using System;
-
-namespace Toolbelt.Blazor.HotKeys2;
+﻿namespace Toolbelt.Blazor.HotKeys2;
 
 /// <summary>
 /// The flags of modifier keys.
 /// </summary>
 [Flags]
-public enum ModKeys
+public enum ModKey
 {
     None = 0,
     //Shift = 0b0001,

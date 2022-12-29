@@ -15,7 +15,7 @@ You can declare associations of keyboard shortcut and callback action, like this
 // The method "OnSelectAll" will be invoked 
 //  when the user typed Ctrl+A key combination.
 this.HotKeysContext = this.HotKeys.CreateContext()
-  .Add(ModKeys.Ctrl, Key.A, OnSelectAll)
+  .Add(ModCode.Ctrl, Code.A, OnSelectAll)
   .Add(...)
   ...;
 ```
@@ -83,7 +83,7 @@ Please remember that you have to keep the `HotKeys Context` object in the compon
   protected override void OnInitialized()
   {
     this.HotKeysContext = this.HotKeys.CreateContext()
-      .Add(ModCodes.Ctrl|ModCodes.Shift, Code.A, FooBar, "do foo bar.")
+      .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, "do foo bar.")
       .Add(...)
       ...;
   }
@@ -129,7 +129,7 @@ The complete source code (.razor) of this component is bellow.
   protected override void OnInitialized()
   {
     this.HotKeysContext = this.HotKeys.CreateContext()
-      .Add(ModCodes.Ctrl|ModCodes.Shift, Code.A, FooBar, "do foo bar.")
+      .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, "do foo bar.")
   }
 
   void FooBar()
@@ -159,7 +159,7 @@ If you want to enable hotkeys even when an `<input type="text"/>` has focus, you
 
 ```csharp
 ... this.HotKeys.CreateContext()
-  .Add(Key.A, OnKeyDownA, "...", 
+  .Add(Code.A, OnKeyDownA, "...", 
     // 👇 Specify the "exclude" argument.
     exclude: Exclude.InputNonText | Exclude.TextArea)
   ...

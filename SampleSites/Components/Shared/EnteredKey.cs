@@ -5,15 +5,15 @@ namespace SampleSite.Components.Shared;
 public class EnteredKey : IEquatable<EnteredKey?>
 {
     public readonly Guid Id = Guid.NewGuid();
-    public readonly ModCodes Modifiers;
+    public readonly ModCode Modifiers;
     public readonly string Key;
     public readonly string Code;
     public int RepeatCount = 1;
 
-    public EnteredKey(ModKeys modifiers, string key = "", string code = "")
-        : this((ModCodes)(int)modifiers, key, code) { }
+    public EnteredKey(ModKey modifiers, string key = "", string code = "")
+        : this((ModCode)(int)modifiers, key, code) { }
 
-    public EnteredKey(ModCodes modifiers, string key = "", string code = "")
+    public EnteredKey(ModCode modifiers, string key = "", string code = "")
     {
         this.Modifiers = modifiers;
         this.Key = key;

@@ -23,26 +23,26 @@
             // ShiftLeft/Right
             .Add(Code.ShiftLeft, OnHotKey)
             .Add(Code.ShiftRight, OnHotKey)
-            .Add(ModCodes.Ctrl, Code.ShiftLeft, OnHotKey)
-            .Add(ModCodes.Ctrl | ModCodes.Alt, Code.ShiftRight, OnHotKey)
+            .Add(ModCode.Ctrl, Code.ShiftLeft, OnHotKey)
+            .Add(ModCode.Ctrl | ModCode.Alt, Code.ShiftRight, OnHotKey)
 
             // ControlLeft/Right
             .Add(Code.ControlLeft, OnHotKey)
             .Add(Code.ControlRight, OnHotKey)
-            .Add(ModCodes.Shift | ModCodes.Alt, Code.ControlLeft, OnHotKey)
-            .Add(ModCodes.Shift, Code.ControlRight, OnHotKey)
+            .Add(ModCode.Shift | ModCode.Alt, Code.ControlLeft, OnHotKey)
+            .Add(ModCode.Shift, Code.ControlRight, OnHotKey)
 
             // AltLeft/Right
             .Add(Code.AltLeft, OnHotKey)
             .Add(Code.AltRight, OnHotKey)
-            .Add(ModCodes.Ctrl, Code.AltLeft, OnHotKey)
-            .Add(ModCodes.Ctrl | ModCodes.Shift, Code.AltRight, OnHotKey)
+            .Add(ModCode.Ctrl, Code.AltLeft, OnHotKey)
+            .Add(ModCode.Ctrl | ModCode.Shift, Code.AltRight, OnHotKey)
 
             // MetaLeft/Right
             .Add(Code.MetaLeft, OnHotKey)
             .Add(Code.MetaRight, OnHotKey)
-            .Add(ModCodes.Alt, Code.MetaLeft, OnHotKey)
-            .Add(ModCodes.Alt | ModCodes.Shift, Code.MetaRight, OnHotKey);
+            .Add(ModCode.Alt, Code.MetaLeft, OnHotKey)
+            .Add(ModCode.Alt | ModCode.Shift, Code.MetaRight, OnHotKey);
     }
 
     private void OnHotKey(HotKeyEntryByCode hotKeyEntry)

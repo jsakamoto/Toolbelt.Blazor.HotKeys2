@@ -5,7 +5,7 @@ public class HotKeyEntryByCode : HotKeyEntry
     /// <summary>
     /// Get the combination of modifier codes flags.
     /// </summary>
-    public ModCodes Modifiers { get; }
+    public ModCode Modifiers { get; }
 
     public Code Code { get; }
 
@@ -22,8 +22,8 @@ public class HotKeyEntryByCode : HotKeyEntry
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
-    public HotKeyEntryByCode(ModCodes modCodes, Code code, Exclude exclude, string? description, Func<HotKeyEntryByCode, ValueTask> action)
-        : base(HotKeyMode.ByCode, typeof(ModCodes), (int)modCodes, code.ToString(), exclude, description)
+    public HotKeyEntryByCode(ModCode modCodes, Code code, Exclude exclude, string? description, Func<HotKeyEntryByCode, ValueTask> action)
+        : base(HotKeyMode.ByCode, typeof(ModCode), (int)modCodes, code.ToString(), exclude, description)
     {
         this.Modifiers = modCodes;
         this.Code = code;

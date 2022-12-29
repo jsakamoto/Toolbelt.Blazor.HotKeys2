@@ -33,7 +33,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(Key key, Action action, string description = "", Exclude exclude = Exclude.Default)
-    => this.Add(ModKeys.None, key, _ => { action(); return ValueTask.CompletedTask; }, description, exclude);
+    => this.Add(ModKey.None, key, _ => { action(); return ValueTask.CompletedTask; }, description, exclude);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -44,7 +44,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(Key key, Action<HotKeyEntryByKey> action, string description = "", Exclude exclude = Exclude.Default)
-        => this.Add(ModKeys.None, key, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude);
+        => this.Add(ModKey.None, key, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -55,7 +55,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(Key key, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
-        => this.Add(ModKeys.None, key, _ => action(), description, exclude);
+        => this.Add(ModKey.None, key, _ => action(), description, exclude);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -66,7 +66,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
-        => this.Add(ModKeys.None, key, arg => action(arg), description, exclude);
+        => this.Add(ModKey.None, key, arg => action(arg), description, exclude);
 
     // -----------------------------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModKeys modifiers, Key key, Action action, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Add(ModKey modifiers, Key key, Action action, string description = "", Exclude exclude = Exclude.Default)
         => this.Add(modifiers, key, _ => { action(); return ValueTask.CompletedTask; }, description, exclude);
 
     /// <summary>
@@ -91,7 +91,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModKeys modifiers, Key key, Action<HotKeyEntryByKey> action, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Add(ModKey modifiers, Key key, Action<HotKeyEntryByKey> action, string description = "", Exclude exclude = Exclude.Default)
         => this.Add(modifiers, key, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude);
 
     /// <summary>
@@ -103,7 +103,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModKeys modifiers, Key key, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
         => this.Add(modifiers, key, _ => action(), description, exclude);
 
     /// <summary>
@@ -115,7 +115,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModKeys modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
     {
         lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByKey(modifiers, key, exclude, description, action)));
         return this;
@@ -132,7 +132,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(Code code, Action action, string description = "", Exclude exclude = Exclude.Default)
-    => this.Add(ModCodes.None, code, arg => { action(); return ValueTask.CompletedTask; }, description, exclude);
+    => this.Add(ModCode.None, code, arg => { action(); return ValueTask.CompletedTask; }, description, exclude);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -143,7 +143,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(Code code, Action<HotKeyEntryByCode> action, string description = "", Exclude exclude = Exclude.Default)
-        => this.Add(ModCodes.None, code, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude);
+        => this.Add(ModCode.None, code, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -154,7 +154,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(Code code, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
-        => this.Add(ModCodes.None, code, _ => action(), description, exclude);
+        => this.Add(ModCode.None, code, _ => action(), description, exclude);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -165,7 +165,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
-        => this.Add(ModCodes.None, code, action, description, exclude);
+        => this.Add(ModCode.None, code, action, description, exclude);
 
     // -----------------------------------------------------------------------------------------------
 
@@ -178,7 +178,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModCodes modifiers, Code code, Action action, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Add(ModCode modifiers, Code code, Action action, string description = "", Exclude exclude = Exclude.Default)
         => this.Add(modifiers, code, arg => { action(); return ValueTask.CompletedTask; }, description, exclude);
 
     /// <summary>
@@ -190,7 +190,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModCodes modifiers, Code code, Action<HotKeyEntryByCode> action, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Add(ModCode modifiers, Code code, Action<HotKeyEntryByCode> action, string description = "", Exclude exclude = Exclude.Default)
         => this.Add(modifiers, code, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude);
 
     /// <summary>
@@ -202,7 +202,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModCodes modifiers, Code code, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
         => this.Add(modifiers, code, _ => action(), description, exclude);
 
     /// <summary>
@@ -214,7 +214,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModCodes modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
     {
         lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByCode(modifiers, code, exclude, description, action)));
         return this;
@@ -279,7 +279,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Remove(Key key, string description = "", Exclude exclude = Exclude.Default) =>
-        this.Remove(ModKeys.None, key, description, exclude);
+        this.Remove(ModKey.None, key, description, exclude);
 
     /// <summary>
     /// Remove one or more hotkey entries from this context.
@@ -289,7 +289,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Remove(ModKeys modifiers, Key key, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Remove(ModKey modifiers, Key key, string description = "", Exclude exclude = Exclude.Default)
     {
         var keyEntry = key.ToString();
         return this.Remove(keys => keys
@@ -309,7 +309,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Remove(Code code, string description = "", Exclude exclude = Exclude.Default)
-        => this.Remove(ModCodes.None, code, description, exclude);
+        => this.Remove(ModCode.None, code, description, exclude);
 
     /// <summary>
     /// Remove one or more hotkey entries from this context.
@@ -319,7 +319,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Remove(ModCodes modifiers, Code code, string description = "", Exclude exclude = Exclude.Default)
+    public HotKeysContext Remove(ModCode modifiers, Code code, string description = "", Exclude exclude = Exclude.Default)
     {
         var keyEntry = code.ToString();
         return this.Remove(keys => keys

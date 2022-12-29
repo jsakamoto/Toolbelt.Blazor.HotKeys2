@@ -68,7 +68,7 @@ else
     {
         Console.WriteLine($"[BarcodeScanner_OnKeyDown] _prefix:{_prefix}, _suffix:{_suffix}, _maxLengthNum:{_maxLengthNum}");
         Console.WriteLine($"[BarcodeScanner_OnKeyDown] HotKeyDownEventArgs:{e.Modifiers}, nativecode:{e.Code}, key:{e.Key}");
-        if (e.Modifiers == ModCodes.Alt)
+        if (e.Modifiers == ModCode.Alt)
         {
             e.PreventDefault = true;
             if (e.Code.StartsWith("Numpad") && _currentNumpads.Length <= _maxLengthNum)

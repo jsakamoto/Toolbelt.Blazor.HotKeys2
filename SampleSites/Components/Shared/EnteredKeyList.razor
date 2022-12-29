@@ -12,7 +12,7 @@
             @foreach (var enteredKey in EnteredKeys)
             {
                 <tr @key="enteredKey.Id">
-                    <td>@(enteredKey.Modifiers == ModCodes.None ? "" : enteredKey.Modifiers.ToString("f"))</td>
+                    <td>@(enteredKey.Modifiers == ModCode.None ? "" : enteredKey.Modifiers.ToString("f"))</td>
                     <td>@enteredKey.Key</td>
                     <td>@enteredKey.Code</td>
                     <td>x @enteredKey.RepeatCount</td>

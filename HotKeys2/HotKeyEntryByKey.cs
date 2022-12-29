@@ -4,7 +4,7 @@ public class HotKeyEntryByKey : HotKeyEntry
     /// <summary>
     /// Get the combination of modifier keys flags.
     /// </summary>
-    public ModKeys Modifiers { get; }
+    public ModKey Modifiers { get; }
 
     /// <summary>
     /// Get the identifier of hotkey.<br/>If this property return 0, it means the HotKey entry works based on DOM event's native key name.
@@ -24,8 +24,8 @@ public class HotKeyEntryByKey : HotKeyEntry
     /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    public HotKeyEntryByKey(ModKeys modKeys, Key key, Exclude exclude, string? description, Func<HotKeyEntryByKey, ValueTask> action)
-        : base(HotKeyMode.ByKey, typeof(ModKeys), (int)modKeys, key.ToString(), exclude, description)
+    public HotKeyEntryByKey(ModKey modKeys, Key key, Exclude exclude, string? description, Func<HotKeyEntryByKey, ValueTask> action)
+        : base(HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, description)
     {
         this.Modifiers = modKeys;
         this.Key = key;

@@ -4,7 +4,7 @@
 /// The flags of modifier keys.
 /// </summary>
 [Flags]
-public enum ModCodes
+public enum ModCode
 {
     None = 0,
     Shift = 0b0001,

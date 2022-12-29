@@ -10,7 +10,7 @@ public class HotKeyDownEventArgs : EventArgs
     /// <summary>
     /// Get the combination of modifier keys flags.
     /// </summary>
-    public ModCodes Modifiers { get; }
+    public ModCode Modifiers { get; }
 
     /// <summary>
     /// Get the value of the "key" property in the HTML Keyboard event object, that taking into consideration the state of modifier keys such as Shift as well as the keyboard locale and layout.<br/>
@@ -55,7 +55,7 @@ public class HotKeyDownEventArgs : EventArgs
     /// <summary>
     /// Initialize a new instance of the HotKeyDownEventArgs class.
     /// </summary>
-    public HotKeyDownEventArgs(ModCodes modifiers, string srcElementTagName, string srcElementTypeAttribute, bool isWasm, string key, string code)
+    public HotKeyDownEventArgs(ModCode modifiers, string srcElementTagName, string srcElementTypeAttribute, bool isWasm, string key, string code)
     {
         this.Modifiers = modifiers;
         this.SrcElementTagName = srcElementTagName;

@@ -103,7 +103,7 @@ public class HotKeys : IAsyncDisposable
     /// <param name="code">The value of the "code" property in the DOM event object</param>
     /// <returns></returns>
     [JSInvokable(nameof(OnKeyDown)), EditorBrowsable(EditorBrowsableState.Never)]
-    public bool OnKeyDown(ModCodes modifiers, string srcElementTagName, string srcElementTypeName, string key, string code)
+    public bool OnKeyDown(ModCode modifiers, string srcElementTagName, string srcElementTypeName, string key, string code)
     {
         var args = new HotKeyDownEventArgs(modifiers, srcElementTagName, srcElementTypeName, this._IsWasm, key, code);
         KeyDown?.Invoke(null, args);

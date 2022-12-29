@@ -39,7 +39,7 @@
 
     private void HotKeys_KeyDown(object? sender, HotKeyDownEventArgs e)
     {
-        if (e.Modifiers == ModCodes.Ctrl && e.Code == Code.A && e.IsWasm)
+        if (e.Modifiers == ModCode.Ctrl && e.Code == Code.A && e.IsWasm)
         {
             e.PreventDefault = true;
         }
