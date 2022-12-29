@@ -15,11 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSite.Components", "Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSite.Server", "SampleSites\Server\SampleSite.Server.csproj", "{A3F4C027-0211-4720-B553-1019883168C0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E84D883A-E6DE-465D-999C-39E63BF7B261}"
-	ProjectSection(SolutionItems) = preProject
-		.github\workflows\gh-pages.yml = .github\workflows\gh-pages.yml
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSite.Client", "SampleSites\Client\SampleSite.Client.csproj", "{A1591DC4-9506-4DA6-8FA4-A136ADF62292}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toolbelt.Blazor.HotKeys2", "HotKeys2\Toolbelt.Blazor.HotKeys2.csproj", "{8D473FD5-9FBD-4663-A4D0-BA0707303B02}"
