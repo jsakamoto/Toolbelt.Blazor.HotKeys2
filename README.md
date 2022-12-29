@@ -22,7 +22,7 @@ this.HotKeysContext = this.HotKeys.CreateContext()
 
 ## Supported Blazor versions
 
-This library suppots ASP.NET Core Blazor version 5.0 or later.
+This library suppots ASP.NET Core Blazor version 6.0, 7.0, or later.
 
 ## How to install and use?
 
