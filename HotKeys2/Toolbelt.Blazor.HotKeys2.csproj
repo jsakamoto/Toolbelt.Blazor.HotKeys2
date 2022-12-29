@@ -17,7 +17,9 @@
     <Version>1.0.0</Version>
     <Copyright>Copyright © 2022 J.Sakamoto, Mozilla Public License 2.0</Copyright>
     <Authors>J.Sakamoto</Authors>
-    <PackageProjectUrl>https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/</RepositoryUrl>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <Description>Configuration-centric keyboard shortcuts for your Blazor apps.</Description>
     <PackageTags>blazor,hotkey</PackageTags>
     <PackageReleaseNotes>(Please write the package release notes in "RELEASE NOTES.txt".)</PackageReleaseNotes>
