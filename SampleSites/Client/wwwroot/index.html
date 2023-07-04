@@ -12,6 +12,7 @@
     <link href="_content/SampleSite.Components/css/site-custom.css" rel="stylesheet" />
     <link href="_content/SampleSite.Components/css/hot-keys-cheat-sheet.css" rel="stylesheet" />
     <link href="SampleSite.Client.styles.css" rel="stylesheet" />
+    <meta http-equiv="content-security-policy" content="base-uri 'self'; default-src 'self'; font-src *; connect-src *; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts.googleapis.com data:" />
 </head>
 
 <body>
@@ -26,19 +27,6 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
-    <script>
-        const convertToKeyNameMap = {
-            "OS": "Meta",
-            "Decimal": "Period",
-        };
-        function convertToKeyName(ev) {
-            return convertToKeyNameMap[ev.key] || ev.key;
-        }
-        document.addEventListener('keydown', ev => {
-            const keyName = convertToKeyName(ev);
-            console.log(`key: ${keyName}, code: ${ev.code} keyCode: 0x${(ev.keyCode || 0).toString(16)}`);
-        });
-    </script>
     <script src="_content/SampleSite.Components/helper.js"></script>
 </body>
 

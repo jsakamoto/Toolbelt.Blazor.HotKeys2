@@ -72,11 +72,12 @@ public class HotKeys : IAsyncDisposable
         if (this._JSModule == null)
         {
             var scriptPath = "./_content/Toolbelt.Blazor.HotKeys2/script.min.js";
-            const string moduleScript = "export function isOnLine(){ return navigator.onLine; }";
-            await using var inlineJsModule = await this._JSRuntime.InvokeAsync<IJSObjectReference>("import", "data:text/javascript;charset=utf-8," + Uri.EscapeDataString(moduleScript));
-            var isOnLine = await inlineJsModule.InvokeAsync<bool>("isOnLine");
-
-            if (isOnLine) scriptPath += $"?v={this.GetVersionText()}";
+            try
+            {
+                var isOnLine = await this._JSRuntime.InvokeAsync<bool>("Toolbelt.Blazor.getProperty", "navigator.onLine");
+                if (isOnLine) scriptPath += $"?v={this.GetVersionText()}";
+            }
+            catch (JSException e) { this._Logger.LogError(e, e.Message); }
 
             this._JSModule = await this._JSRuntime.InvokeAsync<IJSObjectReference>("import", scriptPath);
         }

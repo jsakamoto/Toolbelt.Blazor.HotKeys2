@@ -1,2 +1,5 @@
+v.2.0.0
+- Improve: Remove importing inline "data:" protocol JavaScript code. (Instead, add a dependency to the Toolbelt.Blazor.GetProperty.Script NuGet package)
+
 v.1.0.0
 - 1st release.
