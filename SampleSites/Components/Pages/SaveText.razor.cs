@@ -38,7 +38,6 @@ public partial class SaveText : IDisposable
         await this.JS.InvokeVoidAsync("Toolbelt.Blazor.fireOnChange", this.InputElement);
 
         this.SavedTexts.Add(this.InpuText);
-        this.StateHasChanged();
     }
 
     public void Dispose()

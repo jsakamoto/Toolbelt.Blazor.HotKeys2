@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using static System.ComponentModel.EditorBrowsableState;
 
@@ -42,27 +44,71 @@ public abstract class HotKeyEntry : IDisposable
     internal readonly string _KeyEntry;
 
     /// <summary>
+    /// Get the instance of a Razor component that is an owner of the callback action method.
+    /// </summary>
+    private IHandleEvent? _OwnerComponent;
+
+    private readonly ILogger? _Logger;
+
+    /// <summary>
     /// Initialize a new instance of the HotKeyEntry class.
     /// </summary>
     /// <param name="mode">The mode that how to identificate the hot key.</param>
     /// <param name="typeOfModifiers"></param>
     /// <param name="modifiers">The combination of modifier flags</param>
     /// <param name="keyEntry">The key or code of the hot key</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    [DynamicDependency(nameof(InvokeAction), typeof(HotKeyEntry))]
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    [DynamicDependency(nameof(InvokeAction), typeof(HotKeyEntry)), Obsolete]
     internal HotKeyEntry(HotKeyMode mode, Type typeOfModifiers, int modifiers, string keyEntry, Exclude exclude, string? description)
+        : this(null, mode, typeOfModifiers, modifiers, keyEntry, exclude, description, null) { }
+
+    /// <summary>
+    /// Initialize a new instance of the HotKeyEntry class.
+    /// </summary>
+    /// <param name="logger">The instance of <see cref="ILogger"/> that is used to log the error message.</param>
+    /// <param name="mode">The mode that how to identificate the hot key.</param>
+    /// <param name="typeOfModifiers"></param>
+    /// <param name="modifiers">The combination of modifier flags</param>
+    /// <param name="keyEntry">The key or code of the hot key</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
+    [DynamicDependency(nameof(InvokeAction), typeof(HotKeyEntry))]
+    internal HotKeyEntry(ILogger? logger, HotKeyMode mode, Type typeOfModifiers, int modifiers, string keyEntry, Exclude exclude, string? description, IHandleEvent? ownerOfAction)
     {
+        this._Logger = logger;
         this.Mode = mode;
         this._Modifiers = modifiers;
         this._TypeOfModifiers = typeOfModifiers;
         this._KeyEntry = keyEntry;
         this.Exclude = exclude;
         this.Description = description;
+        this._OwnerComponent = ownerOfAction;
         this._ObjectRef = DotNetObjectReference.Create(this);
     }
 
     protected abstract void InvokeCallbackAction();
+
+    protected void CommonProcess(Func<ValueTask> action)
+    {
+        var task = action();
+        var awaiter = task.GetAwaiter();
+        awaiter.OnCompleted(() =>
+        {
+            if (!task.IsCompletedSuccessfully) try { awaiter.GetResult(); } catch (Exception ex) { this._Logger?.LogError(ex, ex.Message); }
+            else if (this._OwnerComponent != null)
+            {
+                var task = this._OwnerComponent.HandleEventAsync(EventCallbackWorkItem.Empty, null);
+                var awaiter = task.GetAwaiter();
+                awaiter.OnCompleted(() =>
+                {
+                    if (task.IsCompletedSuccessfully) return;
+                    try { awaiter.GetResult(); } catch (Exception ex) { this._Logger?.LogError(ex, ex.Message); }
+                });
+            }
+        });
+    }
 
     [JSInvokable(nameof(InvokeAction)), EditorBrowsable(Never)]
     public void InvokeAction() => this.InvokeCallbackAction();

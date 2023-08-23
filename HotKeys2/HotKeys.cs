@@ -91,7 +91,7 @@ public class HotKeys : IAsyncDisposable
     public HotKeysContext CreateContext()
     {
         var attachTask = this.AttachAsync();
-        return new HotKeysContext(attachTask);
+        return new HotKeysContext(attachTask, this._Logger);
     }
 
     /// <summary>

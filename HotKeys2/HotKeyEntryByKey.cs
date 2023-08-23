@@ -1,4 +1,7 @@
-﻿namespace Toolbelt.Blazor.HotKeys2;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+
+namespace Toolbelt.Blazor.HotKeys2;
 public class HotKeyEntryByKey : HotKeyEntry
 {
     /// <summary>
@@ -25,7 +28,25 @@ public class HotKeyEntryByKey : HotKeyEntry
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     public HotKeyEntryByKey(ModKey modKeys, Key key, Exclude exclude, string? description, Func<HotKeyEntryByKey, ValueTask> action)
-        : base(HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, description)
+        : base(null, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, description, action.Target as IHandleEvent)
+    {
+        this.Modifiers = modKeys;
+        this.Key = key;
+        this._Action = action;
+    }
+
+    /// <summary>
+    /// Initialize a new instance of the HotKeyEntryByKey class.
+    /// </summary>
+    /// <param name="logger">The instance of ILogger.</param>
+    /// <param name="modKeys">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
+    internal HotKeyEntryByKey(ILogger logger, ModKey modKeys, Key key, Exclude exclude, string? description, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction)
+        : base(logger, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, description, ownerOfAction)
     {
         this.Modifiers = modKeys;
         this.Key = key;
@@ -34,6 +55,6 @@ public class HotKeyEntryByKey : HotKeyEntry
 
     protected override void InvokeCallbackAction()
     {
-        this._Action.Invoke(this);
+        this.CommonProcess(() => this._Action.Invoke(this));
     }
 }
