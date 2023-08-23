@@ -1,3 +1,6 @@
+v.3.0.0
+- Improve: explicit calling StateHasChanged is no longer needed inside hotkey handler methods.
+
 v.2.0.0
 - Improve: Remove importing inline "data:" protocol JavaScript code. (Instead, add a dependency to the Toolbelt.Blazor.GetProperty.Script NuGet package)
 
