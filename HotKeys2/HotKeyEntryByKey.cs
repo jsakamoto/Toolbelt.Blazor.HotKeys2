@@ -27,8 +27,9 @@ public class HotKeyEntryByKey : HotKeyEntry
     /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    public HotKeyEntryByKey(ModKey modKeys, Key key, Exclude exclude, string? description, Func<HotKeyEntryByKey, ValueTask> action)
-        : base(null, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, description, action.Target as IHandleEvent)
+    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
+    public HotKeyEntryByKey(ModKey modKeys, Key key, Exclude exclude, string excludeSelector, string? description, Func<HotKeyEntryByKey, ValueTask> action)
+        : base(null, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, excludeSelector, description, action.Target as IHandleEvent)
     {
         this.Modifiers = modKeys;
         this.Key = key;
@@ -44,9 +45,10 @@ public class HotKeyEntryByKey : HotKeyEntry
     /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
-    internal HotKeyEntryByKey(ILogger logger, ModKey modKeys, Key key, Exclude exclude, string? description, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction)
-        : base(logger, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, description, ownerOfAction)
+    internal HotKeyEntryByKey(ILogger logger, ModKey modKeys, Key key, Exclude exclude, string excludeSelector, string? description, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction)
+        : base(logger, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, excludeSelector, description, ownerOfAction)
     {
         this.Modifiers = modKeys;
         this.Key = key;

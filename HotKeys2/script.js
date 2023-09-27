@@ -5,12 +5,13 @@ export var Toolbelt;
         var HotKeys2;
         (function (HotKeys2) {
             class HotkeyEntry {
-                constructor(dotNetObj, mode, modifiers, keyEntry, exclude) {
+                constructor(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector) {
                     this.dotNetObj = dotNetObj;
                     this.mode = mode;
                     this.modifiers = modifiers;
                     this.keyEntry = keyEntry;
                     this.exclude = exclude;
+                    this.excludeSelector = excludeSelector;
                 }
                 action() {
                     this.dotNetObj.invokeMethodAsync('InvokeAction');
@@ -18,9 +19,9 @@ export var Toolbelt;
             }
             let idSeq = 0;
             const hotKeyEntries = new Map();
-            HotKeys2.register = (dotNetObj, mode, modifiers, keyEntry, exclude) => {
+            HotKeys2.register = (dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector) => {
                 const id = idSeq++;
-                const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude);
+                const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector);
                 hotKeyEntries.set(id, hotKeyEntry);
                 return id;
             };
@@ -77,6 +78,8 @@ export var Toolbelt;
                     if (eventModkeys !== entryModKeys)
                         return;
                     if (!isAllowedIn(entry, srcElement, tagName, type))
+                        return;
+                    if (entry.excludeSelector !== '' && srcElement.matches(entry.excludeSelector))
                         return;
                     preventDefault = true;
                     entry.action();
