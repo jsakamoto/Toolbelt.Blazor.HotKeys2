@@ -7,13 +7,16 @@ public class HotKeysOnBrowserTest
     public static IEnumerable<HostingModel> AllHostingModels { get; } = new[] {
             HostingModel.Wasm60,
             HostingModel.Wasm70,
+            HostingModel.Wasm80,
             HostingModel.Server60,
             HostingModel.Server70,
+            HostingModel.Server80,
         };
 
     public static IEnumerable<HostingModel> WasmHostingModels { get; } = new[] {
             HostingModel.Wasm60,
             HostingModel.Wasm70,
+            HostingModel.Wasm80,
         };
 
     [Test]

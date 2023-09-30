@@ -12,8 +12,10 @@ public class TestContext
     private readonly IReadOnlyDictionary<HostingModel, SampleSite> SampleSites = new Dictionary<HostingModel, SampleSite> {
             { HostingModel.Wasm60, new SampleSite(5012, "Client", "net6.0") },
             { HostingModel.Wasm70, new SampleSite(5013, "Client", "net7.0") },
+            { HostingModel.Wasm80, new SampleSite(5014, "Client", "net8.0") },
             { HostingModel.Server60, new SampleSite(5015, "Server", "net6.0") },
             { HostingModel.Server70, new SampleSite(5016, "Server", "net7.0") },
+            { HostingModel.Server80, new SampleSite(5017, "Server", "net8.0") },
         };
 
     private IPlaywright? _Playwrite;
