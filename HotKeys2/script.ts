@@ -73,18 +73,18 @@
             const key = convertToKeyName(ev);
             const code = ev.code;
 
-            const srcElement = ev.srcElement as HTMLElement;
-            const tagName = srcElement.tagName;
-            const type = srcElement.getAttribute('type');
+            const targetElement = ev.target as HTMLElement;
+            const tagName = targetElement.tagName;
+            const type = targetElement.getAttribute('type');
 
-            const preventDefault1 = onKeyDown(modifiers, key, code, srcElement, tagName, type);
+            const preventDefault1 = onKeyDown(modifiers, key, code, targetElement, tagName, type);
             const preventDefault2 = isWasm === true ? hotKeysWrpper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code) : false;
             if (preventDefault1 || preventDefault2) ev.preventDefault();
             if (isWasm === false) hotKeysWrpper.invokeMethodAsync(OnKeyDownMethodName, modifiers, tagName, type, key, code);
         });
     }
 
-    const onKeyDown = (modifiers: ModCodes, key: string, code: string, srcElement: HTMLElement, tagName: string, type: string | null ): boolean => {
+    const onKeyDown = (modifiers: ModCodes, key: string, code: string, targetElement: HTMLElement, tagName: string, type: string | null): boolean => {
         let preventDefault = false;
 
         hotKeyEntries.forEach(entry => {
@@ -103,9 +103,7 @@
             if (keyEntry.startsWith("Meta")) entryModKeys |= ModCodes.Meta;
             if (eventModkeys !== entryModKeys) return;
 
-            if (!isAllowedIn(entry, srcElement, tagName, type)) return;
-
-            if (entry.excludeSelector !== '' && srcElement.matches(entry.excludeSelector)) return;
+            if (isExcludeTarget(entry, targetElement, tagName, type)) return;
 
             preventDefault = true;
             entry.action();
@@ -118,22 +116,24 @@
 
     const InputTageName = "INPUT";
 
-    const isAllowedIn = (entry: HotkeyEntry, srcElement: HTMLElement, tagName: string, type: string | null): boolean => {
+    const isExcludeTarget = (entry: HotkeyEntry, targetElement: HTMLElement, tagName: string, type: string | null): boolean => {
 
         if ((entry.exclude & Exclude.InputText) !== 0) {
-            if (tagName === InputTageName && NonTextInputTypes.indexOf(type || '') === -1) return false;
+            if (tagName === InputTageName && NonTextInputTypes.every(t => t !== type)) return true;
         }
         if ((entry.exclude & Exclude.InputNonText) !== 0) {
-            if (tagName === InputTageName && NonTextInputTypes.indexOf(type || '') !== -1) return false;
+            if (tagName === InputTageName && NonTextInputTypes.some(t => t === type)) return true;
         }
         if ((entry.exclude & Exclude.TextArea) !== 0) {
-            if (tagName === "TEXTAREA") return false;
+            if (tagName === "TEXTAREA") return true;
         }
         if ((entry.exclude & Exclude.ContentEditable) !== 0) {
-            if (srcElement.contentEditable === "true") return false;
+            if (targetElement.isContentEditable) return true;
         }
 
-        return true;
+        if (entry.excludeSelector !== '' && targetElement.matches(entry.excludeSelector)) return true;
+
+        return false;
     }
 
 }

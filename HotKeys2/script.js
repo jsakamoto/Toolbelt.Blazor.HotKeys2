@@ -46,10 +46,10 @@ export var Toolbelt;
                         (ev.metaKey ? 8 : 0);
                     const key = convertToKeyName(ev);
                     const code = ev.code;
-                    const srcElement = ev.srcElement;
-                    const tagName = srcElement.tagName;
-                    const type = srcElement.getAttribute('type');
-                    const preventDefault1 = onKeyDown(modifiers, key, code, srcElement, tagName, type);
+                    const targetElement = ev.target;
+                    const tagName = targetElement.tagName;
+                    const type = targetElement.getAttribute('type');
+                    const preventDefault1 = onKeyDown(modifiers, key, code, targetElement, tagName, type);
                     const preventDefault2 = isWasm === true ? hotKeysWrpper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code) : false;
                     if (preventDefault1 || preventDefault2)
                         ev.preventDefault();
@@ -57,7 +57,7 @@ export var Toolbelt;
                         hotKeysWrpper.invokeMethodAsync(OnKeyDownMethodName, modifiers, tagName, type, key, code);
                 });
             };
-            const onKeyDown = (modifiers, key, code, srcElement, tagName, type) => {
+            const onKeyDown = (modifiers, key, code, targetElement, tagName, type) => {
                 let preventDefault = false;
                 hotKeyEntries.forEach(entry => {
                     const byCode = entry.mode === 1;
@@ -77,9 +77,7 @@ export var Toolbelt;
                         entryModKeys |= 8;
                     if (eventModkeys !== entryModKeys)
                         return;
-                    if (!isAllowedIn(entry, srcElement, tagName, type))
-                        return;
-                    if (entry.excludeSelector !== '' && srcElement.matches(entry.excludeSelector))
+                    if (isExcludeTarget(entry, targetElement, tagName, type))
                         return;
                     preventDefault = true;
                     entry.action();
@@ -88,24 +86,26 @@ export var Toolbelt;
             };
             const NonTextInputTypes = ["button", "checkbox", "color", "file", "image", "radio", "range", "reset", "submit",];
             const InputTageName = "INPUT";
-            const isAllowedIn = (entry, srcElement, tagName, type) => {
+            const isExcludeTarget = (entry, targetElement, tagName, type) => {
                 if ((entry.exclude & 1) !== 0) {
-                    if (tagName === InputTageName && NonTextInputTypes.indexOf(type || '') === -1)
-                        return false;
+                    if (tagName === InputTageName && NonTextInputTypes.every(t => t !== type))
+                        return true;
                 }
                 if ((entry.exclude & 2) !== 0) {
-                    if (tagName === InputTageName && NonTextInputTypes.indexOf(type || '') !== -1)
-                        return false;
+                    if (tagName === InputTageName && NonTextInputTypes.some(t => t === type))
+                        return true;
                 }
                 if ((entry.exclude & 4) !== 0) {
                     if (tagName === "TEXTAREA")
-                        return false;
+                        return true;
                 }
                 if ((entry.exclude & 8) !== 0) {
-                    if (srcElement.contentEditable === "true")
-                        return false;
+                    if (targetElement.isContentEditable)
+                        return true;
                 }
-                return true;
+                if (entry.excludeSelector !== '' && targetElement.matches(entry.excludeSelector))
+                    return true;
+                return false;
             };
         })(HotKeys2 = Blazor.HotKeys2 || (Blazor.HotKeys2 = {}));
     })(Blazor = Toolbelt.Blazor || (Toolbelt.Blazor = {}));
