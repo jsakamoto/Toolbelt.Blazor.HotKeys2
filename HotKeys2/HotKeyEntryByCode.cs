@@ -24,9 +24,10 @@ public class HotKeyEntryByCode : HotKeyEntry
     /// <param name="code">The identifier of hotkey.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
-    public HotKeyEntryByCode(ModCode modCodes, Code code, Exclude exclude, string? description, Func<HotKeyEntryByCode, ValueTask> action)
-        : base(null, HotKeyMode.ByCode, typeof(ModCode), (int)modCodes, code.ToString(), exclude, description, action.Target as IHandleEvent)
+    public HotKeyEntryByCode(ModCode modCodes, Code code, Exclude exclude, string excludeSelector, string? description, Func<HotKeyEntryByCode, ValueTask> action)
+        : base(null, HotKeyMode.ByCode, typeof(ModCode), (int)modCodes, code.ToString(), exclude, excludeSelector, description, action.Target as IHandleEvent)
     {
         this.Modifiers = modCodes;
         this.Code = code;
@@ -41,10 +42,11 @@ public class HotKeyEntryByCode : HotKeyEntry
     /// <param name="code">The identifier of hotkey.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
     /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
-    internal HotKeyEntryByCode(ILogger logger, ModCode modCodes, Code code, Exclude exclude, string? description, Func<HotKeyEntryByCode, ValueTask> action, IHandleEvent? ownerOfAction)
-        : base(logger, HotKeyMode.ByCode, typeof(ModCode), (int)modCodes, code.ToString(), exclude, description, ownerOfAction)
+    internal HotKeyEntryByCode(ILogger logger, ModCode modCodes, Code code, Exclude exclude, string excludeSelector, string? description, Func<HotKeyEntryByCode, ValueTask> action, IHandleEvent? ownerOfAction)
+        : base(logger, HotKeyMode.ByCode, typeof(ModCode), (int)modCodes, code.ToString(), exclude, excludeSelector, description, ownerOfAction)
     {
         this.Modifiers = modCodes;
         this.Code = code;

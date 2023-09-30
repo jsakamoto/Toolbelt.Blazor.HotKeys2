@@ -28,7 +28,8 @@
             public mode: HotKeyMode,
             public modifiers: ModCodes,
             public keyEntry: string,
-            public exclude: Exclude
+            public exclude: Exclude,
+            public excludeSelector: string
         ) { }
 
         public action(): void {
@@ -39,9 +40,9 @@
     let idSeq: number = 0;
     const hotKeyEntries = new Map<number, HotkeyEntry>();
 
-    export const register = (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude): number => {
+    export const register = (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string): number => {
         const id = idSeq++;
-        const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude);
+        const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector);
         hotKeyEntries.set(id, hotKeyEntry);
         return id;
     }
@@ -103,6 +104,8 @@
             if (eventModkeys !== entryModKeys) return;
 
             if (!isAllowedIn(entry, srcElement, tagName, type)) return;
+
+            if (entry.excludeSelector !== '' && srcElement.matches(entry.excludeSelector)) return;
 
             preventDefault = true;
             entry.action();
