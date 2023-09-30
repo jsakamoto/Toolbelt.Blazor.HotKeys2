@@ -58,41 +58,25 @@ public abstract class HotKeyEntry : IDisposable
     /// <summary>
     /// Initialize a new instance of the HotKeyEntry class.
     /// </summary>
-    /// <param name="mode">The mode that how to identificate the hot key.</param>
-    /// <param name="typeOfModifiers"></param>
-    /// <param name="modifiers">The combination of modifier flags</param>
-    /// <param name="keyEntry">The key or code of the hot key</param>
-    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
-    [DynamicDependency(nameof(InvokeAction), typeof(HotKeyEntry)), Obsolete]
-    internal HotKeyEntry(HotKeyMode mode, Type typeOfModifiers, int modifiers, string keyEntry, Exclude exclude, string excludeSelector, string? description)
-        : this(null, mode, typeOfModifiers, modifiers, keyEntry, exclude, excludeSelector, description, null) { }
-
-    /// <summary>
-    /// Initialize a new instance of the HotKeyEntry class.
-    /// </summary>
     /// <param name="logger">The instance of <see cref="ILogger"/> that is used to log the error message.</param>
     /// <param name="mode">The mode that how to identificate the hot key.</param>
     /// <param name="typeOfModifiers"></param>
     /// <param name="modifiers">The combination of modifier flags</param>
     /// <param name="keyEntry">The key or code of the hot key</param>
-    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
     [DynamicDependency(nameof(InvokeAction), typeof(HotKeyEntry))]
-    internal HotKeyEntry(ILogger? logger, HotKeyMode mode, Type typeOfModifiers, int modifiers, string keyEntry, Exclude exclude, string excludeSelector, string? description, IHandleEvent? ownerOfAction)
+    internal HotKeyEntry(ILogger? logger, HotKeyMode mode, Type typeOfModifiers, int modifiers, string keyEntry, IHandleEvent? ownerOfAction, HotKeyOptions options)
     {
         this._Logger = logger;
         this.Mode = mode;
         this._Modifiers = modifiers;
         this._TypeOfModifiers = typeOfModifiers;
         this._KeyEntry = keyEntry;
-        this.Exclude = exclude;
-        this.ExcludeSelector = excludeSelector;
-        this.Description = description;
         this._OwnerComponent = ownerOfAction;
+        this.Description = options.Description;
+        this.Exclude = options.Exclude;
+        this.ExcludeSelector = options.ExcludeSelector;
         this._ObjectRef = DotNetObjectReference.Create(this);
     }
 

@@ -34,12 +34,40 @@ public partial class HotKeysContext : IDisposable
     /// </summary>
     /// <param name="key">The identifier of hotkey by key.</param>
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
-    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(Key key, Action action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-    => this.AddInternal(ModKey.None, key, _ => { action(); return ValueTask.CompletedTask; }, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(Key key, Action action, HotKeyOptions options)
+    => this.AddInternal(ModKey.None, key, _ => { action(); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Key key, Action<HotKeyEntryByKey> action, HotKeyOptions options)
+        => this.AddInternal(ModKey.None, key, arg => { action(arg); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Key key, Func<ValueTask> action, HotKeyOptions options)
+        => this.AddInternal(ModKey.None, key, _ => action(), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Key key, Func<HotKeyEntryByKey, ValueTask> action, HotKeyOptions options)
+        => this.AddInternal(ModKey.None, key, arg => action(arg), action.Target as IHandleEvent, options);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -48,10 +76,20 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(Key key, Action<HotKeyEntryByKey> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(ModKey.None, key, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(Key key, Action action, string description = "", Exclude exclude = Exclude.Default)
+    => this.AddInternal(ModKey.None, key, _ => { action(); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Key key, Action<HotKeyEntryByKey> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModKey.None, key, arg => { action(arg); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -59,11 +97,10 @@ public partial class HotKeysContext : IDisposable
     /// <param name="key">The identifier of hotkey by key.</param>
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(Key key, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(ModKey.None, key, _ => action(), description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(Key key, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModKey.None, key, _ => action(), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -71,11 +108,10 @@ public partial class HotKeysContext : IDisposable
     /// <param name="key">The identifier of hotkey by key.</param>
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(ModKey.None, key, arg => action(arg), description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModKey.None, key, arg => action(arg), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     // -----------------------------------------------------------------------------------------------
 
@@ -85,12 +121,43 @@ public partial class HotKeysContext : IDisposable
     /// <param name="modifiers">The combination of modifier keys flags.</param>
     /// <param name="key">The identifier of hotkey by key.</param>
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
-    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModKey modifiers, Key key, Action action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(modifiers, key, _ => { action(); return ValueTask.CompletedTask; }, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(ModKey modifiers, Key key, Action action, HotKeyOptions options)
+        => this.AddInternal(modifiers, key, _ => { action(); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Action<HotKeyEntryByKey> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, key, arg => { action(arg); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<ValueTask> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, key, _ => action(), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, key, action, action.Target as IHandleEvent, options);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -100,23 +167,9 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModKey modifiers, Key key, Action<HotKeyEntryByKey> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(modifiers, key, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude, excludeSelector, action.Target as IHandleEvent);
-
-    /// <summary>
-    /// Add a new hotkey entry to this context.
-    /// </summary>
-    /// <param name="modifiers">The combination of modifier keys flags.</param>
-    /// <param name="key">The identifier of hotkey by key.</param>
-    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
-    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
-    /// <returns>This context.</returns>
-    public HotKeysContext Add(ModKey modifiers, Key key, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(modifiers, key, _ => action(), description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(ModKey modifiers, Key key, Action action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, key, _ => { action(); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -126,10 +179,21 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(modifiers, key, action, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(ModKey modifiers, Key key, Action<HotKeyEntryByKey> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, key, arg => { action(arg); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, key, _ => action(), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -139,12 +203,22 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, key, action, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="ownerOfAction">The owner of the action. If the owner is disposed, the hotkey will be removed automatically.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
-    private HotKeysContext AddInternal(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, string description, Exclude exclude, string excludeSelector, IHandleEvent? ownerOfAction)
+    private HotKeysContext AddInternal(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
     {
-        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByKey(this._Logger, modifiers, key, exclude, excludeSelector, description, action, ownerOfAction)));
+        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByKey(this._Logger, modifiers, key, action, ownerOfAction, options)));
         return this;
     }
 
@@ -155,12 +229,40 @@ public partial class HotKeysContext : IDisposable
     /// </summary>
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
-    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(Code code, Action action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-    => this.AddInternal(ModCode.None, code, arg => { action(); return ValueTask.CompletedTask; }, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(Code code, Action action, HotKeyOptions options)
+    => this.AddInternal(ModCode.None, code, arg => { action(); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Code code, Action<HotKeyEntryByCode> action, HotKeyOptions options)
+        => this.AddInternal(ModCode.None, code, arg => { action(arg); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Code code, Func<ValueTask> action, HotKeyOptions options)
+        => this.AddInternal(ModCode.None, code, _ => action(), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Code code, Func<HotKeyEntryByCode, ValueTask> action, HotKeyOptions options)
+        => this.AddInternal(ModCode.None, code, action, action.Target as IHandleEvent, options);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -168,11 +270,10 @@ public partial class HotKeysContext : IDisposable
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(Code code, Action<HotKeyEntryByCode> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(ModCode.None, code, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(Code code, Action action, string description = "", Exclude exclude = Exclude.Default)
+    => this.AddInternal(ModCode.None, code, arg => { action(); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -180,11 +281,10 @@ public partial class HotKeysContext : IDisposable
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(Code code, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(ModCode.None, code, _ => action(), description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(Code code, Action<HotKeyEntryByCode> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModCode.None, code, arg => { action(arg); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -192,11 +292,21 @@ public partial class HotKeysContext : IDisposable
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(ModCode.None, code, action, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(Code code, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModCode.None, code, _ => action(), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModCode.None, code, action, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     // -----------------------------------------------------------------------------------------------
 
@@ -206,12 +316,43 @@ public partial class HotKeysContext : IDisposable
     /// <param name="modifiers">The combination of modifier keys flags.</param>
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
-    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModCode modifiers, Code code, Action action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(modifiers, code, arg => { action(); return ValueTask.CompletedTask; }, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(ModCode modifiers, Code code, Action action, HotKeyOptions options)
+        => this.AddInternal(modifiers, code, arg => { action(); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModCode modifiers, Code code, Action<HotKeyEntryByCode> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, code, arg => { action(arg); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<ValueTask> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, code, _ => action(), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, code, action, action.Target as IHandleEvent, options);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -220,11 +361,10 @@ public partial class HotKeysContext : IDisposable
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModCode modifiers, Code code, Action<HotKeyEntryByCode> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(modifiers, code, arg => { action(arg); return ValueTask.CompletedTask; }, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(ModCode modifiers, Code code, Action action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, code, arg => { action(); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -233,11 +373,10 @@ public partial class HotKeysContext : IDisposable
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModCode modifiers, Code code, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(modifiers, code, _ => action(), description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(ModCode modifiers, Code code, Action<HotKeyEntryByCode> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, code, arg => { action(arg); return ValueTask.CompletedTask; }, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -245,12 +384,11 @@ public partial class HotKeysContext : IDisposable
     /// <param name="modifiers">The combination of modifier keys flags.</param>
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Add(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-        => this.AddInternal(modifiers, code, action, description, exclude, excludeSelector, action.Target as IHandleEvent);
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, code, _ => action(), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -260,12 +398,22 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, code, action, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
-    private HotKeysContext AddInternal(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, string description, Exclude exclude, string excludeSelector, IHandleEvent? ownerOfAction)
+    private HotKeysContext AddInternal(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
     {
-        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByCode(this._Logger, modifiers, code, exclude, excludeSelector, description, action, ownerOfAction)));
+        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByCode(this._Logger, modifiers, code, action, ownerOfAction, options)));
         return this;
     }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.ComponentModel;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 
 namespace Toolbelt.Blazor.HotKeys2;
@@ -27,9 +28,28 @@ public class HotKeyEntryByKey : HotKeyEntry
     /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    [Obsolete, EditorBrowsable(EditorBrowsableState.Never)]
+    public HotKeyEntryByKey(ModKey modKeys, Key key, Exclude exclude, string? description, Func<HotKeyEntryByKey, ValueTask> action)
+        : this(modKeys, key, exclude, excludeSelector: "", description, action)
+    {
+    }
+
+    /// <summary>
+    /// Initialize a new instance of the HotKeyEntryByKey class.
+    /// </summary>
+    /// <param name="modKeys">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     public HotKeyEntryByKey(ModKey modKeys, Key key, Exclude exclude, string excludeSelector, string? description, Func<HotKeyEntryByKey, ValueTask> action)
-        : base(null, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, excludeSelector, description, action.Target as IHandleEvent)
+        : base(null, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), action.Target as IHandleEvent, new()
+        {
+            Description = description ?? "",
+            Exclude = exclude,
+            ExcludeSelector = excludeSelector,
+        })
     {
         this.Modifiers = modKeys;
         this.Key = key;
@@ -43,12 +63,10 @@ public class HotKeyEntryByKey : HotKeyEntry
     /// <param name="modKeys">The combination of modifier keys flags.</param>
     /// <param name="key">The identifier of hotkey.</param>
     /// <param name="action">The callback action that will be invoked when user enter modKeys + key combination on the browser.</param>
-    /// <param name="description">The description of the meaning of this hot key entry.</param>
-    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
-    /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
-    internal HotKeyEntryByKey(ILogger logger, ModKey modKeys, Key key, Exclude exclude, string excludeSelector, string? description, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction)
-        : base(logger, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), exclude, excludeSelector, description, ownerOfAction)
+    /// <param name="options">The options for a hotkey entry.</param>
+    internal HotKeyEntryByKey(ILogger logger, ModKey modKeys, Key key, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
+        : base(logger, HotKeyMode.ByKey, typeof(ModKey), (int)modKeys, key.ToString(), ownerOfAction, options)
     {
         this.Modifiers = modKeys;
         this.Key = key;
