@@ -271,6 +271,45 @@ public class HotKeysOnBrowserTest
 
     [Test]
     [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
+    public async Task ExcludeSelector_Test(HostingModel hostingModel)
+    {
+        var context = TestContext.Instance;
+        var host = await context.StartHostAsync(hostingModel);
+
+        // Navigate to the "Counter" page,
+        var page = await context.GetPageAsync();
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/counter"));
+
+        // Verify the counter is 0.
+        var counter = page.Locator("h1+p");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+
+        // Set focus to the "Hotkeys are enabled in this field" input element, and type "U" key.
+        // Then the counter should be incremented.
+        var inputElement1 = page.GetByPlaceholder("Hotkeys are enabled in this field");
+        await inputElement1.FocusAsync();
+        await page.Keyboard.DownAsync("u");
+        await page.Keyboard.UpAsync("u");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 1");
+        await page.Keyboard.DownAsync("u");
+        await page.Keyboard.UpAsync("u");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 2");
+
+        // Set focus to the "Hotkeys are disabled in this field" input element, and type "U" key.
+        // Then the counter should not be incremented.
+        var inputElement2 = page.GetByPlaceholder("Hotkeys are disabled in this field");
+        await inputElement2.FocusAsync();
+        await page.Keyboard.DownAsync("u");
+        await page.Keyboard.UpAsync("u");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 2");
+        await page.Keyboard.DownAsync("u");
+        await page.Keyboard.UpAsync("u");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 2");
+        await page.AssertEqualsAsync(_ => inputElement2.InputValueAsync(), "uu");
+    }
+
+    [Test]
+    [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
     public async Task ByNativeKey_Test(HostingModel hostingModel)
     {
         var context = TestContext.Instance;

@@ -17,6 +17,14 @@
     </div>
 }
 
+<div>
+    <input type="text" class="form-control" placeholder="Hotkeys are enabled in this field." />
+</div>
+
+<div class="mt-4 disabled-hotkeys">
+    <input type="text" class="form-control" placeholder="Hotkeys are disabled in this field." />
+</div>
+
 @code {
     private readonly bool IsWasm = RuntimeInformation.OSDescription == "web" || RuntimeInformation.OSDescription == "Browser";
 
@@ -27,7 +35,7 @@
     protected override void OnInitialized()
     {
         this.HotKeysContext = this.HotKeys.CreateContext()
-            .Add(Code.U, this.IncrementCount);
+            .Add(Code.U, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = ".disabled-hotkeys *" });
         this.HotKeys.KeyDown += HotKeys_KeyDown;
     }
 
