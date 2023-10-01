@@ -22,7 +22,7 @@ this.HotKeysContext = this.HotKeys.CreateContext()
 
 ## Supported Blazor versions
 
-This library suppots ASP.NET Core Blazor version 6.0, 7.0, or later.
+This library suppots ASP.NET Core Blazor version 6.0, 7.0, 8.0 or later.
 
 ## How to install and use?
 
@@ -78,17 +78,17 @@ Please remember that you have to keep the `HotKeys Context` object in the compon
 ```csharp
 @code {
 
-  HotKeysContext HotKeysContext;
+  private HotKeysContext? HotKeysContext;
 
   protected override void OnInitialized()
   {
     this.HotKeysContext = this.HotKeys.CreateContext()
-      .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, "do foo bar.")
+      .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, new() { Description = "do foo bar." })
       .Add(...)
       ...;
   }
 
-  void FooBar() // 👈 This will be invoked when Ctrl+Shift+A typed.
+  private void FooBar() // 👈 This will be invoked when Ctrl+Shift+A typed.
   {
     ...
   }
@@ -109,7 +109,7 @@ Please remember that you have to keep the `HotKeys Context` object in the compon
   ...
   public void Dispose()
   {
-    this.HotKeysContext.Dispose(); // 👈 1. Add this
+    this.HotKeysContext?.Dispose(); // 👈 1. Add this
   }
 }
 ```
@@ -124,48 +124,59 @@ The complete source code (.razor) of this component is bellow.
 
 @code {
 
-  HotKeysContext HotKeysContext;
+  private HotKeysContext? HotKeysContext;
 
   protected override void OnInitialized()
   {
     this.HotKeysContext = this.HotKeys.CreateContext()
-      .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, "do foo bar.")
+      .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, new() { Description = "do foo bar." })
   }
 
-  void FooBar()
+  private void FooBar()
   {
     // Do something here.
   }
 
   public void Dispose()
   {
-    this.HotKeysContext.Dispose();
+    this.HotKeysContext?.Dispose();
   }
 }
 ```
 ### How to enable / disable hotkeys depending on which element has focus
 
-You can specify enabling/disabling hotkeys depending on which kind of element has focus at the hotkeys registration via a combination of the `Exclude` flags in optional arguments of the `HotKeysContext.Add()` method.
+You can specify enabling/disabling hotkeys depending on which kind of element has focus at the hotkeys registration via a combination of the `Exclude` flags in the property of the option object argument of the `HotKeysContext.Add()` method.
 
-By default, the `Exclude` flags argument is the following combination.
+The default value of the option object's `Exclude` flag property is the following combination.
 
 ```csharp
 Exclude.InputText | Exclude.InputNonText | Exclude.TextArea
 ```
 
-This means, by default, hotkeys are disabled when the focus is in `<input>` (with any `type`) or `<textarea>` elements.
+This means hotkeys are disabled when the focus is in `<input>` (with any `type`) or `<textarea>` elements by default.
 
-If you want to enable hotkeys even when an `<input type="text"/>` has focus, you can do it as below.
+If you want to enable hotkeys even when an `<input type="text"/>` has focus, you can implement it as below.
 
 ```csharp
 ... this.HotKeys.CreateContext()
-  .Add(Code.A, OnKeyDownA, "...", 
-    // 👇 Specify the "exclude" argument.
-    exclude: Exclude.InputNonText | Exclude.TextArea)
+  .Add(Code.A, OnKeyDownA, new() { 
+    // 👇 Specify the "Exclude" property of the options.
+    Exclude = Exclude.InputNonText | Exclude.TextArea })
+  ...
+```
+
+You can also specify the elements that are disabled hotkeys by CSS query selector string via the `ExcludeSelector` property of the options object.
+
+```csharp
+... this.HotKeys.CreateContext()
+  .Add(Code.A, OnKeyDownA, new() { 
+    // 👇 Specify the CSS query selector to the "ExcludeSelector" property of the options.
+    ExcludeSelector = ".disabled-hotkeys-area" })
   ...
 ```
 
 And you can specify the `Exclude.ContentEditable` to register the unavailable hotkey when any "contenteditable" applied elements have focus.
+
 
 ## `Code` vs. `Key` - which way should I use to?
 

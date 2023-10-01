@@ -1,3 +1,7 @@
+v.3.1.0
+- Improve: Exclude by a custom CSS query selector.
+- Improve: Add .NET 8 support.
+
 v.3.0.0
 - Improve: explicit calling StateHasChanged is no longer needed inside hotkey handler methods.
 
