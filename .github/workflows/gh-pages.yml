@@ -10,19 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Install .NET Core SDK
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
+          dotnet-quality: 'preview'
       - name: Install .NET WebAssembly Tools
         run: dotnet workload install wasm-tools
 
       # Publish the site
       - name: Publish
-        run: dotnet publish SampleSites/Client/SampleSite.Client.csproj -c:Release -o:public -p:GHPages=true -f:net7.0
+        run: dotnet publish SampleSites/Client/SampleSite.Client.csproj -c:Release -o:public -p:GHPages=true -f:net8.0
 
       # Deploy the site
       - name: Deploy
