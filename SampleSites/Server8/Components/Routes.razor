@@ -1,0 +1,8 @@
+﻿@rendermode InteractiveServer
+
+<Router AppAssembly="@typeof(SampleSite.Components.App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(SampleSite.Components.Shared.MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="[autofocus]" />
+    </Found>
+</Router>

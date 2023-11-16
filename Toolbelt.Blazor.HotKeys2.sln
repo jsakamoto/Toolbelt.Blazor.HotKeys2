@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toolbelt.Blazor.HotKeys2.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toolbelt.Blazor.HotKeys.E2ETest", "HotKeys2.E2ETest\Toolbelt.Blazor.HotKeys.E2ETest.csproj", "{FDCCE112-655F-4C03-86BE-490908665762}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSite.Server8", "SampleSites\Server8\SampleSite.Server8.csproj", "{8200E6A7-FE02-4431-A0EE-20FABF7EFE76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{FDCCE112-655F-4C03-86BE-490908665762}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDCCE112-655F-4C03-86BE-490908665762}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDCCE112-655F-4C03-86BE-490908665762}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8200E6A7-FE02-4431-A0EE-20FABF7EFE76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8200E6A7-FE02-4431-A0EE-20FABF7EFE76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8200E6A7-FE02-4431-A0EE-20FABF7EFE76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8200E6A7-FE02-4431-A0EE-20FABF7EFE76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +67,7 @@ Global
 		{D8FB58F9-191A-4DAF-A86B-25C7AB56CA08} = {3EFE1C60-9B39-4B8E-854B-907A0513A4FE}
 		{A3F4C027-0211-4720-B553-1019883168C0} = {3EFE1C60-9B39-4B8E-854B-907A0513A4FE}
 		{A1591DC4-9506-4DA6-8FA4-A136ADF62292} = {3EFE1C60-9B39-4B8E-854B-907A0513A4FE}
+		{8200E6A7-FE02-4431-A0EE-20FABF7EFE76} = {3EFE1C60-9B39-4B8E-854B-907A0513A4FE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAB566FF-0DBE-45FB-A7A3-7D0590F0A921}
