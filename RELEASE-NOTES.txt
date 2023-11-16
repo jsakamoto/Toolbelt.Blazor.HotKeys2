@@ -1,3 +1,6 @@
+v.3.2.0
+- Fix: It didn't work on the InteractiveServer mode Blazor in .NET 8
+
 v.3.1.0
 - Improve: Exclude by a custom CSS query selector.
 - Improve: Add .NET 8 support.
