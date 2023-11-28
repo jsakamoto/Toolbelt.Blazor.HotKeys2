@@ -35,4 +35,24 @@ public class HotKeyEntryTest
         var u = new HotKeyEntryByCode(null!, ModCode.None, Code.U, _ => ValueTask.CompletedTask, null, new() { Description = "Increment counter." });
         u.ToString().Is("U: Increment counter.");
     }
+
+    [Test]
+    public void ToKeys_for_ByCode_Test()
+    {
+        var ctrl_alt_f12 = new HotKeyEntryByCode(null!, ModCode.Ctrl | ModCode.Alt, Code.F12, _ => ValueTask.CompletedTask, null, new() { Description = "Set the volume level to 10." });
+        ctrl_alt_f12.ToKeys().IsStructuralEqual(new[] { "Ctrl", "Alt", "F12" });
+
+        var meta_one = new HotKeyEntryByCode(null!, ModCode.Meta, Code.Num1, _ => ValueTask.CompletedTask, null, new() { Description = "Launch the notepad." });
+        meta_one.ToKeys().IsStructuralEqual(new[] { "Meta", "1" });
+
+        var u = new HotKeyEntryByCode(null!, ModCode.None, Code.U, _ => ValueTask.CompletedTask, null, new() { Description = "Increment counter." });
+        u.ToKeys().IsStructuralEqual(new[] { "U" });
+    }
+
+    [Test]
+    public void ToKeys_for_ByKey_Test()
+    {
+        var hotKeyEntry = new HotKeyEntryByKey(null!, ModKey.None, Key.Question, _ => ValueTask.CompletedTask, null, new() { Description = "Show help." });
+        hotKeyEntry.ToKeys().IsStructuralEqual(new[] { "?" });
+    }
 }
