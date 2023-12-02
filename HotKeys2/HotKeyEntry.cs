@@ -116,14 +116,14 @@ public abstract class HotKeyEntry : IDisposable
     /// <param name="format">{0} will be replaced with key combination text, and {1} will be replaced with description of this hotkey entry object.</param>
     public string ToString(string format)
     {
-        var keyComboText = string.Join(" + ", this.ToKeys());
+        var keyComboText = string.Join(" + ", this.ToStringKeys());
         return string.Format(format, keyComboText, this.Description);
     }
 
     /// <summary>
     /// Returns an array of String formatted keys.
     /// </summary>
-    public string[] ToKeys()
+    public string[] ToStringKeys()
     {
         var keyCombo = new List<string>();
         if (this._Modifiers != 0)
