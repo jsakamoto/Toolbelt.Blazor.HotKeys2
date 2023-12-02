@@ -1,3 +1,6 @@
+v.3.2.1
+- Improve: Add the "ToStringKeys" method to the HotkeyEntry class that returns the array of string representation of the key combination.
+
 v.3.2.0
 - Fix: It didn't work on the InteractiveServer mode Blazor in .NET 8
 
