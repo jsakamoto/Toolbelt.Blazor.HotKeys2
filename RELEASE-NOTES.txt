@@ -1,3 +1,6 @@
+v.3.3.0
+- Improve: Add overloaded version of Add() methods for async methods returns a Task.
+
 v.3.2.1
 - Improve: Add the "ToStringKeys" method to the HotkeyEntry class that returns the array of string representation of the key combination.
 
