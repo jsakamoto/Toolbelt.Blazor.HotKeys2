@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using static System.ComponentModel.EditorBrowsableState;
 
 namespace Toolbelt.Blazor.HotKeys2;
 
@@ -32,6 +31,11 @@ public abstract class HotKeyEntry : IDisposable
     /// </summary>
     public string? Description { get; }
 
+    /// <summary>
+    /// Get the state data attached to this hot key entry.
+    /// </summary>
+    public HotKeyEntryState? State { get; }
+
     internal int Id = -1;
 
     internal readonly DotNetObjectReference<HotKeyEntry> _ObjectRef;
@@ -53,11 +57,17 @@ public abstract class HotKeyEntry : IDisposable
     /// </summary>
     private IHandleEvent? _OwnerComponent;
 
+    /// <summary>
+    /// Get the instance of a <see cref="HotKeysContext"/> that is an owner of this hot key entry.
+    /// </summary>
+    private HotKeysContext _HotKeysContext;
+
     private readonly ILogger? _Logger;
 
     /// <summary>
     /// Initialize a new instance of the HotKeyEntry class.
     /// </summary>
+    /// <param name="context">The instance of <see cref="HotKeysContext"/> that is an owner of this hot key entry.</param>
     /// <param name="logger">The instance of <see cref="ILogger"/> that is used to log the error message.</param>
     /// <param name="mode">The mode that how to identificate the hot key.</param>
     /// <param name="typeOfModifiers"></param>
@@ -66,8 +76,9 @@ public abstract class HotKeyEntry : IDisposable
     /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
     /// <param name="options">The options for this hotkey entry.</param>
     [DynamicDependency(nameof(InvokeAction), typeof(HotKeyEntry))]
-    internal HotKeyEntry(ILogger? logger, HotKeyMode mode, Type typeOfModifiers, int modifiers, string keyEntry, IHandleEvent? ownerOfAction, HotKeyOptions options)
+    internal HotKeyEntry(HotKeysContext context, ILogger? logger, HotKeyMode mode, Type typeOfModifiers, int modifiers, string keyEntry, IHandleEvent? ownerOfAction, HotKeyOptions options)
     {
+        this._HotKeysContext = context;
         this._Logger = logger;
         this.Mode = mode;
         this._Modifiers = modifiers;
@@ -77,7 +88,10 @@ public abstract class HotKeyEntry : IDisposable
         this.Description = options.Description;
         this.Exclude = options.Exclude;
         this.ExcludeSelector = options.ExcludeSelector;
+        this.State = options.State;
         this._ObjectRef = DotNetObjectReference.Create(this);
+
+        this.State?.SetHotKeyEntry(this);
     }
 
     protected abstract void InvokeCallbackAction();
@@ -102,13 +116,21 @@ public abstract class HotKeyEntry : IDisposable
         });
     }
 
-    [JSInvokable(nameof(InvokeAction)), EditorBrowsable(Never)]
-    public void InvokeAction() => this.InvokeCallbackAction();
+    internal void UpdateDisabledState() => this._HotKeysContext?.UpdateHotKeyDisabledState(this);
 
-    /// <summary>
-    /// Returns a String that combined key combination and description of this entry, like "Ctrl+A: Select All."
-    /// </summary>
-    public override string ToString() => this.ToString("{0}: {1}");
+    [JSInvokable(nameof(InvokeAction)), EditorBrowsable(EditorBrowsableState.Never)]
+    public void InvokeAction()
+    {
+        if (!(this.State?.IsDisabled ?? false))
+        {
+            this.InvokeCallbackAction();
+        }
+    }
+
+	/// <summary>
+	/// Returns a String that combined key combination and description of this entry, like "Ctrl+A: Select All."
+	/// </summary>
+	public override string ToString() => this.ToString("{0}: {1}");
 
     /// <summary>
     /// Returns a String formatted with specified format string.

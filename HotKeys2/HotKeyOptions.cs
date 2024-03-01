@@ -15,4 +15,7 @@ public class HotKeyOptions
 
     /// <summary>Additional CSS selector for HTML elements that will not allow hotkey to work.</summary>
     public string ExcludeSelector { get; set; } = "";
+
+    /// <summary>State data attached to a hotkey.</summary>
+    public HotKeyEntryState? State { get; set; }
 }

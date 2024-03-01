@@ -18,11 +18,23 @@
 }
 
 <div>
-    <input type="text" class="form-control" placeholder="Hotkeys are enabled in this field." />
+    <input type="text" class="form-control" placeholder="Hotkeys are enabled in this field" />
 </div>
 
 <div class="mt-4 disabled-hotkeys">
-    <input type="text" class="form-control" placeholder="Hotkeys are disabled in this field." />
+    <input type="text" class="form-control" placeholder="Hotkeys are disabled in this field" />
+</div>
+
+<div class="mt-4">
+    <input type="text" class="form-control disabled-state-hotkeys" placeholder="Hotkey 'Y' is @HotKeyState in C#" />
+</div>
+
+<div class="mt-4">
+    <button class="form-control state-trigger-button" @onclick="OnTriggerDisabledState">Trigger state</button>
+</div>
+
+<div class="mt-1">
+    <span>State: <b>@HotKeyState</b></span>
 </div>
 
 @code {
@@ -31,17 +43,26 @@
     private int currentCount = 0;
 
     private HotKeysContext? HotKeysContext;
+    private readonly HotKeyEntryState HotKeyEntryState = new() { IsDisabled = true };
+
+    private string HotKeyState => HotKeyEntryState.IsDisabled ? "disabled" : "enabled";
 
     protected override void OnInitialized()
     {
         this.HotKeysContext = this.HotKeys.CreateContext()
-            .Add(Code.U, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = ".disabled-hotkeys *" });
+            .Add(Code.U, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = ".disabled-hotkeys *" })
+            .Add(Code.Y, this.IncrementCount, new() { Exclude = Exclude.None, State = HotKeyEntryState });
         this.HotKeys.KeyDown += HotKeys_KeyDown;
     }
 
     private void IncrementCount()
     {
         currentCount++;
+    }
+
+    private void OnTriggerDisabledState()
+    {
+        HotKeyEntryState.IsDisabled = !HotKeyEntryState.IsDisabled;
     }
 
     private void HotKeys_KeyDown(object? sender, HotKeyDownEventArgs e)

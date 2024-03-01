@@ -5,28 +5,36 @@ export var Toolbelt;
         var HotKeys2;
         (function (HotKeys2) {
             class HotkeyEntry {
-                constructor(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector) {
+                constructor(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled) {
                     this.dotNetObj = dotNetObj;
                     this.mode = mode;
                     this.modifiers = modifiers;
                     this.keyEntry = keyEntry;
                     this.exclude = exclude;
                     this.excludeSelector = excludeSelector;
+                    this.isDisabled = isDisabled;
                 }
                 action() {
                     this.dotNetObj.invokeMethodAsync('InvokeAction');
                 }
+                updateDisabled(isDisabled) {
+                    this.isDisabled = isDisabled;
+                }
             }
             let idSeq = 0;
             const hotKeyEntries = new Map();
-            HotKeys2.register = (dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector) => {
+            HotKeys2.register = (dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled) => {
                 const id = idSeq++;
-                const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector);
+                const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled);
                 hotKeyEntries.set(id, hotKeyEntry);
                 return id;
             };
             HotKeys2.unregister = (id) => {
                 hotKeyEntries.delete(id);
+            };
+            HotKeys2.updateDisabled = (id, isDisabled) => {
+                var _a;
+                (_a = hotKeyEntries.get(id)) === null || _a === void 0 ? void 0 : _a.updateDisabled(isDisabled);
             };
             const convertToKeyNameMap = {
                 "OS": "Meta",
@@ -60,27 +68,29 @@ export var Toolbelt;
             const onKeyDown = (modifiers, key, code, targetElement, tagName, type) => {
                 let preventDefault = false;
                 hotKeyEntries.forEach(entry => {
-                    const byCode = entry.mode === 1;
-                    const eventKeyEntry = byCode ? code : key;
-                    const keyEntry = entry.keyEntry;
-                    if (keyEntry !== eventKeyEntry)
-                        return;
-                    const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ 1));
-                    let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ 1));
-                    if (keyEntry.startsWith("Shift") && byCode)
-                        entryModKeys |= 1;
-                    if (keyEntry.startsWith("Control"))
-                        entryModKeys |= 2;
-                    if (keyEntry.startsWith("Alt"))
-                        entryModKeys |= 4;
-                    if (keyEntry.startsWith("Meta"))
-                        entryModKeys |= 8;
-                    if (eventModkeys !== entryModKeys)
-                        return;
-                    if (isExcludeTarget(entry, targetElement, tagName, type))
-                        return;
-                    preventDefault = true;
-                    entry.action();
+                    if (!entry.isDisabled) {
+                        const byCode = entry.mode === 1;
+                        const eventKeyEntry = byCode ? code : key;
+                        const keyEntry = entry.keyEntry;
+                        if (keyEntry !== eventKeyEntry)
+                            return;
+                        const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ 1));
+                        let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ 1));
+                        if (keyEntry.startsWith("Shift") && byCode)
+                            entryModKeys |= 1;
+                        if (keyEntry.startsWith("Control"))
+                            entryModKeys |= 2;
+                        if (keyEntry.startsWith("Alt"))
+                            entryModKeys |= 4;
+                        if (keyEntry.startsWith("Meta"))
+                            entryModKeys |= 8;
+                        if (eventModkeys !== entryModKeys)
+                            return;
+                        if (isExcludeTarget(entry, targetElement, tagName, type))
+                            return;
+                        preventDefault = true;
+                        entry.action();
+                    }
                 });
                 return preventDefault;
             };

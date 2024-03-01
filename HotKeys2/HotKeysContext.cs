@@ -218,7 +218,7 @@ public partial class HotKeysContext : IDisposable
     /// <returns>This context.</returns>
     private HotKeysContext AddInternal(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
     {
-        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByKey(this._Logger, modifiers, key, action, ownerOfAction, options)));
+        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByKey(this, this._Logger, modifiers, key, action, ownerOfAction, options)));
         return this;
     }
 
@@ -413,7 +413,7 @@ public partial class HotKeysContext : IDisposable
     /// <returns>This context.</returns>
     private HotKeysContext AddInternal(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
     {
-        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByCode(this._Logger, modifiers, code, action, ownerOfAction, options)));
+        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByCode(this, this._Logger, modifiers, code, action, ownerOfAction, options)));
         return this;
     }
 
@@ -428,7 +428,7 @@ public partial class HotKeysContext : IDisposable
             {
                 return t.Result.InvokeAsync<int>(
                     "Toolbelt.Blazor.HotKeys2.register",
-                    hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector).AsTask();
+                    hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State?.IsDisabled ?? false).AsTask();
             }
             else
             {
@@ -465,6 +465,25 @@ public partial class HotKeysContext : IDisposable
         .ContinueWith(t =>
         {
             hotKeyEntry.Dispose();
+        });
+    }
+
+    private void UpdateDisabled(HotKeyEntry hotKeyEntry)
+    {
+        if (hotKeyEntry.Id == -1) return;
+
+        this._AttachTask.ContinueWith(t =>
+        {
+            if (t.IsCompleted && !t.IsFaulted)
+            {
+                return t.Result.InvokeVoidAsync("Toolbelt.Blazor.HotKeys2.updateDisabled", hotKeyEntry.Id, hotKeyEntry.State?.IsDisabled ?? false).AsTask();
+            }
+            else
+            {
+                var tcs = new TaskCompletionSource<int>();
+                tcs.TrySetException(t.Exception?.InnerExceptions ?? new[] { new Exception() }.AsEnumerable());
+                return tcs.Task as Task;
+            }
         });
     }
 
@@ -533,6 +552,9 @@ public partial class HotKeysContext : IDisposable
                 k.ExcludeSelector == excludeSelector &&
                 k.Exclude == exclude));
     }
+
+    internal void UpdateHotKeyDisabledState(HotKeyEntry hotKeyEntry) =>
+        this.UpdateDisabled(hotKeyEntry);
 
     private HotKeysContext Remove(Func<IEnumerable<HotKeyEntry>, IEnumerable<HotKeyEntry>> filter)
     {

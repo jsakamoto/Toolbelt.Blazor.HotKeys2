@@ -310,6 +310,89 @@ public class HotKeysOnBrowserTest
 
     [Test]
     [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
+    public async Task StateDisabled_Test(HostingModel hostingModel)
+    {
+        var context = TestContext.Instance;
+        var host = await context.StartHostAsync(hostingModel);
+
+        // Navigate to the "Counter" page,
+        var page = await context.GetPageAsync();
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/counter"));
+
+        // Verify the counter is 0.
+        var counter = page.Locator("h1+p");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+
+        // Set focus to the "Hotkeys are enabled in this field" input element, and type "U" key.
+        // Then the counter should not be incremented.
+        var inputElement1 = await page.QuerySelectorAsync(".disabled-state-hotkeys");
+        if (inputElement1 == null)
+        {
+            throw new InvalidOperationException("Test element is missing");
+        }
+
+        await inputElement1.FocusAsync();
+        await page.Keyboard.DownAsync("y");
+        await page.Keyboard.UpAsync("y");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+        await page.Keyboard.DownAsync("y");
+        await page.Keyboard.UpAsync("y");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+        await page.AssertEqualsAsync(_ => inputElement1.InputValueAsync(), "yy");
+    }
+
+    [Test]
+    [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
+    public async Task StateDisabledTrigger_Test(HostingModel hostingModel)
+    {
+        var context = TestContext.Instance;
+        var host = await context.StartHostAsync(hostingModel);
+
+        // Navigate to the "Counter" page,
+        var page = await context.GetPageAsync();
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/counter"));
+
+        // Verify the counter is 0.
+        var counter = page.Locator("h1+p");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+
+        // Set focus to the "Hotkeys are enabled in this field" input element, and type "U" key.
+        // Then the counter should not be incremented.
+        var inputElement1 = await page.QuerySelectorAsync(".disabled-state-hotkeys");
+        if (inputElement1 == null)
+        {
+            throw new InvalidOperationException("Test element is missing");
+        }
+
+        await inputElement1.FocusAsync();
+        await page.Keyboard.DownAsync("y");
+        await page.Keyboard.UpAsync("y");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+        await page.Keyboard.DownAsync("y");
+        await page.Keyboard.UpAsync("y");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+        await page.AssertEqualsAsync(_ => inputElement1.InputValueAsync(), "yy");
+
+        // Trigger disabled state
+        await page.ClickAsync(".state-trigger-button");
+
+        // Refocus and test again
+        // This time counter should increment
+        await inputElement1.FocusAsync();
+
+        await page.Keyboard.DownAsync("y");
+        await page.Keyboard.UpAsync("y");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 1");
+
+        await page.Keyboard.DownAsync("y");
+        await page.Keyboard.UpAsync("y");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 2");
+
+        await page.AssertEqualsAsync(_ => inputElement1.InputValueAsync(), "yy");
+    }
+
+    [Test]
+    [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
     public async Task ByNativeKey_Test(HostingModel hostingModel)
     {
         var context = TestContext.Instance;

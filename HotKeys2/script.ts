@@ -29,26 +29,35 @@
             public modifiers: ModCodes,
             public keyEntry: string,
             public exclude: Exclude,
-            public excludeSelector: string
+            public excludeSelector: string,
+            public isDisabled: boolean
         ) { }
 
         public action(): void {
             this.dotNetObj.invokeMethodAsync('InvokeAction');
+        }
+
+        public updateDisabled(isDisabled: boolean): void {
+            this.isDisabled = isDisabled;
         }
     }
 
     let idSeq: number = 0;
     const hotKeyEntries = new Map<number, HotkeyEntry>();
 
-    export const register = (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string): number => {
+    export const register = (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string, isDisabled: boolean): number => {
         const id = idSeq++;
-        const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector);
+        const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled);
         hotKeyEntries.set(id, hotKeyEntry);
         return id;
     }
 
     export const unregister = (id: number): void => {
         hotKeyEntries.delete(id);
+    }
+
+    export const updateDisabled = (id: number, isDisabled: boolean) => {
+        hotKeyEntries.get(id)?.updateDisabled(isDisabled);
     }
 
     const convertToKeyNameMap: { [key: string]: string } = {
@@ -89,24 +98,26 @@
 
         hotKeyEntries.forEach(entry => {
 
-            const byCode = entry.mode === HotKeyMode.ByCode;
-            const eventKeyEntry = byCode ? code : key;
-            const keyEntry = entry.keyEntry;
+            if (!entry.isDisabled) {
+                const byCode = entry.mode === HotKeyMode.ByCode;
+                const eventKeyEntry = byCode ? code : key;
+                const keyEntry = entry.keyEntry;
 
-            if (keyEntry !== eventKeyEntry) return;
+                if (keyEntry !== eventKeyEntry) return;
 
-            const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ ModCodes.Shift));
-            let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ ModCodes.Shift));
-            if (keyEntry.startsWith("Shift") && byCode) entryModKeys |= ModCodes.Shift;
-            if (keyEntry.startsWith("Control")) entryModKeys |= ModCodes.Control;
-            if (keyEntry.startsWith("Alt")) entryModKeys |= ModCodes.Alt;
-            if (keyEntry.startsWith("Meta")) entryModKeys |= ModCodes.Meta;
-            if (eventModkeys !== entryModKeys) return;
+                const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ ModCodes.Shift));
+                let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ ModCodes.Shift));
+                if (keyEntry.startsWith("Shift") && byCode) entryModKeys |= ModCodes.Shift;
+                if (keyEntry.startsWith("Control")) entryModKeys |= ModCodes.Control;
+                if (keyEntry.startsWith("Alt")) entryModKeys |= ModCodes.Alt;
+                if (keyEntry.startsWith("Meta")) entryModKeys |= ModCodes.Meta;
+                if (eventModkeys !== entryModKeys) return;
 
-            if (isExcludeTarget(entry, targetElement, tagName, type)) return;
+                if (isExcludeTarget(entry, targetElement, tagName, type)) return;
 
-            preventDefault = true;
-            entry.action();
+                preventDefault = true;
+                entry.action();
+            }
         });
 
         return preventDefault;
