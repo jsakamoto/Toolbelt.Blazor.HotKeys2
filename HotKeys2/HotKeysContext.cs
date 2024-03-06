@@ -66,8 +66,28 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
     /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
+    public HotKeysContext Add(Key key, Func<Task> action, HotKeyOptions options)
+        => this.AddInternal(ModKey.None, key, async _ => await action(), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
     public HotKeysContext Add(Key key, Func<HotKeyEntryByKey, ValueTask> action, HotKeyOptions options)
         => this.AddInternal(ModKey.None, key, arg => action(arg), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Key key, Func<HotKeyEntryByKey, Task> action, HotKeyOptions options)
+        => this.AddInternal(ModKey.None, key, async arg => await action(arg), action.Target as IHandleEvent, options);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -110,8 +130,30 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
+    public HotKeysContext Add(Key key, Func<Task> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModKey.None, key, async _ => await action(), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <returns>This context.</returns>
     public HotKeysContext Add(Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
         => this.AddInternal(ModKey.None, key, arg => action(arg), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Key key, Func<HotKeyEntryByKey, Task> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModKey.None, key, async arg => await action(arg), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     // -----------------------------------------------------------------------------------------------
 
@@ -156,8 +198,30 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<Task> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, key, async _ => await action(), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
     public HotKeysContext Add(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, HotKeyOptions options)
         => this.AddInternal(modifiers, key, action, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<HotKeyEntryByKey, Task> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, key, async arg => await action(arg), action.Target as IHandleEvent, options);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -201,11 +265,35 @@ public partial class HotKeysContext : IDisposable
     /// <param name="modifiers">The combination of modifier keys flags.</param>
     /// <param name="key">The identifier of hotkey by key.</param>
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<Task> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, key, async _ => await action(), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
         => this.AddInternal(modifiers, key, action, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="key">The identifier of hotkey by key.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModKey modifiers, Key key, Func<HotKeyEntryByKey, Task> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, key, async arg => await action(arg), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -261,8 +349,28 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
     /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
+    public HotKeysContext Add(Code code, Func<Task> action, HotKeyOptions options)
+        => this.AddInternal(ModCode.None, code, async _ => await action(), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
     public HotKeysContext Add(Code code, Func<HotKeyEntryByCode, ValueTask> action, HotKeyOptions options)
         => this.AddInternal(ModCode.None, code, action, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Code code, Func<HotKeyEntryByCode, Task> action, HotKeyOptions options)
+        => this.AddInternal(ModCode.None, code, async arg => await action(arg), action.Target as IHandleEvent, options);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -305,8 +413,30 @@ public partial class HotKeysContext : IDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <returns>This context.</returns>
+    public HotKeysContext Add(Code code, Func<Task> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModCode.None, code, async _ => await action(), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <returns>This context.</returns>
     public HotKeysContext Add(Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
         => this.AddInternal(ModCode.None, code, action, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter the key without any modifiers on the browser.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(Code code, Func<HotKeyEntryByCode, Task> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(ModCode.None, code, async arg => await action(arg), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     // -----------------------------------------------------------------------------------------------
 
@@ -351,8 +481,30 @@ public partial class HotKeysContext : IDisposable
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<Task> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, code, async _ => await action(), action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
     public HotKeysContext Add(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, HotKeyOptions options)
         => this.AddInternal(modifiers, code, action, action.Target as IHandleEvent, options);
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="options">The options for this hotkey entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<HotKeyEntryByCode, Task> action, HotKeyOptions options)
+        => this.AddInternal(modifiers, code, async arg => await action(arg), action.Target as IHandleEvent, options);
 
     /// <summary>
     /// Add a new hotkey entry to this context.
@@ -396,11 +548,35 @@ public partial class HotKeysContext : IDisposable
     /// <param name="modifiers">The combination of modifier keys flags.</param>
     /// <param name="code">The identifier of hotkey by code.</param>
     /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<Task> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, code, async _ => await action(), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Add(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, string description = "", Exclude exclude = Exclude.Default)
         => this.AddInternal(modifiers, code, action, action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
+
+    /// <summary>
+    /// Add a new hotkey entry to this context.
+    /// </summary>
+    /// <param name="modifiers">The combination of modifier keys flags.</param>
+    /// <param name="code">The identifier of hotkey by code.</param>
+    /// <param name="action">The callback action that will be invoked when user enter modifiers + key combination on the browser.</param>
+    /// <param name="description">The description of the meaning of this hot key entry.</param>
+    /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
+    /// <returns>This context.</returns>
+    public HotKeysContext Add(ModCode modifiers, Code code, Func<HotKeyEntryByCode, Task> action, string description = "", Exclude exclude = Exclude.Default)
+        => this.AddInternal(modifiers, code, async arg => await action(arg), action.Target as IHandleEvent, new() { Description = description, Exclude = exclude });
 
     /// <summary>
     /// Add a new hotkey entry to this context.
