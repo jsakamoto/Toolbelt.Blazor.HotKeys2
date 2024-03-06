@@ -1,4 +1,4 @@
-﻿# Blazor HotKeys2 [![NuGet Package](https://img.shields.io/nuget/v/Toolbelt.Blazor.HotKeys2.svg)](https://www.nuget.org/packages/Toolbelt.Blazor.HotKeys2/)
+﻿# Blazor HotKeys2 [![NuGet Package](https://img.shields.io/nuget/v/Toolbelt.Blazor.HotKeys2.svg)](https://www.nuget.org/packages/Toolbelt.Blazor.HotKeys2/) [![unit tests](https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/actions/workflows/unit-tests.yml)
 
 ## Summary
 
