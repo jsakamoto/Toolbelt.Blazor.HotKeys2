@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>3.3.0-preview.1</Version>
+    <Version>3.3.0</Version>
     <Copyright>Copyright © 2022-2024 J.Sakamoto, Mozilla Public License 2.0</Copyright>
     <Authors>J.Sakamoto</Authors>
     <RepositoryType>git</RepositoryType>
