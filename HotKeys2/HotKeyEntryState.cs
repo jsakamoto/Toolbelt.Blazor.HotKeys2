@@ -14,7 +14,7 @@ public class HotKeyEntryState
     /// <summary>
     /// Controls if the current hot key is disabled or not.
     /// </summary>
-    public bool IsDisabled
+    public virtual bool IsDisabled
     {
         get => this.isDisabled;
         set
