@@ -178,6 +178,58 @@ You can also specify the elements that are disabled hotkeys by CSS query selecto
 And you can specify the `Exclude.ContentEditable` to register the unavailable hotkey when any "contenteditable" applied elements have focus.
 
 
+### How to remove hotkeys
+
+You can remove hotkkey entries by calling the `Remove()` method of the `HotKeysContext` object, like this.
+
+```csharp
+this.HotKeysContext.Remove(ModCode.Ctrl, Code.A);
+```
+
+Please remember that the `Remove` method will remove a hotkey entry identified by the `key`, `code`, and `modifiers` parameters even if other parameters are unmatched by the registered hotkey entry as long as it can identify a single hotkey entry.
+
+```csharp
+... 
+  this.HotKeys.CreateContext()
+    .Add(Code.A, OnKeyDownA, exclude: Exclude.InputNonText | Exclude.TextArea);
+...
+// The following code will remove the hotkey entry registered by the above code
+// even though the "exclude" option is different.
+this.HotKeysContext.Remove(Code.A);
+```
+
+If the parameters for the `Remove` method can not determine a single hotkey entry, the `ArgumentException` exception will be thrown.
+
+
+```csharp
+... 
+  this.HotKeys.CreateContext()
+    .Add(Code.A, OnKeyDownAForTextArea, exclude: Exclude.InputNonText | Exclude.InputText)
+    .Add(Code.A, OnKeyDownAForInputText, exclude: Exclude.InputNonText | Exclude.TextArea);
+...
+// The following code will throw an ArgumentException exception
+// because the "Remove" method can not determine a single hotkey entry.
+this.HotKeysContext.Remove(Code.A);
+...
+// The following code will successfully remove the hotkey entry in the second one.
+this.HotKeysContext.Remove(Code.A, exclude: Exclude.InputNonText | Exclude.TextArea);
+```
+
+If the `key`, `code`, and `modifires` parameters cannot find any hotkey entry, the `Remove`  method will return without exception.
+
+The `HotKeysContext` also provides another `Remove` method overload version that accepts a filter function as an argument to determine which hotkey entries to remove. This method will remove all hotkey entries in which the filter function returns.
+
+```csharp
+// The following code will remove all hotkey entries registered by the "Code. A",
+// regardless of what modifiers, exclude options, etc.
+this.HotKeysContext.Remove(entries =>
+{
+  return entries.Where(e => e is HotKeyEntryByCode codeEntry && codeEntry.Code == Code.A);
+});
+```
+
+
+
 ## `Code` vs. `Key` - which way should I use to?
 
 There are two ways to register hotkeys in the `HotKeysContext`.

@@ -644,8 +644,14 @@ public partial class HotKeysContext : IDisposable
         });
     }
 
+    private const string _AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE = "Specified parameters are ambiguous to identify the single hotkey entry that should be removed.";
+
     /// <summary>
-    /// Remove one or more hotkey entries from this context.
+    /// Remove a hotkey entriy from this context.<br/>
+    /// If the <paramref name="key"/> parameter cannot find any hotkey entry, this method will return without exception.<br/>
+    /// If only one hotkey entry can be identified by the <paramref name="key"/> parameter, it will be removed even if the other parameters are not matched.<br/>
+    /// If the <paramref name="key"/> parameter identifies two or more hotkey entries, the other parameters are referenced to identify the single hotkey entry to be removed.<br/>
+    /// If the parameters can not determine a single hotkey entry, the <see cref="ArgumentException"/> exception will be thrown.
     /// </summary>
     /// <param name="key">The identifier of hotkey.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
@@ -655,8 +661,13 @@ public partial class HotKeysContext : IDisposable
     public HotKeysContext Remove(Key key, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "") =>
         this.Remove(ModKey.None, key, description, exclude, excludeSelector);
 
+
     /// <summary>
-    /// Remove one or more hotkey entries from this context.
+    /// Remove a hotkey entriy from this context.<br/>
+    /// If the combination of the <paramref name="modifiers"/> and the <paramref name="key"/> parameters cannot find any hotkey entry, this method will return without exception.<br/>
+    /// If only one hotkey entry can be identified by the combination of the <paramref name="modifiers"/> and the <paramref name="key"/> parameters, it will be removed even if the other parameters are not matched.<br/>
+    /// If the combination of the <paramref name="modifiers"/> and the <paramref name="key"/> parameters identifies two or more hotkey entries, the other parameters are referenced to identify the single hotkey entry to be removed.<br/>
+    /// If the parameters can not determine a single hotkey entry, the <see cref="ArgumentException"/> exception will be thrown.
     /// </summary>
     /// <param name="modifiers">The combination of modifier keys flags.</param>
     /// <param name="key">The identifier of hotkey.</param>
@@ -667,18 +678,25 @@ public partial class HotKeysContext : IDisposable
     public HotKeysContext Remove(ModKey modifiers, Key key, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
     {
         var keyEntry = key.ToString();
-        return this.Remove(keys => keys
-            .OfType<HotKeyEntryByKey>()
-            .Where(
-                k => k.Modifiers == modifiers &&
-                k.Key.ToString() == keyEntry &&
-                k.Description == description &&
-                k.Exclude == exclude &&
-                k.ExcludeSelector == excludeSelector));
+        return this.Remove(keys =>
+        {
+            var removeCandidates = keys.OfType<HotKeyEntryByKey>().Where(k => k.Modifiers == modifiers && k.Key.ToString() == keyEntry).ToArray();
+            if (removeCandidates.Length <= 1) return removeCandidates;
+            removeCandidates = removeCandidates.Where(k => k.Exclude == exclude && k.ExcludeSelector == excludeSelector).ToArray();
+            if (removeCandidates.Length == 1) return removeCandidates;
+            if (removeCandidates.Length == 0) throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
+            removeCandidates = removeCandidates.Where(k => k.Description == description).ToArray();
+            if (removeCandidates.Length == 1) return removeCandidates;
+            throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
+        });
     }
 
     /// <summary>
-    /// Remove one or more hotkey entries from this context.
+    /// Remove a hotkey entriy from this context.<br/>
+    /// If the <paramref name="code"/> parameter cannot find any hotkey entry, this method will return without exception.<br/>
+    /// If only one hotkey entry can be identified by the <paramref name="code"/> parameter, it will be removed even if the other parameters are not matched.<br/>
+    /// If the <paramref name="code"/> parameter identifies two or more hotkey entries, the other parameters are referenced to identify the single hotkey entry to be removed.<br/>
+    /// If the parameters can not determine a single hotkey entry, the <see cref="ArgumentException"/> exception will be thrown.
     /// </summary>
     /// <param name="code">The identifier of hotkey.</param>
     /// <param name="description">The description of the meaning of this hot key entry.</param>
@@ -689,7 +707,11 @@ public partial class HotKeysContext : IDisposable
         => this.Remove(ModCode.None, code, description, exclude, excludeSelector);
 
     /// <summary>
-    /// Remove one or more hotkey entries from this context.
+    /// Remove a hotkey entriy from this context.<br/>
+    /// If the combination of the <paramref name="modifiers"/> and the <paramref name="code"/> parameters cannot find any hotkey entry, this method will return without exception.<br/>
+    /// If only one hotkey entry can be identified by the combination of the <paramref name="modifiers"/> and the <paramref name="code"/> parameters, it will be removed even if the other parameters are not matched.<br/>
+    /// If the combination of the <paramref name="modifiers"/> and the <paramref name="code"/> parameters identifies two or more hotkey entries, the other parameters are referenced to identify the single hotkey entry to be removed.<br/>
+    /// If the parameters can not determine a single hotkey entry, the <see cref="ArgumentException"/> exception will be thrown.
     /// </summary>
     /// <param name="modifiers">The combination of modifier keys flags.</param>
     /// <param name="code">The identifier of hotkey.</param>
@@ -700,17 +722,24 @@ public partial class HotKeysContext : IDisposable
     public HotKeysContext Remove(ModCode modifiers, Code code, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
     {
         var keyEntry = code.ToString();
-        return this.Remove(keys => keys
-            .OfType<HotKeyEntryByCode>()
-            .Where(
-                k => k.Modifiers == modifiers &&
-                k.Code.ToString() == keyEntry &&
-                k.Description == description &&
-                k.ExcludeSelector == excludeSelector &&
-                k.Exclude == exclude));
+        return this.Remove(keys =>
+        {
+            var removeCandidates = keys.OfType<HotKeyEntryByCode>().Where(k => k.Modifiers == modifiers && k.Code.ToString() == keyEntry).ToArray();
+            if (removeCandidates.Length <= 1) return removeCandidates;
+            removeCandidates = removeCandidates.Where(k => k.ExcludeSelector == excludeSelector && k.Exclude == exclude).ToArray();
+            if (removeCandidates.Length == 1) return removeCandidates;
+            if (removeCandidates.Length == 0) throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
+            removeCandidates = removeCandidates.Where(k => k.Description == description).ToArray();
+            if (removeCandidates.Length == 1) return removeCandidates;
+            throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
+        });
     }
 
-    private HotKeysContext Remove(Func<IEnumerable<HotKeyEntry>, IEnumerable<HotKeyEntry>> filter)
+    /// <summary>
+    /// Remove all hotkey entries from this context where the <paramref name="filter"/> function returns <c>true</c>.
+    /// </summary>
+    /// <param name="filter"></param>
+    public HotKeysContext Remove(Func<IEnumerable<HotKeyEntry>, IEnumerable<HotKeyEntry>> filter)
     {
         var entries = filter.Invoke(this.Keys).ToArray();
         foreach (var entry in entries)
