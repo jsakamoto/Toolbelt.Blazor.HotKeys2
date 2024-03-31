@@ -1,3 +1,8 @@
+v.4.0.0
+- [Breaking Change] The "Remove()" method now removes a single hotkey entry by only the key combination parameters, at least as long as it can be uniquely identified.
+  - It will throw an exception if the parameters identify two or more hotkey entries.
+- Improve: Add another overloaded "Remove()" method with a filter function to remove multiple hotkey entries.
+
 v.3.3.0
 - Improve: Add overloaded version of Add() methods for async methods returns a Task.
 
