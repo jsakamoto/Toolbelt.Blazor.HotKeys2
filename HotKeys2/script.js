@@ -14,7 +14,10 @@ export var Toolbelt;
                     this.excludeSelector = excludeSelector;
                 }
                 action() {
-                    this.dotNetObj.invokeMethodAsync('InvokeAction');
+                    this.dotNetObj.invokeMethod('InvokeAction');
+                }
+                isDisabled() {
+                    return this.dotNetObj.invokeMethod('IsDisabled');
                 }
             }
             let idSeq = 0;
@@ -36,7 +39,7 @@ export var Toolbelt;
                 return convertToKeyNameMap[ev.key] || ev.key;
             };
             const OnKeyDownMethodName = "OnKeyDown";
-            HotKeys2.attach = (hotKeysWrpper, isWasm) => {
+            HotKeys2.attach = (hotKeysWrapper, isWasm) => {
                 document.addEventListener('keydown', ev => {
                     if (typeof (ev["altKey"]) === 'undefined')
                         return;
@@ -50,37 +53,37 @@ export var Toolbelt;
                     const tagName = targetElement.tagName;
                     const type = targetElement.getAttribute('type');
                     const preventDefault1 = onKeyDown(modifiers, key, code, targetElement, tagName, type);
-                    const preventDefault2 = isWasm === true ? hotKeysWrpper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code) : false;
+                    const preventDefault2 = hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code);
                     if (preventDefault1 || preventDefault2)
                         ev.preventDefault();
-                    if (isWasm === false)
-                        hotKeysWrpper.invokeMethodAsync(OnKeyDownMethodName, modifiers, tagName, type, key, code);
                 });
             };
             const onKeyDown = (modifiers, key, code, targetElement, tagName, type) => {
                 let preventDefault = false;
                 hotKeyEntries.forEach(entry => {
-                    const byCode = entry.mode === 1;
-                    const eventKeyEntry = byCode ? code : key;
-                    const keyEntry = entry.keyEntry;
-                    if (keyEntry !== eventKeyEntry)
-                        return;
-                    const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ 1));
-                    let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ 1));
-                    if (keyEntry.startsWith("Shift") && byCode)
-                        entryModKeys |= 1;
-                    if (keyEntry.startsWith("Control"))
-                        entryModKeys |= 2;
-                    if (keyEntry.startsWith("Alt"))
-                        entryModKeys |= 4;
-                    if (keyEntry.startsWith("Meta"))
-                        entryModKeys |= 8;
-                    if (eventModkeys !== entryModKeys)
-                        return;
-                    if (isExcludeTarget(entry, targetElement, tagName, type))
-                        return;
-                    preventDefault = true;
-                    entry.action();
+                    if (!entry.isDisabled()) {
+                        const byCode = entry.mode === 1;
+                        const eventKeyEntry = byCode ? code : key;
+                        const keyEntry = entry.keyEntry;
+                        if (keyEntry !== eventKeyEntry)
+                            return;
+                        const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ 1));
+                        let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ 1));
+                        if (keyEntry.startsWith("Shift") && byCode)
+                            entryModKeys |= 1;
+                        if (keyEntry.startsWith("Control"))
+                            entryModKeys |= 2;
+                        if (keyEntry.startsWith("Alt"))
+                            entryModKeys |= 4;
+                        if (keyEntry.startsWith("Meta"))
+                            entryModKeys |= 8;
+                        if (eventModkeys !== entryModKeys)
+                            return;
+                        if (isExcludeTarget(entry, targetElement, tagName, type))
+                            return;
+                        preventDefault = true;
+                        entry.action();
+                    }
                 });
                 return preventDefault;
             };

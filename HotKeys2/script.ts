@@ -33,7 +33,11 @@
         ) { }
 
         public action(): void {
-            this.dotNetObj.invokeMethodAsync('InvokeAction');
+            this.dotNetObj.invokeMethod('InvokeAction');
+        }
+
+        public isDisabled(): boolean {
+            return this.dotNetObj.invokeMethod('IsDisabled');
         }
     }
 
@@ -62,7 +66,7 @@
 
     const OnKeyDownMethodName = "OnKeyDown";
 
-    export const attach = (hotKeysWrpper: any, isWasm: boolean): void => {
+    export const attach = (hotKeysWrapper: any, isWasm: boolean): void => {
         document.addEventListener('keydown', ev => {
             if (typeof (ev["altKey"]) === 'undefined') return;
             const modifiers =
@@ -78,9 +82,8 @@
             const type = targetElement.getAttribute('type');
 
             const preventDefault1 = onKeyDown(modifiers, key, code, targetElement, tagName, type);
-            const preventDefault2 = isWasm === true ? hotKeysWrpper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code) : false;
+            const preventDefault2 = hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code);
             if (preventDefault1 || preventDefault2) ev.preventDefault();
-            if (isWasm === false) hotKeysWrpper.invokeMethodAsync(OnKeyDownMethodName, modifiers, tagName, type, key, code);
         });
     }
 
@@ -89,24 +92,26 @@
 
         hotKeyEntries.forEach(entry => {
 
-            const byCode = entry.mode === HotKeyMode.ByCode;
-            const eventKeyEntry = byCode ? code : key;
-            const keyEntry = entry.keyEntry;
+            if (!entry.isDisabled()) {
+                const byCode = entry.mode === HotKeyMode.ByCode;
+                const eventKeyEntry = byCode ? code : key;
+                const keyEntry = entry.keyEntry;
 
-            if (keyEntry !== eventKeyEntry) return;
+                if (keyEntry !== eventKeyEntry) return;
 
-            const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ ModCodes.Shift));
-            let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ ModCodes.Shift));
-            if (keyEntry.startsWith("Shift") && byCode) entryModKeys |= ModCodes.Shift;
-            if (keyEntry.startsWith("Control")) entryModKeys |= ModCodes.Control;
-            if (keyEntry.startsWith("Alt")) entryModKeys |= ModCodes.Alt;
-            if (keyEntry.startsWith("Meta")) entryModKeys |= ModCodes.Meta;
-            if (eventModkeys !== entryModKeys) return;
+                const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ ModCodes.Shift));
+                let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ ModCodes.Shift));
+                if (keyEntry.startsWith("Shift") && byCode) entryModKeys |= ModCodes.Shift;
+                if (keyEntry.startsWith("Control")) entryModKeys |= ModCodes.Control;
+                if (keyEntry.startsWith("Alt")) entryModKeys |= ModCodes.Alt;
+                if (keyEntry.startsWith("Meta")) entryModKeys |= ModCodes.Meta;
+                if (eventModkeys !== entryModKeys) return;
 
-            if (isExcludeTarget(entry, targetElement, tagName, type)) return;
+                if (isExcludeTarget(entry, targetElement, tagName, type)) return;
 
-            preventDefault = true;
-            entry.action();
+                preventDefault = true;
+                entry.action();
+            }
         });
 
         return preventDefault;
