@@ -26,6 +26,8 @@ export var Toolbelt;
                 return id;
             };
             HotKeys2.unregister = (id) => {
+                if (id === -1)
+                    return;
                 hotKeyEntries.delete(id);
             };
             const convertToKeyNameMap = {

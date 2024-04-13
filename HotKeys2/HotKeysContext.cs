@@ -18,6 +18,8 @@ public partial class HotKeysContext : IDisposable
 
     private readonly ILogger _Logger;
 
+    private bool _IsDisposed = false;
+
     /// <summary>
     /// Initialize a new instance of the HotKeysContext class.
     /// </summary>
@@ -306,7 +308,9 @@ public partial class HotKeysContext : IDisposable
     /// <returns>This context.</returns>
     private HotKeysContext AddInternal(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
     {
-        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByKey(this._Logger, modifiers, key, action, ownerOfAction, options)));
+        var hotkeyEntry = new HotKeyEntryByKey(this._Logger, modifiers, key, action, ownerOfAction, options);
+        lock (this.Keys) this.Keys.Add(hotkeyEntry);
+        var _ = this.RegisterAsync(hotkeyEntry);
         return this;
     }
 
@@ -589,59 +593,44 @@ public partial class HotKeysContext : IDisposable
     /// <returns>This context.</returns>
     private HotKeysContext AddInternal(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
     {
-        lock (this.Keys) this.Keys.Add(this.Register(new HotKeyEntryByCode(this._Logger, modifiers, code, action, ownerOfAction, options)));
+        var hotkeyEntry = new HotKeyEntryByCode(this._Logger, modifiers, code, action, ownerOfAction, options);
+        lock (this.Keys) this.Keys.Add(hotkeyEntry);
+        var _ = this.RegisterAsync(hotkeyEntry);
         return this;
     }
 
     // ===============================================================================================
 
 
-    private HotKeyEntry Register(HotKeyEntry hotKeyEntry)
+    private async ValueTask RegisterAsync(HotKeyEntry hotKeyEntry)
     {
-        this._AttachTask.ContinueWith(t =>
+        await this.InvokeJsSafeAsync(async () =>
         {
-            if (t.IsCompleted && !t.IsFaulted)
-            {
-                return t.Result.InvokeAsync<int>(
-                    "Toolbelt.Blazor.HotKeys2.register",
-                    hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector).AsTask();
-            }
-            else
-            {
-                var tcs = new TaskCompletionSource<int>();
-                tcs.TrySetException(t.Exception?.InnerExceptions ?? new[] { new Exception() }.AsEnumerable());
-                return tcs.Task;
-            }
-        })
-        .Unwrap()
-        .ContinueWith(t =>
-        {
-            if (!t.IsCanceled && !t.IsFaulted) { hotKeyEntry.Id = t.Result; }
+            var module = await this._AttachTask;
+            if (this._IsDisposed) return;
+
+            hotKeyEntry.Id = await module.InvokeAsync<int>(
+                "Toolbelt.Blazor.HotKeys2.register",
+                hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector);
         });
-        return hotKeyEntry;
     }
 
-    private void Unregister(HotKeyEntry hotKeyEntry)
+    private async ValueTask UnregisterAsync(HotKeyEntry hotKeyEntry)
     {
-        if (hotKeyEntry.Id == -1) return;
-
-        this._AttachTask.ContinueWith(t =>
+        await this.InvokeJsSafeAsync(async () =>
         {
-            if (t.IsCompleted && !t.IsFaulted)
-            {
-                return t.Result.InvokeVoidAsync("Toolbelt.Blazor.HotKeys2.unregister", hotKeyEntry.Id).AsTask();
-            }
-            else
-            {
-                var tcs = new TaskCompletionSource<int>();
-                tcs.TrySetException(t.Exception?.InnerExceptions ?? new[] { new Exception() }.AsEnumerable());
-                return tcs.Task as Task;
-            }
-        })
-        .ContinueWith(t =>
-        {
-            hotKeyEntry.Dispose();
+            var module = await this._AttachTask;
+            await module.InvokeVoidAsync("Toolbelt.Blazor.HotKeys2.unregister", hotKeyEntry.Id);
         });
+
+        await this.InvokeJsSafeAsync(() => { hotKeyEntry.Dispose(); return ValueTask.CompletedTask; });
+    }
+
+    private async ValueTask InvokeJsSafeAsync(Func<ValueTask> action)
+    {
+        try { await action(); }
+        catch (JSDisconnectedException) { } // Ignore this exception because it is thrown when the user navigates to another page.
+        catch (Exception ex) { this._Logger.LogError(ex, ex.Message); }
     }
 
     private const string _AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE = "Specified parameters are ambiguous to identify the single hotkey entry that should be removed.";
@@ -744,7 +733,7 @@ public partial class HotKeysContext : IDisposable
         var entries = filter.Invoke(this.Keys).ToArray();
         foreach (var entry in entries)
         {
-            this.Unregister(entry);
+            var _ = this.UnregisterAsync(entry);
             lock (this.Keys) this.Keys.Remove(entry);
         }
         return this;
@@ -755,9 +744,10 @@ public partial class HotKeysContext : IDisposable
     /// </summary>
     public void Dispose()
     {
+        this._IsDisposed = true;
         foreach (var entry in this.Keys)
         {
-            this.Unregister(entry);
+            var _ = this.UnregisterAsync(entry);
         }
         this.Keys.Clear();
     }

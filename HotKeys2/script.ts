@@ -48,6 +48,7 @@
     }
 
     export const unregister = (id: number): void => {
+        if (id === -1) return;
         hotKeyEntries.delete(id);
     }
 
