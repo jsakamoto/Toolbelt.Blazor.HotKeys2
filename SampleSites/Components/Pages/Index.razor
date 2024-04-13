@@ -12,6 +12,10 @@ Welcome to your new app.
     <button class="btn btn-secondary" @onclick="OnClickRemoveHotKey">
         Remove the hot key "G"
     </button>
+
+    <button class="btn btn-secondary" @onclick="OnClickDisposeHotKeyContext">
+        Dispose the hot key context
+    </button>
 </p>
 
 @code {
@@ -28,6 +32,11 @@ Welcome to your new app.
         this.HotKeysContext = this.HotKeys.CreateContext()
             .Add(Code.G, OnHotKey)
             .Add(Key.At, OnHotKey);
+
+        // Check the issue #20.
+        var temporaryContext = this.HotKeys.CreateContext()
+            .Add(Code.U, OnHotKey);
+        temporaryContext.Dispose();
     }
 
     private void OnHotKey()
@@ -41,6 +50,12 @@ Welcome to your new app.
     private void OnClickRemoveHotKey()
     {
         this.HotKeysContext?.Remove(Code.G);
+    }
+
+    private void OnClickDisposeHotKeyContext()
+    {
+        this.HotKeysContext?.Dispose();
+        this.HotKeysContext = null;
     }
 
     public void Dispose()
