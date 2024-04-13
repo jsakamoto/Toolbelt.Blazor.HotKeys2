@@ -1,3 +1,6 @@
+v.4.0.1
+- Fix: Disposing immediately after "CreateContext" will not work.
+
 v.4.0.0
 - [Breaking Change] The "Remove()" method now removes a single hotkey entry by only the key combination parameters, at least as long as it can be uniquely identified.
   - It will throw an exception if the parameters identify two or more hotkey entries.
