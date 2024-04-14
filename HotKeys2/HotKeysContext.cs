@@ -307,12 +307,7 @@ public partial class HotKeysContext : IDisposable
     /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
     private HotKeysContext AddInternal(ModKey modifiers, Key key, Func<HotKeyEntryByKey, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
-    {
-        var hotkeyEntry = new HotKeyEntryByKey(this._Logger, modifiers, key, action, ownerOfAction, options);
-        lock (this.Keys) this.Keys.Add(hotkeyEntry);
-        var _ = this.RegisterAsync(hotkeyEntry);
-        return this;
-    }
+        => this.AddInternal(new HotKeyEntryByKey(this._Logger, modifiers, key, action, ownerOfAction, options));
 
     // ===============================================================================================
 
@@ -592,26 +587,40 @@ public partial class HotKeysContext : IDisposable
     /// <param name="options">The options for this hotkey entry.</param>
     /// <returns>This context.</returns>
     private HotKeysContext AddInternal(ModCode modifiers, Code code, Func<HotKeyEntryByCode, ValueTask> action, IHandleEvent? ownerOfAction, HotKeyOptions options)
+        => this.AddInternal(new HotKeyEntryByCode(this._Logger, modifiers, code, action, ownerOfAction, options));
+
+    // ===============================================================================================
+
+    private HotKeysContext AddInternal(HotKeyEntry hotkeyEntry)
     {
-        var hotkeyEntry = new HotKeyEntryByCode(this._Logger, modifiers, code, action, ownerOfAction, options);
         lock (this.Keys) this.Keys.Add(hotkeyEntry);
-        var _ = this.RegisterAsync(hotkeyEntry);
+        this.RegisterAsync(hotkeyEntry);
+        hotkeyEntry._NotifyStateChanged = this.OnNotifyStateChanged;
         return this;
     }
 
     // ===============================================================================================
 
 
-    private async ValueTask RegisterAsync(HotKeyEntry hotKeyEntry)
+    private void RegisterAsync(HotKeyEntry hotKeyEntry)
     {
-        await this.InvokeJsSafeAsync(async () =>
+        var _ = this.InvokeJsSafeAsync(async () =>
         {
             var module = await this._AttachTask;
             if (this._IsDisposed) return;
 
             hotKeyEntry.Id = await module.InvokeAsync<int>(
                 "Toolbelt.Blazor.HotKeys2.register",
-                hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector);
+                hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State.IsDisabled);
+        });
+    }
+
+    private void OnNotifyStateChanged(HotKeyEntry hotKeyEntry)
+    {
+        var _ = this.InvokeJsSafeAsync(async () =>
+        {
+            var module = await this._AttachTask;
+            await module.InvokeVoidAsync("Toolbelt.Blazor.HotKeys2.update", hotKeyEntry.Id, hotKeyEntry.State.IsDisabled);
         });
     }
 
@@ -735,6 +744,7 @@ public partial class HotKeysContext : IDisposable
         {
             var _ = this.UnregisterAsync(entry);
             lock (this.Keys) this.Keys.Remove(entry);
+            entry._NotifyStateChanged = null;
         }
         return this;
     }
@@ -748,6 +758,7 @@ public partial class HotKeysContext : IDisposable
         foreach (var entry in this.Keys)
         {
             var _ = this.UnregisterAsync(entry);
+            entry._NotifyStateChanged = null;
         }
         this.Keys.Clear();
     }

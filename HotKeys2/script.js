@@ -5,28 +5,32 @@ export var Toolbelt;
         var HotKeys2;
         (function (HotKeys2) {
             class HotkeyEntry {
-                constructor(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector) {
+                constructor(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled) {
                     this.dotNetObj = dotNetObj;
                     this.mode = mode;
                     this.modifiers = modifiers;
                     this.keyEntry = keyEntry;
                     this.exclude = exclude;
                     this.excludeSelector = excludeSelector;
+                    this.isDisabled = isDisabled;
                 }
                 action() {
-                    this.dotNetObj.invokeMethod('InvokeAction');
-                }
-                isDisabled() {
-                    return this.dotNetObj.invokeMethod('IsDisabled');
+                    this.dotNetObj.invokeMethodAsync('InvokeAction');
                 }
             }
             let idSeq = 0;
             const hotKeyEntries = new Map();
-            HotKeys2.register = (dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector) => {
+            HotKeys2.register = (dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled) => {
                 const id = idSeq++;
-                const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector);
+                const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled);
                 hotKeyEntries.set(id, hotKeyEntry);
                 return id;
+            };
+            HotKeys2.update = (id, isDisabled) => {
+                const hotkeyEntry = hotKeyEntries.get(id);
+                if (!hotkeyEntry)
+                    return;
+                hotkeyEntry.isDisabled = isDisabled;
             };
             HotKeys2.unregister = (id) => {
                 if (id === -1)
@@ -55,15 +59,17 @@ export var Toolbelt;
                     const tagName = targetElement.tagName;
                     const type = targetElement.getAttribute('type');
                     const preventDefault1 = onKeyDown(modifiers, key, code, targetElement, tagName, type);
-                    const preventDefault2 = hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code);
+                    const preventDefault2 = isWasm === true ? hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code) : false;
                     if (preventDefault1 || preventDefault2)
                         ev.preventDefault();
+                    if (isWasm === false)
+                        hotKeysWrapper.invokeMethodAsync(OnKeyDownMethodName, modifiers, tagName, type, key, code);
                 });
             };
             const onKeyDown = (modifiers, key, code, targetElement, tagName, type) => {
                 let preventDefault = false;
                 hotKeyEntries.forEach(entry => {
-                    if (!entry.isDisabled()) {
+                    if (!entry.isDisabled) {
                         const byCode = entry.mode === 1;
                         const eventKeyEntry = byCode ? code : key;
                         const keyEntry = entry.keyEntry;

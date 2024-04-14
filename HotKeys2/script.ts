@@ -29,26 +29,29 @@
             public modifiers: ModCodes,
             public keyEntry: string,
             public exclude: Exclude,
-            public excludeSelector: string
+            public excludeSelector: string,
+            public isDisabled: boolean
         ) { }
 
         public action(): void {
-            this.dotNetObj.invokeMethod('InvokeAction');
-        }
-
-        public isDisabled(): boolean {
-            return this.dotNetObj.invokeMethod('IsDisabled');
+            this.dotNetObj.invokeMethodAsync('InvokeAction');
         }
     }
 
     let idSeq: number = 0;
     const hotKeyEntries = new Map<number, HotkeyEntry>();
 
-    export const register = (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string): number => {
+    export const register = (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string, isDisabled: boolean): number => {
         const id = idSeq++;
-        const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector);
+        const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled);
         hotKeyEntries.set(id, hotKeyEntry);
         return id;
+    }
+
+    export const update = (id: number, isDisabled: boolean): void => {
+        const hotkeyEntry = hotKeyEntries.get(id);
+        if (!hotkeyEntry) return;
+        hotkeyEntry.isDisabled = isDisabled;
     }
 
     export const unregister = (id: number): void => {
@@ -83,8 +86,9 @@
             const type = targetElement.getAttribute('type');
 
             const preventDefault1 = onKeyDown(modifiers, key, code, targetElement, tagName, type);
-            const preventDefault2 = hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code);
+            const preventDefault2 = isWasm === true ? hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code) : false;
             if (preventDefault1 || preventDefault2) ev.preventDefault();
+            if (isWasm === false) hotKeysWrapper.invokeMethodAsync(OnKeyDownMethodName, modifiers, tagName, type, key, code);
         });
     }
 
@@ -93,7 +97,7 @@
 
         hotKeyEntries.forEach(entry => {
 
-            if (!entry.isDisabled()) {
+            if (!entry.isDisabled) {
                 const byCode = entry.mode === HotKeyMode.ByCode;
                 const eventKeyEntry = byCode ? code : key;
                 const keyEntry = entry.keyEntry;

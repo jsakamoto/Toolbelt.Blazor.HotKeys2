@@ -8,9 +8,9 @@ public class HotKeysOnBrowserTest
             HostingModel.Wasm60,
             HostingModel.Wasm70,
             HostingModel.Wasm80,
-            //HostingModel.Server60,
-            //HostingModel.Server70,
-            //HostingModel.Server80,
+            HostingModel.Server60,
+            HostingModel.Server70,
+            HostingModel.Server80,
         };
 
     public static IEnumerable<HostingModel> WasmHostingModels { get; } = new[] {
