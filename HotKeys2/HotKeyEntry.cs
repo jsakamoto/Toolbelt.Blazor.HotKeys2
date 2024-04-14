@@ -32,6 +32,11 @@ public abstract class HotKeyEntry : IDisposable
     /// </summary>
     public string? Description { get; }
 
+    /// <summary>
+    /// Get the state data attached to this hot key entry.
+    /// </summary>
+    public HotKeyEntryState State { get; }
+
     internal int Id = -1;
 
     internal readonly DotNetObjectReference<HotKeyEntry> _ObjectRef;
@@ -77,6 +82,7 @@ public abstract class HotKeyEntry : IDisposable
         this.Description = options.Description;
         this.Exclude = options.Exclude;
         this.ExcludeSelector = options.ExcludeSelector;
+        this.State = options.State;
         this._ObjectRef = DotNetObjectReference.Create(this);
     }
 
@@ -104,6 +110,9 @@ public abstract class HotKeyEntry : IDisposable
 
     [JSInvokable(nameof(InvokeAction)), EditorBrowsable(Never)]
     public void InvokeAction() => this.InvokeCallbackAction();
+
+    [JSInvokable(nameof(IsDisabled)), EditorBrowsable(Never)]
+    public bool IsDisabled() => this.State.IsDisabled;
 
     /// <summary>
     /// Returns a String that combined key combination and description of this entry, like "Ctrl+A: Select All."
