@@ -40,7 +40,7 @@ public class SampleSite
         // Publish and...
         using var publishCommand = await Start(
             "dotnet",
-            $"publish -f:{this.TargetFramework} -c:Release -p:BlazorEnableCompression=false -p:UsingBrowserRuntimeWorkload=false",
+            $"publish -f:{this.TargetFramework} -c:Release -p:BlazorEnableCompression=false -p:UsingBrowserRuntimeWorkload=false /p:BuildMode=test",
             projDir)
             .WaitForExitAsync();
         publishCommand.ExitCode.Is(0, message: publishCommand.Output);

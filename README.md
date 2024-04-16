@@ -1,4 +1,6 @@
-﻿# Blazor HotKeys2 [![NuGet Package](https://img.shields.io/nuget/v/Toolbelt.Blazor.HotKeys2.svg)](https://www.nuget.org/packages/Toolbelt.Blazor.HotKeys2/) [![unit tests](https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/actions/workflows/unit-tests.yml)
+﻿# Blazor HotKeys2
+
+[![NuGet Package](https://img.shields.io/nuget/v/Toolbelt.Blazor.HotKeys2.svg)](https://www.nuget.org/packages/Toolbelt.Blazor.HotKeys2/) [![unit tests](https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/actions/workflows/unit-tests.yml) [![Discord](https://img.shields.io/discord/798312431893348414?style=flat&logo=discord&logoColor=white&label=Blazor%20Community&labelColor=5865f2&color=gray)](https://discord.com/channels/798312431893348414/1202165955900473375)
 
 ## Summary
 
@@ -14,7 +16,7 @@ You can declare associations of keyboard shortcut and callback action, like this
 ```csharp
 // The method "OnSelectAll" will be invoked 
 //  when the user typed Ctrl+A key combination.
-this.HotKeysContext = this.HotKeys.CreateContext()
+_hotKeysContext = this.HotKeys.CreateContext()
   .Add(ModCode.Ctrl, Code.A, OnSelectAll)
   .Add(...)
   ...;
@@ -78,11 +80,11 @@ Please remember that you have to keep the `HotKeys Context` object in the compon
 ```csharp
 @code {
 
-  private HotKeysContext? HotKeysContext;
+  private HotKeysContext? _hotKeysContext;
 
   protected override void OnInitialized()
   {
-    this.HotKeysContext = this.HotKeys.CreateContext()
+    _hotKeysContext = this.HotKeys.CreateContext()
       .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, new() { Description = "do foo bar." })
       .Add(...)
       ...;
@@ -109,7 +111,7 @@ Please remember that you have to keep the `HotKeys Context` object in the compon
   ...
   public void Dispose()
   {
-    this.HotKeysContext?.Dispose(); // 👈 1. Add this
+    _hotKeysContext?.Dispose(); // 👈 1. Add this
   }
 }
 ```
@@ -124,11 +126,11 @@ The complete source code (.razor) of this component is bellow.
 
 @code {
 
-  private HotKeysContext? HotKeysContext;
+  private HotKeysContext? _hotKeysContext;
 
   protected override void OnInitialized()
   {
-    this.HotKeysContext = this.HotKeys.CreateContext()
+    _hotKeysContext = this.HotKeys.CreateContext()
       .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, new() { Description = "do foo bar." })
   }
 
@@ -139,7 +141,7 @@ The complete source code (.razor) of this component is bellow.
 
   public void Dispose()
   {
-    this.HotKeysContext?.Dispose();
+    _hotKeysContext?.Dispose();
   }
 }
 ```
@@ -177,25 +179,63 @@ You can also specify the elements that are disabled hotkeys by CSS query selecto
 
 And you can specify the `Exclude.ContentEditable` to register the unavailable hotkey when any "contenteditable" applied elements have focus.
 
+### How to enable / disable hotkeys depending on application states
+
+You can also specify enabling/disabling hotkeys depending on the application states through the `Disabled` property of the `HotKeyEntryState` object included by a `HotKeyEntry` as its `State` property. You can initialize the `State` property of the `HotKeyEntry` object when you call the `HotKeysContext.Add()` method.
+
+```csharp
+...
+private HotKeyEntryState _state = new() { Disabled = true };
+
+protected override void OnInitialized()
+{
+  _hotKeysContext = this.HotKeys.CreateContext()
+    // 👇 Specify the "State" property of the option object.
+    .Add(Code.A, OnHotKeyA, new() { State = _state });
+}
+...
+```
+
+And you can change the `Disabled` property of the `HotKeyEntryState` object to enable/disable the hotkey whenever you want.
+
+```csharp
+private void OnClickEnableHotKeyA()
+{
+  _state.Disabled = false;
+}
+```
+
+You can also control enable/disable a hotkey more declaratively by updating the `Disabled` property in the `OnAfterRender()` lifecycle method.
+
+```csharp
+protected override void OnAfterRender(bool firstRender)
+{
+  // Update the state of the hotkey entry every time 
+  // the component is rendered.
+  // Because the causing of rendering means that
+  // some of the states of the component have been changed.
+  _state.Disabled = _showDialog || _panelPopuped;
+}
+```
 
 ### How to remove hotkeys
 
 You can remove hotkkey entries by calling the `Remove()` method of the `HotKeysContext` object, like this.
 
 ```csharp
-this.HotKeysContext.Remove(ModCode.Ctrl, Code.A);
+_hotKeysContext.Remove(ModCode.Ctrl, Code.A);
 ```
 
 Please remember that the `Remove` method will remove a hotkey entry identified by the `key`, `code`, and `modifiers` parameters even if other parameters are unmatched by the registered hotkey entry as long as it can identify a single hotkey entry.
 
 ```csharp
 ... 
-  this.HotKeys.CreateContext()
+  _hotKeysContext = this.HotKeys.CreateContext()
     .Add(Code.A, OnKeyDownA, exclude: Exclude.InputNonText | Exclude.TextArea);
 ...
 // The following code will remove the hotkey entry registered by the above code
 // even though the "exclude" option is different.
-this.HotKeysContext.Remove(Code.A);
+_hotKeysContext.Remove(Code.A);
 ```
 
 If the parameters for the `Remove` method can not determine a single hotkey entry, the `ArgumentException` exception will be thrown.
@@ -203,16 +243,16 @@ If the parameters for the `Remove` method can not determine a single hotkey entr
 
 ```csharp
 ... 
-  this.HotKeys.CreateContext()
-    .Add(Code.A, OnKeyDownAForTextArea, exclude: Exclude.InputNonText | Exclude.InputText)
-    .Add(Code.A, OnKeyDownAForInputText, exclude: Exclude.InputNonText | Exclude.TextArea);
+_hotKeysContext = this.HotKeys.CreateContext()
+  .Add(Code.A, OnKeyDownAForTextArea, exclude: Exclude.InputNonText | Exclude.InputText)
+  .Add(Code.A, OnKeyDownAForInputText, exclude: Exclude.InputNonText | Exclude.TextArea);
 ...
 // The following code will throw an ArgumentException exception
 // because the "Remove" method can not determine a single hotkey entry.
-this.HotKeysContext.Remove(Code.A);
+_hotKeysContext.Remove(Code.A);
 ...
 // The following code will successfully remove the hotkey entry in the second one.
-this.HotKeysContext.Remove(Code.A, exclude: Exclude.InputNonText | Exclude.TextArea);
+_hotKeysContext.Remove(Code.A, exclude: Exclude.InputNonText | Exclude.TextArea);
 ```
 
 If the `key`, `code`, and `modifires` parameters cannot find any hotkey entry, the `Remove`  method will return without exception.
@@ -222,13 +262,11 @@ The `HotKeysContext` also provides another `Remove` method overload version that
 ```csharp
 // The following code will remove all hotkey entries registered by the "Code. A",
 // regardless of what modifiers, exclude options, etc.
-this.HotKeysContext.Remove(entries =>
+_hotKeysContext.Remove(entries =>
 {
   return entries.Where(e => e is HotKeyEntryByCode codeEntry && codeEntry.Code == Code.A);
 });
 ```
-
-
 
 ## `Code` vs. `Key` - which way should I use to?
 
@@ -271,7 +309,7 @@ Instead, the `HotKeysContext` object provides `Keys` property, so you can implem
 
 ```razor
 <ul>
-    @foreach (var key in this.HotKeysContext.Keys)
+    @foreach (var key in _hotKeysContext.Keys)
     {
         <li>@key</li>
     }

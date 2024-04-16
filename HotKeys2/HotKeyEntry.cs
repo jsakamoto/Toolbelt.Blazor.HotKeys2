@@ -32,6 +32,11 @@ public abstract class HotKeyEntry : IDisposable
     /// </summary>
     public string? Description { get; }
 
+    /// <summary>
+    /// Get the state data attached to this hot key entry.
+    /// </summary>
+    public HotKeyEntryState State { get; }
+
     internal int Id = -1;
 
     internal readonly DotNetObjectReference<HotKeyEntry> _ObjectRef;
@@ -56,13 +61,18 @@ public abstract class HotKeyEntry : IDisposable
     private readonly ILogger? _Logger;
 
     /// <summary>
+    /// Notifies when the property values of the state object has changed.
+    /// </summary>
+    internal Action<HotKeyEntry>? _NotifyStateChanged;
+
+    /// <summary>
     /// Initialize a new instance of the HotKeyEntry class.
     /// </summary>
     /// <param name="logger">The instance of <see cref="ILogger"/> that is used to log the error message.</param>
     /// <param name="mode">The mode that how to identificate the hot key.</param>
-    /// <param name="typeOfModifiers"></param>
-    /// <param name="modifiers">The combination of modifier flags</param>
-    /// <param name="keyEntry">The key or code of the hot key</param>
+    /// <param name="typeOfModifiers">The type of the modifier flags.</param>
+    /// <param name="modifiers">The combination of modifier flags.</param>
+    /// <param name="keyEntry">The key or code of the hot key.</param>
     /// <param name="ownerOfAction">The instance of a Razor component that is an owner of the callback action method.</param>
     /// <param name="options">The options for this hotkey entry.</param>
     [DynamicDependency(nameof(InvokeAction), typeof(HotKeyEntry))]
@@ -77,6 +87,8 @@ public abstract class HotKeyEntry : IDisposable
         this.Description = options.Description;
         this.Exclude = options.Exclude;
         this.ExcludeSelector = options.ExcludeSelector;
+        this.State = options.State;
+        this.State._NotifyStateChanged = () => this._NotifyStateChanged?.Invoke(this);
         this._ObjectRef = DotNetObjectReference.Create(this);
     }
 
@@ -108,12 +120,14 @@ public abstract class HotKeyEntry : IDisposable
     /// <summary>
     /// Returns a String that combined key combination and description of this entry, like "Ctrl+A: Select All."
     /// </summary>
+    /// <returns>A string that represents the key combination and description of this entry.</returns>
     public override string ToString() => this.ToString("{0}: {1}");
 
     /// <summary>
     /// Returns a String formatted with specified format string.
     /// </summary>
     /// <param name="format">{0} will be replaced with key combination text, and {1} will be replaced with description of this hotkey entry object.</param>
+    /// <returns>A string formatted with the specified format string.</returns>
     public string ToString(string format)
     {
         var keyComboText = string.Join(" + ", this.ToStringKeys());
@@ -123,6 +137,7 @@ public abstract class HotKeyEntry : IDisposable
     /// <summary>
     /// Returns an array of String formatted keys.
     /// </summary>
+    /// <returns>An array of string formatted keys.</returns>
     public string[] ToStringKeys()
     {
         var keyCombo = new List<string>();
@@ -145,8 +160,12 @@ public abstract class HotKeyEntry : IDisposable
         return keyCombo.ToArray();
     }
 
+    /// <summary>
+    /// Disposes the hot key entry.
+    /// </summary>
     public void Dispose()
     {
+        this.State._NotifyStateChanged = null;
         this.Id = -1;
         this._ObjectRef.Dispose();
     }
