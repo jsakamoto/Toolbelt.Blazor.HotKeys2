@@ -1,5 +1,8 @@
 ﻿namespace Toolbelt.Blazor.HotKeys2;
 
+/// <summary>
+/// Represents the state of a hot key entry.
+/// </summary>
 public class HotKeyEntryState
 {
     /// <summary>
@@ -7,14 +10,14 @@ public class HotKeyEntryState
     /// </summary>
     internal Action? _NotifyStateChanged;
 
-    private bool _IsDisabled;
+    private bool _Disabled;
 
     /// <summary>
     /// Controls if the current hot key is disabled or not.
     /// </summary>
-    public virtual bool IsDisabled
+    public virtual bool Disabled
     {
-        get => this._IsDisabled;
-        set { if (this._IsDisabled != value) { this._IsDisabled = value; this._NotifyStateChanged?.Invoke(); } }
+        get => this._Disabled;
+        set { if (this._Disabled != value) { this._Disabled = value; this._NotifyStateChanged?.Invoke(); } }
     }
 }

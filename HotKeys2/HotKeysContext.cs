@@ -611,7 +611,7 @@ public partial class HotKeysContext : IDisposable
 
             hotKeyEntry.Id = await module.InvokeAsync<int>(
                 "Toolbelt.Blazor.HotKeys2.register",
-                hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State.IsDisabled);
+                hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State.Disabled);
         });
     }
 
@@ -620,7 +620,7 @@ public partial class HotKeysContext : IDisposable
         var _ = this.InvokeJsSafeAsync(async () =>
         {
             var module = await this._AttachTask;
-            await module.InvokeVoidAsync("Toolbelt.Blazor.HotKeys2.update", hotKeyEntry.Id, hotKeyEntry.State.IsDisabled);
+            await module.InvokeVoidAsync("Toolbelt.Blazor.HotKeys2.update", hotKeyEntry.Id, hotKeyEntry.State.Disabled);
         });
     }
 

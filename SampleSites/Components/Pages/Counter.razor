@@ -43,9 +43,10 @@
     private int currentCount = 0;
 
     private HotKeysContext? HotKeysContext;
-    private readonly HotKeyEntryState HotKeyEntryState = new() { IsDisabled = true };
 
-    private string HotKeyState => HotKeyEntryState.IsDisabled ? "disabled" : "enabled";
+    private readonly HotKeyEntryState HotKeyEntryState = new() { Disabled = true };
+
+    private string HotKeyState => HotKeyEntryState.Disabled ? "disabled" : "enabled";
 
     protected override void OnInitialized()
     {
@@ -62,7 +63,7 @@
 
     private void OnTriggerDisabledState()
     {
-        HotKeyEntryState.IsDisabled = !HotKeyEntryState.IsDisabled;
+        HotKeyEntryState.Disabled = !HotKeyEntryState.Disabled;
     }
 
     private void HotKeys_KeyDown(object? sender, HotKeyDownEventArgs e)
