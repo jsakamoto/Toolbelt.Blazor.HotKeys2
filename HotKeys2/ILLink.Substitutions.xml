@@ -2,7 +2,7 @@
 <linker>
   <assembly fullname="Toolbelt.Blazor.HotKeys2">
     <type fullname="Toolbelt.Blazor.HotKeys2.HotKeys" feature="Toolbelt.Blazor.HotKeys2.OptimizeForWasm" featurevalue="true">
-      <method signature="System.String GetVersionText()" body="stub" value="4.0.1" />
+      <method signature="System.String GetVersionText()" body="stub" value="4.1.0" />
     </type>
   </assembly>
 </linker>

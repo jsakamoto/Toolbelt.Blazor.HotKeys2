@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(BuildMode)' != 'test' ">
-    <!--<PackageReference Include="Toolbelt.Blazor.HotKeys2" Version="4.0.1" />-->
-    <ProjectReference Include="..\..\HotKeys2\Toolbelt.Blazor.HotKeys2.csproj" />
+    <PackageReference Include="Toolbelt.Blazor.HotKeys2" Version="4.1.0" />
+    <!--<ProjectReference Include="..\..\HotKeys2\Toolbelt.Blazor.HotKeys2.csproj" />-->
   </ItemGroup>
 
   <ItemGroup Condition=" '$(BuildMode)' == 'test' ">
