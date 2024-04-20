@@ -4,20 +4,23 @@
 
 <h1>Test HotKeys.OnKeyDown event</h1>
 
-<EnteredKeyList @ref="EnteredKeyList" />
+<EnteredKeyList @ref="_enteredKeyList" />
 
 @code
 {
-    private EnteredKeyList? EnteredKeyList;
+    private EnteredKeyList? _enteredKeyList;
 
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool firstRender)
     {
-        this.HotKeys.KeyDown += HotKeys_OnKeyDown;
+        if (firstRender)
+        {
+            this.HotKeys.KeyDown += HotKeys_OnKeyDown;
+        }
     }
 
     private void HotKeys_OnKeyDown(object? sender, HotKeyDownEventArgs e)
     {
-        EnteredKeyList?.OnEnteredKey(e);
+        _enteredKeyList?.OnEnteredKey(e);
     }
 
     public void Dispose()

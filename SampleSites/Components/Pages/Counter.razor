@@ -5,11 +5,11 @@
 
 <h1>Counter</h1>
 
-<p>Current count: @currentCount</p>
+<p>Current count: @_currentCount</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
-@if (IsWasm)
+@if (_isWasm)
 {
     // "PreventDefault = true" will works only on a Blazor WebAssembly app.
     <div class="hot-keys-cheat-sheet alert alert-secondary mt-4">
@@ -38,32 +38,35 @@
 </div>
 
 @code {
-    private readonly bool IsWasm = RuntimeInformation.OSDescription == "web" || RuntimeInformation.OSDescription == "Browser";
+    private readonly bool _isWasm = OperatingSystem.IsBrowser();
 
-    private int currentCount = 0;
+    private int _currentCount = 0;
 
-    private HotKeysContext? HotKeysContext;
+    private HotKeysContext? _hotKeysContext;
 
-    private readonly HotKeyEntryState HotKeyEntryState = new() { Disabled = true };
+    private readonly HotKeyEntryState _hotKeyEntryState = new() { Disabled = true };
 
-    private string HotKeyState => HotKeyEntryState.Disabled ? "disabled" : "enabled";
+    private string HotKeyState => _hotKeyEntryState.Disabled ? "disabled" : "enabled";
 
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool firstRender)
     {
-        this.HotKeysContext = this.HotKeys.CreateContext()
-            .Add(Code.U, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = ".disabled-hotkeys *" })
-            .Add(Code.Y, this.IncrementCount, new() { Exclude = Exclude.None, State = HotKeyEntryState });
-        this.HotKeys.KeyDown += HotKeys_KeyDown;
+        if (firstRender)
+        {
+            _hotKeysContext = this.HotKeys.CreateContext()
+                .Add(Code.U, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = ".disabled-hotkeys *" })
+                .Add(Code.Y, this.IncrementCount, new() { Exclude = Exclude.None, State = _hotKeyEntryState });
+            this.HotKeys.KeyDown += HotKeys_KeyDown;
+        }
     }
 
     private void IncrementCount()
     {
-        currentCount++;
+        _currentCount++;
     }
 
     private void OnTriggerDisabledState()
     {
-        HotKeyEntryState.Disabled = !HotKeyEntryState.Disabled;
+        _hotKeyEntryState.Disabled = !_hotKeyEntryState.Disabled;
     }
 
     private void HotKeys_KeyDown(object? sender, HotKeyDownEventArgs e)
@@ -77,6 +80,6 @@
     public void Dispose()
     {
         this.HotKeys.KeyDown -= HotKeys_KeyDown;
-        this.HotKeysContext?.Dispose();
+        _hotKeysContext?.Dispose();
     }
 }

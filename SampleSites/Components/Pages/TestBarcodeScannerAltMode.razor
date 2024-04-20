@@ -31,12 +31,12 @@
 @if (!_isBusy)
 {
     <input type="text" id="scannedCodeResult" class="form-control" style="min-width: 100px;"
-       @bind-value=@_scannedCode
-       placeholder="Scanned BarCode" />
+           @bind-value=@_scannedCode
+           placeholder="Scanned BarCode" />
 
     <input type="text" class="form-control" style="min-width: 100px;"
-       @bind-value=@_scannedNumpads
-       placeholder="Scanned Numpads" />
+           @bind-value=@_scannedNumpads
+           placeholder="Scanned Numpads" />
 }
 else
 {
@@ -58,10 +58,13 @@ else
     private string _scannedCode = "";
     private string _scannedNumpads = "";
 
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool firstRender)
     {
-        this.HotKeys.CreateContext();
-        this.HotKeys.KeyDown += BarcodeScanner_OnKeyDown;
+        if (firstRender)
+        {
+            this.HotKeys.CreateContext();
+            this.HotKeys.KeyDown += BarcodeScanner_OnKeyDown;
+        }
     }
 
     private void BarcodeScanner_OnKeyDown(object? sender, HotKeyDownEventArgs e)

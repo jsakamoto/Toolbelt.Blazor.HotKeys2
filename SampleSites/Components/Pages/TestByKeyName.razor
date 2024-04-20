@@ -6,30 +6,29 @@
 
 <p>This page captures media keys (next/prev/stop/pause) by key name string.</p>
 
-<EnteredKeyList @ref="EnteredKeyList" />
+<EnteredKeyList @ref="_enteredKeyList" />
 
-@code{
-    private EnteredKeyList? EnteredKeyList;
+@code {
+    private EnteredKeyList? _enteredKeyList;
 
-    private HotKeysContext? HotKeysContext;
+    private HotKeysContext? _hotKeysContext;
 
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool firstRender)
     {
-        this.HotKeysContext = this.HotKeys.CreateContext()
-            .Add(new Key("MediaTrackNext"), OnHotKey)
-            .Add(new Key("MediaTrackPrevious"), OnHotKey)
-            .Add(new Key("MediaPlayPause"), OnHotKey)
-            .Add(new Key("MediaStop"), OnHotKey);
+        if (firstRender)
+        {
+            _hotKeysContext = this.HotKeys.CreateContext()
+                .Add(new Key("MediaTrackNext"), OnHotKey)
+                .Add(new Key("MediaTrackPrevious"), OnHotKey)
+                .Add(new Key("MediaPlayPause"), OnHotKey)
+                .Add(new Key("MediaStop"), OnHotKey);
+        }
     }
 
     private void OnHotKey(HotKeyEntryByKey hotKeyEntry)
     {
-        EnteredKeyList?.OnEnteredKey(hotKeyEntry);
+        _enteredKeyList?.OnEnteredKey(hotKeyEntry);
     }
 
-    public void Dispose()
-    {
-        this.HotKeysContext?.Dispose();
-    }
-
+    public void Dispose() => _hotKeysContext?.Dispose();
 }

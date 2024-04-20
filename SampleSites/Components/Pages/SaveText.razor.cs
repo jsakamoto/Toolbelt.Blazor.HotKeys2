@@ -10,38 +10,30 @@ public partial class SaveText : IDisposable
 
     [Inject] public IJSRuntime JS { get; init; } = default!;
 
-    private HotKeysContext? HotKeysContext;
+    private HotKeysContext? _hotKeysContext;
 
-    private ElementReference InputElement;
+    private ElementReference _inputElement;
 
-    private string InpuText = "";
+    private string _inpuText = "";
 
-    private readonly List<string> SavedTexts = new List<string>();
-
-    protected override void OnInitialized()
-    {
-        this.HotKeysContext = this.HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.S, this.OnSaveText, exclude: Exclude.TextArea);
-    }
+    private readonly List<string> _savedTexts = new List<string>();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            await this.InputElement.FocusAsync();
+            this._hotKeysContext = this.HotKeys.CreateContext()
+                .Add(ModCode.Ctrl, Code.S, this.OnSaveText, exclude: Exclude.TextArea);
+            await this._inputElement.FocusAsync();
         }
     }
 
     private async ValueTask OnSaveText()
     {
-        await this.JS.InvokeVoidAsync("Toolbelt.Blazor.fireOnChange", this.InputElement);
+        await this.JS.InvokeVoidAsync("Toolbelt.Blazor.fireOnChange", this._inputElement);
 
-        this.SavedTexts.Add(this.InpuText);
+        this._savedTexts.Add(this._inpuText);
     }
 
-    public void Dispose()
-    {
-        this.HotKeysContext?.Dispose();
-    }
+    public void Dispose() => this._hotKeysContext?.Dispose();
 }

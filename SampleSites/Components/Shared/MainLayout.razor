@@ -22,9 +22,9 @@
                 <span class="key">?</span> ... <span class="description">Open the Hot keys cheat sheet.</span>
             </div>
 
-            <div class="popup-container @(this.HotKeysCheatSheetVisible ? "visible" : "")" @onclick="@(()=> this.SetHotkeysCheatSheetVisible(false))">
+            <div class="popup-container @(_hotKeysCheatSheetVisible ? "visible" : "")" @onclick="@(()=> this.SetHotkeysCheatSheetVisible(false))">
 
-                <CheatSheet HotKeysContext="this.HotKeysContext" />
+                <CheatSheet HotKeysContext="_hotKeysContext" />
 
             </div>
         </div>
@@ -33,21 +33,24 @@
 
 @code
 {
-    private HotKeysContext? HotKeysContext;
+    private HotKeysContext? _hotKeysContext;
 
-    private DateTime LastCtrlKeyPressed = DateTime.MinValue;
+    private DateTime _lastCtrlKeyPressed = DateTime.MinValue;
 
-    private bool HotKeysCheatSheetVisible = false;
+    private bool _hotKeysCheatSheetVisible = false;
 
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool firstRender)
     {
-        HotKeysContext = HotKeys.CreateContext()
-        .Add(Key.Question, () => SetHotkeysCheatSheetVisible(!this.HotKeysCheatSheetVisible), "", Exclude.InputNonText | Exclude.TextArea) // Open/Close the Hot keys cheat sheet.
-        .Add(Key.Escape, () => SetHotkeysCheatSheetVisible(false), "", Exclude.InputNonText | Exclude.TextArea) // Close the Hot keys cheat sheet.
-        .Add(Code.H, () => GoTo("/"), "Go to Home page.", Exclude.TextArea | Exclude.ContentEditable)
-        .Add(Code.C, () => GoTo("/counter"), "Go to Counter page.", Exclude.InputText | Exclude.TextArea)
-        .Add(Code.F, () => GoTo("/fetchdata"), "Go to Fetch data page.")
-        .Add(Key.Control, OnCtrlKeyDown, "Double tap to go to Home.");
+        if (firstRender)
+        {
+            _hotKeysContext = HotKeys.CreateContext()
+                .Add(Key.Question, () => SetHotkeysCheatSheetVisible(!_hotKeysCheatSheetVisible), "", Exclude.InputNonText | Exclude.TextArea) // Open/Close the Hot keys cheat sheet.
+                .Add(Key.Escape, () => SetHotkeysCheatSheetVisible(false), "", Exclude.InputNonText | Exclude.TextArea) // Close the Hot keys cheat sheet.
+                .Add(Code.H, () => GoTo("/"), "Go to Home page.", Exclude.TextArea | Exclude.ContentEditable)
+                .Add(Code.C, () => GoTo("/counter"), "Go to Counter page.", Exclude.InputText | Exclude.TextArea)
+                .Add(Code.F, () => GoTo("/fetchdata"), "Go to Fetch data page.")
+                .Add(Key.Control, OnCtrlKeyDown, "Double tap to go to Home.");
+        }
     }
 
     private ValueTask GoTo(string url)
@@ -59,8 +62,8 @@
 
     private void OnCtrlKeyDown()
     {
-        var lastCtrlKeyPressed = this.LastCtrlKeyPressed;
-        this.LastCtrlKeyPressed = DateTime.Now;
+        var lastCtrlKeyPressed = _lastCtrlKeyPressed;
+        _lastCtrlKeyPressed = DateTime.Now;
 
         if ((DateTime.Now - lastCtrlKeyPressed).TotalMilliseconds <= 200)
         {
@@ -70,12 +73,9 @@
 
     private void SetHotkeysCheatSheetVisible(bool visible)
     {
-        if (this.HotKeysCheatSheetVisible == visible) return;
-        this.HotKeysCheatSheetVisible = visible;
+        if (_hotKeysCheatSheetVisible == visible) return;
+        _hotKeysCheatSheetVisible = visible;
     }
 
-    public void Dispose()
-    {
-        HotKeysContext?.Dispose();
-    }
+    public void Dispose() => _hotKeysContext?.Dispose();
 }

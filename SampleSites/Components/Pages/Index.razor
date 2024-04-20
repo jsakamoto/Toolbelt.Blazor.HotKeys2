@@ -25,18 +25,21 @@ Welcome to your new app.
 
     private string Greeting = GreetingA;
 
-    private HotKeysContext? HotKeysContext;
+    private HotKeysContext? _hotKeysContext;
 
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool firstRender)
     {
-        this.HotKeysContext = this.HotKeys.CreateContext()
-            .Add(Code.G, OnHotKey)
-            .Add(Key.At, OnHotKey);
+        if (firstRender)
+        {
+            _hotKeysContext = this.HotKeys.CreateContext()
+                .Add(Code.G, OnHotKey)
+                .Add(Key.At, OnHotKey);
 
-        // Check the issue #20.
-        var temporaryContext = this.HotKeys.CreateContext()
-            .Add(Code.U, OnHotKey);
-        temporaryContext.Dispose();
+            // Check the issue #20.
+            var temporaryContext = this.HotKeys.CreateContext()
+                .Add(Code.U, OnHotKey);
+            temporaryContext.Dispose();
+        }
     }
 
     private void OnHotKey()
@@ -49,17 +52,14 @@ Welcome to your new app.
 
     private void OnClickRemoveHotKey()
     {
-        this.HotKeysContext?.Remove(Code.G);
+        _hotKeysContext?.Remove(Code.G);
     }
 
     private void OnClickDisposeHotKeyContext()
     {
-        this.HotKeysContext?.Dispose();
-        this.HotKeysContext = null;
+        _hotKeysContext?.Dispose();
+        _hotKeysContext = null;
     }
 
-    public void Dispose()
-    {
-        this.HotKeysContext?.Dispose();
-    }
+    public void Dispose() => _hotKeysContext?.Dispose();
 }
