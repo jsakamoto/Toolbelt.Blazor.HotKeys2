@@ -1,3 +1,6 @@
+v.4.1.0.1
+- Update the README to use the "OnAfterRender" method to initialize hotkeys.
+
 v.4.1.0
 - Improve: Add the "State" property that has a "Disabled" property that can enable/disable a hotkey to the HotkeyEntry class.
 
