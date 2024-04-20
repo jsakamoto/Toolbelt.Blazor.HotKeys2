@@ -71,23 +71,23 @@ builder.Services.AddHotKeys2(); // 👈 2. Add this line
 ...
 ```
 
-**Step.3** Invoke `CreateContext()` method of the `HotKeys` service instance to create and activate hot keys entries at startup of the component such as `OnInitialized()` method.
+**Step.3** Invoke the `CreateContext()` method of the `HotKeys` service instance at the timing for the first time the component renders, such as the `OnAfterRender()` method, to create and activate hotkey entries. Please make sure to keep the `HotKeysContext` object, which is returned from the `CreateContext()` method, in the component field.
 
-You can add the combination with key and action to the `HotKeysContext` object that is returned from `CreateContext()` method, using `Add()` method.
-
-Please remember that you have to keep the `HotKeys Context` object in the component field.
+Then, you can add the combination with key and action to the `HotKeysContext` object using the `Add()` method.
 
 ```csharp
 @code {
 
   private HotKeysContext? _hotKeysContext;
 
-  protected override void OnInitialized()
+  protected override void OnAfterRender(bool firstRender)
   {
-    _hotKeysContext = this.HotKeys.CreateContext()
-      .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, new() { Description = "do foo bar." })
-      .Add(...)
-      ...;
+    if (firstRender) {
+      _hotKeysContext = this.HotKeys.CreateContext()
+        .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, new() { Description = "do foo bar." })
+        .Add(...)
+        ...;
+    }
   }
 
   private void FooBar() // 👈 This will be invoked when Ctrl+Shift+A typed.
@@ -97,10 +97,10 @@ Please remember that you have to keep the `HotKeys Context` object in the compon
 }
 ```
 
-> **Note**  
+> [!NOTE]  
 > You can also specify the async method to the callback action argument.
 
-> **Note**  
+> [!NOTE]  
 > The method of the callback action can take an argument which is `HotKeyEntryByCode` or `HotKeyEntryByKey` object.
 
 
@@ -128,10 +128,12 @@ The complete source code (.razor) of this component is bellow.
 
   private HotKeysContext? _hotKeysContext;
 
-  protected override void OnInitialized()
+  protected override void OnAfterRender(bool firstRender)
   {
-    _hotKeysContext = this.HotKeys.CreateContext()
-      .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, new() { Description = "do foo bar." })
+    if (firstRender) {
+      _hotKeysContext = this.HotKeys.CreateContext()
+        .Add(ModCode.Ctrl|ModCode.Shift, Code.A, FooBar, new() { Description = "do foo bar." });
+    }
   }
 
   private void FooBar()
@@ -187,11 +189,13 @@ You can also specify enabling/disabling hotkeys depending on the application sta
 ...
 private HotKeyEntryState _state = new() { Disabled = true };
 
-protected override void OnInitialized()
+protected override void OnAfterRender(bool firstRender)
 {
-  _hotKeysContext = this.HotKeys.CreateContext()
-    // 👇 Specify the "State" property of the option object.
-    .Add(Code.A, OnHotKeyA, new() { State = _state });
+  if (firstRender) {
+    _hotKeysContext = this.HotKeys.CreateContext()
+      // 👇 Specify the "State" property of the option object.
+      .Add(Code.A, OnHotKeyA, new() { State = _state });
+  }
 }
 ...
 ```
