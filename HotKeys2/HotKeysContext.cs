@@ -11,10 +11,15 @@ namespace Toolbelt.Blazor.HotKeys2;
 /// </summary>
 public partial class HotKeysContext : IDisposable, IAsyncDisposable
 {
+    [Obsolete("Use the HotKeyEntries instead."), EditorBrowsable(EditorBrowsableState.Never)]
+    public List<HotKeyEntry> Keys { get; } = new List<HotKeyEntry>();
+
     /// <summary>
     /// The collection of Hotkey entries.
     /// </summary>
-    public List<HotKeyEntry> Keys { get; } = new List<HotKeyEntry>();
+#pragma warning disable CS0618 // Type or member is obsolete
+    public IEnumerable<HotKeyEntry> HotKeyEntries => this.Keys;
+#pragma warning restore CS0618 // Type or member is obsolete
 
     private readonly IJSRuntime _JSRuntime;
 

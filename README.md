@@ -315,11 +315,11 @@ I recommend using the `Key` class for hotkeys registration in the following case
 
 Unlike ["angular-hotkeys"](https://github.com/chieffancypants/angular-hotkeys), this library doesn't provide "cheat sheet" feature, at this time.
 
-Instead, the `HotKeysContext` object provides `Keys` property, so you can implement your own "Cheat Sheet" UI, like this code:
+Instead, the `HotKeysContext` object provides `HotKeyEntries` property, so you can implement your own "Cheat Sheet" UI, like this code:
 
 ```razor
 <ul>
-    @foreach (var key in _hotKeysContext.Keys)
+    @foreach (var key in _hotKeysContext.HotKeyEntries)
     {
         <li>@key</li>
     }

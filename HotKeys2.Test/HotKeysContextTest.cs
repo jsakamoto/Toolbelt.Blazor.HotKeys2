@@ -18,7 +18,7 @@ public class HotKeysContextTest
         hotkeysContext.Remove(Key.F1);
 
         // Then
-        hotkeysContext.Keys
+        hotkeysContext.HotKeyEntries
             .Select(hotkey => string.Join("+", hotkey.ToStringKeys()))
             .Is("A", "Shift+A", "Ctrl+Alt+F1");
     }
@@ -37,7 +37,7 @@ public class HotKeysContextTest
         hotkeysContext.Remove(ModCode.Shift, Code.A);
 
         // Then
-        hotkeysContext.Keys
+        hotkeysContext.HotKeyEntries
             .Select(hotkey => string.Join("+", hotkey.ToStringKeys()))
             .Is("A", "F1", "Ctrl+Alt+F1");
     }
@@ -56,7 +56,7 @@ public class HotKeysContextTest
         hotkeysContext.Remove(ModKey.Meta, Key.F1, exclude: Exclude.ContentEditable);
 
         // Then
-        hotkeysContext.Keys
+        hotkeysContext.HotKeyEntries
             .Select(hotkey => string.Join("+", hotkey.ToStringKeys()))
             .Is("A", "Shift+A", "Meta+F1");
     }
@@ -75,7 +75,7 @@ public class HotKeysContextTest
         hotkeysContext.Remove(Code.A, excludeSelector: "[data-no-hotkeys]");
 
         // Then
-        hotkeysContext.Keys
+        hotkeysContext.HotKeyEntries
             .Select(hotkey => string.Join("+", hotkey.ToStringKeys()))
             .Is("A", "Meta+F1", "Meta+F1");
     }
@@ -94,7 +94,7 @@ public class HotKeysContextTest
         Assert.Throws<ArgumentException>(() => hotkeysContext.Remove(Key.F1));
 
         // Then
-        hotkeysContext.Keys
+        hotkeysContext.HotKeyEntries
             .Select(hotkey => string.Join("+", hotkey.ToStringKeys()))
             .Is("Shift+A", "F1", "Shift+A", "F1");
     }
@@ -113,7 +113,7 @@ public class HotKeysContextTest
         Assert.Throws<ArgumentException>(() => hotkeysContext.Remove(ModCode.Shift, Code.A));
 
         // Then
-        hotkeysContext.Keys
+        hotkeysContext.HotKeyEntries
             .Select(hotkey => string.Join("+", hotkey.ToStringKeys()))
             .Is("Shift+A", "F1", "Shift+A", "F1");
     }
@@ -135,7 +135,7 @@ public class HotKeysContextTest
         });
 
         // Then
-        hotkeysContext.Keys
+        hotkeysContext.HotKeyEntries
             .Select(hotkey => string.Join("+", hotkey.ToStringKeys()))
             .Is("F1", "F1");
     }

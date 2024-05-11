@@ -161,8 +161,9 @@ public abstract class HotKeyEntry : IDisposable
     }
 
     /// <summary>
-    /// Disposes the hot key entry.
+    /// [Don't use this method. This method is for internal use only.]
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void Dispose()
     {
         GC.SuppressFinalize(this);
