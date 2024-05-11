@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-@implements IDisposable
+@implements IAsyncDisposable
 @inject HotKeys HotKeys
 @inject NavigationManager NavigationManager
 
@@ -77,5 +77,8 @@
         _hotKeysCheatSheetVisible = visible;
     }
 
-    public void Dispose() => _hotKeysContext?.Dispose();
+    public async ValueTask DisposeAsync()
+    {
+        if (this._hotKeysContext is not null) await this._hotKeysContext.DisposeAsync();
+    }
 }

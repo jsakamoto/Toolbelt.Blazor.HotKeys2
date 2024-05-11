@@ -4,7 +4,7 @@ using Toolbelt.Blazor.HotKeys2;
 
 namespace SampleSite.Components.Pages;
 
-public partial class SaveText : IDisposable
+public partial class SaveText : IAsyncDisposable
 {
     [Inject] public HotKeys HotKeys { get; init; } = default!;
 
@@ -16,7 +16,7 @@ public partial class SaveText : IDisposable
 
     private string _inpuText = "";
 
-    private readonly List<string> _savedTexts = new List<string>();
+    private readonly List<string> _savedTexts = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -35,5 +35,12 @@ public partial class SaveText : IDisposable
         this._savedTexts.Add(this._inpuText);
     }
 
-    public void Dispose() => this._hotKeysContext?.Dispose();
+    public async ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+        if (this._hotKeysContext is not null)
+        {
+            await this._hotKeysContext.DisposeAsync();
+        }
+    }
 }

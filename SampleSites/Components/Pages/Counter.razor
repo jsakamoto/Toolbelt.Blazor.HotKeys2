@@ -1,6 +1,6 @@
 ﻿@page "/counter"
 @using System.Runtime.InteropServices
-@implements IDisposable
+@implements IAsyncDisposable
 @inject HotKeys HotKeys
 
 <h1>Counter</h1>
@@ -77,9 +77,9 @@
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         this.HotKeys.KeyDown -= HotKeys_KeyDown;
-        _hotKeysContext?.Dispose();
+        if (this._hotKeysContext is not null) await this._hotKeysContext.DisposeAsync();
     }
 }

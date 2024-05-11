@@ -48,15 +48,15 @@ builder.Services.AddHotKeys2(); // 👈 2. Add this line
 
 ### 2. Usage in your Blazor component (.razor)
 
-**Step.1** Implement `IDisposable` interface to the component.
+**Step.1** Implement `IAsyncDisposable` interface to the component.
 
 ```razor
-@implements IDisposable @* 👈 Add this at the top of the component.  *@
+@implements IAsyncDisposable @* 👈 Add this at the top of the component.  *@
 ...
 
 @code {
   ...
-  public void Dispose() // 👈 Add "Dispose" method.
+  public async ValueTask DisposeAsync() // 👈 Add "DisposeAsync" method.
   {
   }
 }
@@ -65,7 +65,7 @@ builder.Services.AddHotKeys2(); // 👈 2. Add this line
 **Step.2** Open the `Toolbelt.Blazor.HotKeys2` namespace, and inject the `HotKeys` service into the component.
 
 ```razor
-@implements IDisposable
+@implements IAsyncDisposable
 @using Toolbelt.Blazor.HotKeys2 @* 👈 1. Add this *@
 @inject HotKeys HotKeys @* 2. 👈 Add this *@
 ...
@@ -104,14 +104,17 @@ Then, you can add the combination with key and action to the `HotKeysContext` ob
 > The method of the callback action can take an argument which is `HotKeyEntryByCode` or `HotKeyEntryByKey` object.
 
 
-**Step.4** Dispose the `HotKeysContext` object when the component is disposing, in the `Dispose()` method of the component.
+**Step.4** Dispose the `HotKeysContext` object when the component is disposing, in the `DisposeAsync()` method of the component.
 
 ```csharp
 @code {
   ...
-  public void Dispose()
+  public async ValueTask DisposeAsync()
   {
-    _hotKeysContext?.Dispose(); // 👈 1. Add this
+    // 👇 Add this
+    if (_hotKeysContext != null) {
+      await _hotKeysContext.DisposeAsync(); 
+    }
   }
 }
 ```
@@ -120,7 +123,7 @@ The complete source code (.razor) of this component is bellow.
 
 ```csharp
 @page "/"
-@implements IDisposable
+@implements IAsyncDisposable
 @using Toolbelt.Blazor.HotKeys2
 @inject HotKeys HotKeys
 
@@ -141,12 +144,15 @@ The complete source code (.razor) of this component is bellow.
     // Do something here.
   }
 
-  public void Dispose()
+  public async ValueTask DisposeAsync()
   {
-    _hotKeysContext?.Dispose();
+    if (_hotKeysContext != null) {
+      await _hotKeysContext.DisposeAsync(); 
+    }
   }
 }
 ```
+
 ### How to enable / disable hotkeys depending on which element has focus
 
 You can specify enabling/disabling hotkeys depending on which kind of element has focus at the hotkeys registration via a combination of the `Exclude` flags in the property of the option object argument of the `HotKeysContext.Add()` method.
