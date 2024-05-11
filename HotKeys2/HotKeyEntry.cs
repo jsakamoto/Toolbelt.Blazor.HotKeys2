@@ -165,6 +165,7 @@ public abstract class HotKeyEntry : IDisposable
     /// </summary>
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         this.State._NotifyStateChanged = null;
         this.Id = -1;
         this._ObjectRef.Dispose();

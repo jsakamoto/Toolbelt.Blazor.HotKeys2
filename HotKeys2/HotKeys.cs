@@ -44,19 +44,18 @@ public class HotKeys : IAsyncDisposable
     /// </summary>
     private async Task<IJSObjectReference> AttachAsync()
     {
-        var module = await this.GetJsModuleAsync();
-        if (this._Attached) return module;
-        await this._Syncer.WaitAsync();
-        try
-        {
-            if (this._Attached) return module;
+        if (this._Attached && this._JSModule != null) return this._JSModule;
 
+        return await this._Syncer.InvokeAsync(async () =>
+        {
+            if (this._Attached && this._JSModule != null) return this._JSModule;
+
+            var module = await this.GetJsModuleAsync();
             await module.InvokeAsync<object>("Toolbelt.Blazor.HotKeys2.attach", DotNetObjectReference.Create(this), this._IsWasm);
 
             this._Attached = true;
             return module;
-        }
-        finally { this._Syncer.Release(); }
+        });
     }
 
     private string GetVersionText()
@@ -113,8 +112,9 @@ public class HotKeys : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
         try { if (this._JSModule != null) await this._JSModule.DisposeAsync(); }
-        catch (Exception ex) when (ex.GetType().FullName == "Microsoft.JSInterop.JSDisconnectedException") { }
+        catch (JSDisconnectedException) { }
         catch (Exception ex) { this._Logger.LogError(ex, ex.Message); }
     }
 }

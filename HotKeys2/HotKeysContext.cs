@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.ComponentModel;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
@@ -7,7 +8,7 @@ namespace Toolbelt.Blazor.HotKeys2;
 /// <summary>
 /// Current active hotkeys set.
 /// </summary>
-public partial class HotKeysContext : IDisposable
+public partial class HotKeysContext : IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// The collection of Hotkey entries.
@@ -17,6 +18,8 @@ public partial class HotKeysContext : IDisposable
     private readonly Task<IJSObjectReference> _AttachTask;
 
     private readonly ILogger _Logger;
+
+    private readonly SemaphoreSlim _Syncer = new(1, 1);
 
     private bool _IsDisposed = false;
 
@@ -604,14 +607,18 @@ public partial class HotKeysContext : IDisposable
 
     private void RegisterAsync(HotKeyEntry hotKeyEntry)
     {
-        var _ = this.InvokeJsSafeAsync(async () =>
+        var _ = this._Syncer.InvokeAsync(async () =>
         {
-            var module = await this._AttachTask;
-            if (this._IsDisposed) return;
+            await this.InvokeJsSafeAsync(async () =>
+            {
+                if (this._IsDisposed) return;
 
-            hotKeyEntry.Id = await module.InvokeAsync<int>(
-                "Toolbelt.Blazor.HotKeys2.register",
-                hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State.Disabled);
+                var module = await this._AttachTask;
+                hotKeyEntry.Id = await module.InvokeAsync<int>(
+                    "Toolbelt.Blazor.HotKeys2.register",
+                    hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State.Disabled);
+            });
+            return true;
         });
     }
 
@@ -752,14 +759,25 @@ public partial class HotKeysContext : IDisposable
     /// <summary>
     /// Deactivate the hot key entry contained in this context.
     /// </summary>
-    public void Dispose()
+    [Obsolete("Use the DisposeAsync instead."), EditorBrowsable(EditorBrowsableState.Never)]
+    public void Dispose() { var _ = this.DisposeAsync(); }
+
+    /// <summary>
+    /// Deactivate the hot key entry contained in this context.
+    /// </summary>
+    public async ValueTask DisposeAsync()
     {
-        this._IsDisposed = true;
-        foreach (var entry in this.Keys)
+        GC.SuppressFinalize(this);
+        await this._Syncer.InvokeAsync(async () =>
         {
-            var _ = this.UnregisterAsync(entry);
-            entry._NotifyStateChanged = null;
-        }
-        this.Keys.Clear();
+            this._IsDisposed = true;
+            foreach (var entry in this.Keys)
+            {
+                await this.UnregisterAsync(entry);
+                entry._NotifyStateChanged = null;
+            }
+            this.Keys.Clear();
+            return true;
+        });
     }
 }
