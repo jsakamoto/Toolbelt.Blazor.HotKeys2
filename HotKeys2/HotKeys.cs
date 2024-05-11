@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Toolbelt.Blazor.HotKeys2.Extensions;
 
 namespace Toolbelt.Blazor.HotKeys2;
 
@@ -12,22 +11,34 @@ namespace Toolbelt.Blazor.HotKeys2;
 /// </summary>
 public class HotKeys : IAsyncDisposable
 {
-    private volatile bool _Attached = false;
-
     private readonly ILogger<HotKeys> _Logger;
 
     private readonly IJSRuntime _JSRuntime;
 
-    private IJSObjectReference? _JSModule = null;
+    internal readonly DotNetObjectReference<HotKeys> _ObjectRef;
 
     private readonly SemaphoreSlim _Syncer = new(1, 1);
 
-    private readonly bool _IsWasm = RuntimeInformation.OSDescription == "web" || RuntimeInformation.OSDescription == "Browser";
+    private EventHandler<HotKeyDownEventArgs>? _KeyDown;
 
     /// <summary>
     /// Occurs when the user enter any keys on the browser.
     /// </summary>
-    public event EventHandler<HotKeyDownEventArgs>? KeyDown;
+    public event EventHandler<HotKeyDownEventArgs>? KeyDown
+    {
+        add
+        {
+            this._KeyDown += value;
+            var _ = this.EnsureAttachedAsync();
+        }
+        remove
+        {
+            this._KeyDown -= value;
+            if (this._KeyDown == null) { var _ = this.DetachAsync(); }
+        }
+    }
+
+    private IJSObjectReference? _KeyEventHandler;
 
     /// <summary>
     /// Initialize a new instance of the HotKeys class.
@@ -35,52 +46,45 @@ public class HotKeys : IAsyncDisposable
     [DynamicDependency(nameof(OnKeyDown), typeof(HotKeys))]
     internal HotKeys(IJSRuntime jSRuntime, ILogger<HotKeys> logger)
     {
+        this._ObjectRef = DotNetObjectReference.Create(this);
         this._JSRuntime = jSRuntime;
         this._Logger = logger;
     }
 
-    /// <summary>
-    /// Attach this HotKeys service instance to JavaScript DOM event handler.
-    /// </summary>
-    private async Task<IJSObjectReference> AttachAsync()
+    private async ValueTask EnsureAttachedAsync()
     {
-        if (this._Attached && this._JSModule != null) return this._JSModule;
-
-        return await this._Syncer.InvokeAsync(async () =>
+        await this._Syncer.InvokeAsync(async () =>
         {
-            if (this._Attached && this._JSModule != null) return this._JSModule;
+            if (this._KeyEventHandler != null) return true;
 
-            var module = await this.GetJsModuleAsync();
-            await module.InvokeAsync<object>("Toolbelt.Blazor.HotKeys2.attach", DotNetObjectReference.Create(this), this._IsWasm);
-
-            this._Attached = true;
-            return module;
-        });
-    }
-
-    private string GetVersionText()
-    {
-        var assembly = this.GetType().Assembly;
-        return assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-            .InformationalVersion ?? assembly.GetName().Version?.ToString() ?? "0.0.0";
-    }
-
-    private async ValueTask<IJSObjectReference> GetJsModuleAsync()
-    {
-        if (this._JSModule == null)
-        {
-            var scriptPath = "./_content/Toolbelt.Blazor.HotKeys2/script.min.js";
-            try
+            await JS.InvokeSafeAsync(async () =>
             {
-                var isOnLine = await this._JSRuntime.InvokeAsync<bool>("Toolbelt.Blazor.getProperty", "navigator.onLine");
-                if (isOnLine) scriptPath += $"?v={this.GetVersionText()}";
-            }
-            catch (JSException e) { this._Logger.LogError(e, e.Message); }
+                await using var module = await this._JSRuntime.ImportScriptAsync(this._Logger);
+                this._KeyEventHandler = await module.InvokeAsync<IJSObjectReference>(
+                    "Toolbelt.Blazor.HotKeys2.handleKeyEvent",
+                    this._ObjectRef,
+                    OperatingSystem.IsBrowser());
+            }, this._Logger);
 
-            this._JSModule = await this._JSRuntime.InvokeAsync<IJSObjectReference>("import", scriptPath);
-        }
-        return this._JSModule;
+            return true;
+        }, this._Logger);
+    }
+
+    private async ValueTask DetachAsync()
+    {
+        await this._Syncer.InvokeAsync(async () =>
+        {
+            if (this._KeyEventHandler != null)
+            {
+                await JS.InvokeSafeAsync(async () =>
+                {
+                    await this._KeyEventHandler.InvokeVoidAsync("dispose");
+                    await this._KeyEventHandler.DisposeAsync();
+                }, this._Logger);
+                this._KeyEventHandler = null;
+            }
+            return true;
+        }, this._Logger);
     }
 
     /// <summary>
@@ -89,8 +93,7 @@ public class HotKeys : IAsyncDisposable
     /// <returns></returns>
     public HotKeysContext CreateContext()
     {
-        var attachTask = this.AttachAsync();
-        return new HotKeysContext(attachTask, this._Logger);
+        return new HotKeysContext(this._JSRuntime, this._Logger);
     }
 
     /// <summary>
@@ -105,16 +108,15 @@ public class HotKeys : IAsyncDisposable
     [JSInvokable(nameof(OnKeyDown)), EditorBrowsable(EditorBrowsableState.Never)]
     public bool OnKeyDown(ModCode modifiers, string srcElementTagName, string srcElementTypeName, string key, string code)
     {
-        var args = new HotKeyDownEventArgs(modifiers, srcElementTagName, srcElementTypeName, this._IsWasm, key, code);
-        KeyDown?.Invoke(null, args);
+        var args = new HotKeyDownEventArgs(modifiers, srcElementTagName, srcElementTypeName, OperatingSystem.IsBrowser(), key, code);
+        this._KeyDown?.Invoke(null, args);
         return args.PreventDefault;
     }
 
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
-        try { if (this._JSModule != null) await this._JSModule.DisposeAsync(); }
-        catch (JSDisconnectedException) { }
-        catch (Exception ex) { this._Logger.LogError(ex, ex.Message); }
+        await this.DetachAsync();
+        this._ObjectRef.Dispose();
     }
 }

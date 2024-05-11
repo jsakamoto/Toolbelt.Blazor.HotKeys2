@@ -1,5 +1,7 @@
 ﻿export namespace Toolbelt.Blazor.HotKeys2 {
 
+    // Constants
+
     const enum Exclude {
         None = 0,
         InputText = 0b0001,
@@ -21,6 +23,16 @@
         ByCode
     }
 
+    const doc = document;
+
+    const OnKeyDownMethodName = "OnKeyDown";
+
+    const NonTextInputTypes = ["button", "checkbox", "color", "file", "image", "radio", "range", "reset", "submit",];
+
+    const InputTageName = "INPUT";
+
+    const keydown = "keydown";
+
     class HotkeyEntry {
 
         constructor(
@@ -38,93 +50,21 @@
         }
     }
 
-    let idSeq: number = 0;
-    const hotKeyEntries = new Map<number, HotkeyEntry>();
+    // Static Functions
 
-    export const register = (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string, isDisabled: boolean): number => {
-        const id = idSeq++;
-        const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled);
-        hotKeyEntries.set(id, hotKeyEntry);
-        return id;
-    }
+    const addKeyDownEventListener = (listener: (ev: KeyboardEvent) => void) => doc.addEventListener(keydown, listener);
 
-    export const update = (id: number, isDisabled: boolean): void => {
-        const hotkeyEntry = hotKeyEntries.get(id);
-        if (!hotkeyEntry) return;
-        hotkeyEntry.isDisabled = isDisabled;
-    }
-
-    export const unregister = (id: number): void => {
-        if (id === -1) return;
-        hotKeyEntries.delete(id);
-    }
-
-    const convertToKeyNameMap: { [key: string]: string } = {
-        "OS": "Meta",
-        "Decimal": "Period",
-    };
+    const removeKeyDownEventListener = (listener: (ev: KeyboardEvent) => void) => doc.removeEventListener(keydown, listener);
 
     const convertToKeyName = (ev: KeyboardEvent): string => {
+        const convertToKeyNameMap: { [key: string]: string } = {
+            "OS": "Meta",
+            "Decimal": "Period",
+        };
         return convertToKeyNameMap[ev.key] || ev.key;
     }
 
-    const OnKeyDownMethodName = "OnKeyDown";
-
-    export const attach = (hotKeysWrapper: any, isWasm: boolean): void => {
-        document.addEventListener('keydown', ev => {
-            if (typeof (ev["altKey"]) === 'undefined') return;
-            const modifiers =
-                (ev.shiftKey ? ModCodes.Shift : 0) +
-                (ev.ctrlKey ? ModCodes.Control : 0) +
-                (ev.altKey ? ModCodes.Alt : 0) +
-                (ev.metaKey ? ModCodes.Meta : 0);
-            const key = convertToKeyName(ev);
-            const code = ev.code;
-
-            const targetElement = ev.target as HTMLElement;
-            const tagName = targetElement.tagName;
-            const type = targetElement.getAttribute('type');
-
-            const preventDefault1 = onKeyDown(modifiers, key, code, targetElement, tagName, type);
-            const preventDefault2 = isWasm === true ? hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code) : false;
-            if (preventDefault1 || preventDefault2) ev.preventDefault();
-            if (isWasm === false) hotKeysWrapper.invokeMethodAsync(OnKeyDownMethodName, modifiers, tagName, type, key, code);
-        });
-    }
-
-    const onKeyDown = (modifiers: ModCodes, key: string, code: string, targetElement: HTMLElement, tagName: string, type: string | null): boolean => {
-        let preventDefault = false;
-
-        hotKeyEntries.forEach(entry => {
-
-            if (!entry.isDisabled) {
-                const byCode = entry.mode === HotKeyMode.ByCode;
-                const eventKeyEntry = byCode ? code : key;
-                const keyEntry = entry.keyEntry;
-
-                if (keyEntry !== eventKeyEntry) return;
-
-                const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ ModCodes.Shift));
-                let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ ModCodes.Shift));
-                if (keyEntry.startsWith("Shift") && byCode) entryModKeys |= ModCodes.Shift;
-                if (keyEntry.startsWith("Control")) entryModKeys |= ModCodes.Control;
-                if (keyEntry.startsWith("Alt")) entryModKeys |= ModCodes.Alt;
-                if (keyEntry.startsWith("Meta")) entryModKeys |= ModCodes.Meta;
-                if (eventModkeys !== entryModKeys) return;
-
-                if (isExcludeTarget(entry, targetElement, tagName, type)) return;
-
-                preventDefault = true;
-                entry.action();
-            }
-        });
-
-        return preventDefault;
-    }
-
-    const NonTextInputTypes = ["button", "checkbox", "color", "file", "image", "radio", "range", "reset", "submit",];
-
-    const InputTageName = "INPUT";
+    const startsWith = (str: string, prefix: string): boolean => str.startsWith(prefix);
 
     const isExcludeTarget = (entry: HotkeyEntry, targetElement: HTMLElement, tagName: string, type: string | null): boolean => {
 
@@ -146,4 +86,106 @@
         return false;
     }
 
+    type KeyEventHandler = (modifiers: ModCodes, key: string, code: string, targetElement: HTMLElement, tagName: string, type: string | null) => boolean;
+
+    const createKeydownHandler = (callback: KeyEventHandler) => {
+        return (ev: KeyboardEvent) => {
+            if (typeof (ev["altKey"]) === 'undefined') return;
+            const modifiers =
+                (ev.shiftKey ? ModCodes.Shift : 0) +
+                (ev.ctrlKey ? ModCodes.Control : 0) +
+                (ev.altKey ? ModCodes.Alt : 0) +
+                (ev.metaKey ? ModCodes.Meta : 0);
+            const key = convertToKeyName(ev);
+            const code = ev.code;
+
+            const targetElement = ev.target as HTMLElement;
+            const tagName = targetElement.tagName;
+            const type = targetElement.getAttribute('type');
+
+            const preventDefault = callback(modifiers, key, code, targetElement, tagName, type);
+            if (preventDefault) ev.preventDefault();
+        }
+    }
+
+    export const createContext = () => {
+        let idSeq: number = 0;
+        const hotKeyEntries = new Map<number, HotkeyEntry>();
+
+        const onKeyDown = (modifiers: ModCodes, key: string, code: string, targetElement: HTMLElement, tagName: string, type: string | null): boolean => {
+            let preventDefault = false;
+
+            hotKeyEntries.forEach(entry => {
+
+                if (!entry.isDisabled) {
+                    const byCode = entry.mode === HotKeyMode.ByCode;
+                    const eventKeyEntry = byCode ? code : key;
+                    const keyEntry = entry.keyEntry;
+
+                    if (keyEntry !== eventKeyEntry) return;
+
+                    const eventModkeys = byCode ? modifiers : (modifiers & (0xffff ^ ModCodes.Shift));
+                    let entryModKeys = byCode ? entry.modifiers : (entry.modifiers & (0xffff ^ ModCodes.Shift));
+                    if (startsWith(keyEntry, "Shift") && byCode) entryModKeys |= ModCodes.Shift;
+                    if (startsWith(keyEntry, "Control")) entryModKeys |= ModCodes.Control;
+                    if (startsWith(keyEntry, "Alt")) entryModKeys |= ModCodes.Alt;
+                    if (startsWith(keyEntry, "Meta")) entryModKeys |= ModCodes.Meta;
+                    if (eventModkeys !== entryModKeys) return;
+
+                    if (isExcludeTarget(entry, targetElement, tagName, type)) return;
+
+                    preventDefault = true;
+                    entry.action();
+                }
+            });
+
+            return preventDefault;
+        }
+
+        const keydownHandler = createKeydownHandler(onKeyDown);
+
+        addKeyDownEventListener(keydownHandler);
+
+        return {
+            register: (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string, isDisabled: boolean): number => {
+                const id = idSeq++;
+                const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled);
+                hotKeyEntries.set(id, hotKeyEntry);
+                return id;
+            },
+
+            update: (id: number, isDisabled: boolean): void => {
+                const hotkeyEntry = hotKeyEntries.get(id);
+                if (!hotkeyEntry) return;
+                hotkeyEntry.isDisabled = isDisabled;
+            },
+
+            unregister: (id: number): void => {
+                if (id === -1) return;
+                hotKeyEntries.delete(id);
+            },
+
+            dispose: (): void => { removeKeyDownEventListener(keydownHandler); }
+        };
+    }
+
+    export const handleKeyEvent = (hotKeysWrapper: any, isWasm: boolean) => {
+
+        const onKeyDown = (modifiers: ModCodes, key: string, code: string, targetElement: HTMLElement, tagName: string, type: string | null): boolean => {
+            if (isWasm) {
+                return hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code);
+            } else {
+                hotKeysWrapper.invokeMethodAsync(OnKeyDownMethodName, modifiers, tagName, type, key, code);
+                return false;
+            }
+        }
+
+        const keydownHandler = createKeydownHandler(onKeyDown);
+
+        addKeyDownEventListener(keydownHandler);
+
+        return {
+            dispose: () => { removeKeyDownEventListener(keydownHandler); }
+        };
+    }
 }
