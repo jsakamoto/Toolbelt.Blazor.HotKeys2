@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<linker>
-  <assembly fullname="Toolbelt.Blazor.HotKeys2">
-    <type fullname="Toolbelt.Blazor.HotKeys2.HotKeys" feature="Toolbelt.Blazor.HotKeys2.OptimizeForWasm" featurevalue="true">
-      <method signature="System.String GetVersionText()" body="stub" value="5.0.0-preview.3" />
-    </type>
-  </assembly>
-</linker>

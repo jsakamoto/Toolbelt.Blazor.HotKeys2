@@ -1,26 +1,19 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
 namespace Toolbelt.Blazor.HotKeys2.Extensions;
 
+[SuppressMessage("Usage", "CA2254:Template should be a static expression")]
 internal static class JS
 {
-    private static string GetVersionText()
-    {
-        var assembly = typeof(JS).Assembly;
-        return assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-            .InformationalVersion ?? assembly.GetName().Version?.ToString() ?? "0.0.0";
-    }
-
     public static async ValueTask<IJSObjectReference> ImportScriptAsync(this IJSRuntime jsRuntime, ILogger logger)
     {
         var scriptPath = "./_content/Toolbelt.Blazor.HotKeys2/script.min.js";
         try
         {
             var isOnLine = await jsRuntime.InvokeAsync<bool>("Toolbelt.Blazor.getProperty", "navigator.onLine");
-            if (isOnLine) scriptPath += $"?v={GetVersionText()}";
+            if (isOnLine) scriptPath += "?v=" + VersionInfo.VersionText;
         }
         catch (JSException e) { logger.LogError(e, e.Message); }
 
