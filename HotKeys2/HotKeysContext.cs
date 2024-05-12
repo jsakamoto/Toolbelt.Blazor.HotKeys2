@@ -11,15 +11,15 @@ namespace Toolbelt.Blazor.HotKeys2;
 /// </summary>
 public partial class HotKeysContext : IDisposable, IAsyncDisposable
 {
-    [Obsolete("Use the HotKeyEntries instead."), EditorBrowsable(EditorBrowsableState.Never)]
-    public List<HotKeyEntry> Keys { get; } = new List<HotKeyEntry>();
+    private readonly List<HotKeyEntry> _Keys = [];
 
     /// <summary>
     /// The collection of Hotkey entries.
     /// </summary>
-#pragma warning disable CS0618 // Type or member is obsolete
-    public IEnumerable<HotKeyEntry> HotKeyEntries => this.Keys;
-#pragma warning restore CS0618 // Type or member is obsolete
+    public IEnumerable<HotKeyEntry> HotKeyEntries => this._Keys;
+
+    [Obsolete("Use the HotKeyEntries instead."), EditorBrowsable(EditorBrowsableState.Never)]
+    public List<HotKeyEntry> Keys => this._Keys;
 
     private readonly IJSRuntime _JSRuntime;
 
@@ -27,7 +27,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
 
     private readonly SemaphoreSlim _Syncer = new(1, 1);
 
-    private Task<IJSObjectReference> _JSContextTask;
+    private readonly Task<IJSObjectReference> _JSContextTask;
 
     private bool _IsDisposed = false;
 
@@ -614,7 +614,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
 
     private HotKeysContext AddInternal(HotKeyEntry hotkeyEntry)
     {
-        lock (this.Keys) this.Keys.Add(hotkeyEntry);
+        lock (this._Keys) this._Keys.Add(hotkeyEntry);
         this.RegisterAsync(hotkeyEntry);
         hotkeyEntry._NotifyStateChanged = this.OnNotifyStateChanged;
         return this;
@@ -623,9 +623,9 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     // ===============================================================================================
 
 
-    private void RegisterAsync(HotKeyEntry hotKeyEntry)
+    private async void RegisterAsync(HotKeyEntry hotKeyEntry)
     {
-        var _ = this._Syncer.InvokeAsync(async () =>
+        await this._Syncer.InvokeAsync(async () =>
         {
             if (this._IsDisposed) return false;
 
@@ -643,11 +643,17 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
 
     private async void OnNotifyStateChanged(HotKeyEntry hotKeyEntry)
     {
-        await JS.InvokeSafeAsync(async () =>
+        await this._Syncer.InvokeAsync(async () =>
         {
-            var context = await this._JSContextTask;
-            await context.InvokeVoidAsync("update", hotKeyEntry.Id, hotKeyEntry.State.Disabled);
-        }, this._Logger);
+            if (this._IsDisposed) return false;
+
+            await JS.InvokeSafeAsync(async () =>
+            {
+                var context = await this._JSContextTask;
+                await context.InvokeVoidAsync("update", hotKeyEntry.Id, hotKeyEntry.State.Disabled);
+            }, this._Logger);
+            return true;
+        });
     }
 
     private async ValueTask UnregisterAsync(HotKeyEntry hotKeyEntry)
@@ -757,12 +763,18 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     /// <param name="filter"></param>
     public HotKeysContext Remove(Func<IEnumerable<HotKeyEntry>, IEnumerable<HotKeyEntry>> filter)
     {
-        var entries = filter.Invoke(this.Keys).ToArray();
+        var entries = filter.Invoke(this._Keys).ToArray();
         foreach (var entry in entries)
         {
-            var _ = this.UnregisterAsync(entry);
-            lock (this.Keys) this.Keys.Remove(entry);
+            lock (this._Keys) this._Keys.Remove(entry);
             entry._NotifyStateChanged = null;
+
+            var _ = this._Syncer.InvokeAsync(async () =>
+            {
+                if (this._IsDisposed) return false;
+                await this.UnregisterAsync(entry);
+                return true;
+            }, this._Logger);
         }
         return this;
     }
@@ -771,7 +783,9 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     /// Deactivate the hot key entry contained in this context.
     /// </summary>
     [Obsolete("Use the DisposeAsync instead."), EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
     public void Dispose() { var _ = this.DisposeAsync(); }
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
 
     /// <summary>
     /// Deactivate the hot key entry contained in this context.
@@ -783,12 +797,12 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
         {
             var context = await this._JSContextTask;
             this._IsDisposed = true;
-            foreach (var entry in this.Keys)
+            foreach (var entry in this._Keys)
             {
                 await this.UnregisterAsync(entry);
                 entry._NotifyStateChanged = null;
             }
-            this.Keys.Clear();
+            lock (this._Keys) this._Keys.Clear();
             await JS.InvokeSafeAsync(async () =>
             {
                 await context.InvokeVoidAsync("dispose");
