@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>5.0.0-preview.5</Version>
+    <Version>5.0.0-preview.6</Version>
     <Copyright>Copyright © 2022-2024 J.Sakamoto, Mozilla Public License 2.0</Copyright>
     <Authors>J.Sakamoto</Authors>
     <RepositoryType>git</RepositoryType>
