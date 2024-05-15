@@ -29,7 +29,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
 
     private readonly Task<IJSObjectReference> _JSContextTask;
 
-    private bool _IsDisposed = false;
+    private bool _Disposed = false;
 
     /// <summary>
     /// Initialize a new instance of the HotKeysContext class.
@@ -627,7 +627,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     {
         await this._Syncer.InvokeAsync(async () =>
         {
-            if (this._IsDisposed) return false;
+            if (this._Disposed) return false;
 
             await JS.InvokeSafeAsync(async () =>
             {
@@ -645,7 +645,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     {
         await this._Syncer.InvokeAsync(async () =>
         {
-            if (this._IsDisposed) return false;
+            if (this._Disposed) return false;
 
             await JS.InvokeSafeAsync(async () =>
             {
@@ -771,7 +771,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
 
             var _ = this._Syncer.InvokeAsync(async () =>
             {
-                if (this._IsDisposed) return false;
+                if (this._Disposed) return false;
                 await this.UnregisterAsync(entry);
                 return true;
             }, this._Logger);
@@ -795,8 +795,10 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
         GC.SuppressFinalize(this);
         await this._Syncer.InvokeAsync(async () =>
         {
+            if (this._Disposed) return false;
+
             var context = await this._JSContextTask;
-            this._IsDisposed = true;
+            this._Disposed = true;
             foreach (var entry in this._Keys)
             {
                 await this.UnregisterAsync(entry);
