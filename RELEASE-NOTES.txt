@@ -1,3 +1,9 @@
+v.5.0.0
+- Improve: Support for a round trip for interactive and non-interactive pages on .NET 8.
+- Update: The IDisposable interface of the HotKeyContext class is now obsolete. Instead, use the new "DisposeAsync" method.
+- Update: The "Keys" property of the HotKeyContext class is now obsolete. Instead, use the new "HotKeyEntries" property.
+- Fix: unexpected exceptions due to the race condition of the JavaScript interop.
+
 v.4.1.0.1
 - Update the README to use the "OnAfterRender" method to initialize hotkeys.
 

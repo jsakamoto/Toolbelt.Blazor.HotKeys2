@@ -1,3 +1,0 @@
-<Project>
-  <Import Project="..\buildMultiTargeting\Toolbelt.Blazor.HotKeys2.targets" />
-</Project>

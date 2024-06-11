@@ -60,6 +60,8 @@ public abstract class HotKeyEntry : IDisposable
 
     private readonly ILogger? _Logger;
 
+    private bool _Disposed = false;
+
     /// <summary>
     /// Notifies when the property values of the state object has changed.
     /// </summary>
@@ -161,12 +163,16 @@ public abstract class HotKeyEntry : IDisposable
     }
 
     /// <summary>
-    /// Disposes the hot key entry.
+    /// [Don't use this method. This method is for internal use only.]
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void Dispose()
     {
+        if (this._Disposed) return;
+        GC.SuppressFinalize(this);
         this.State._NotifyStateChanged = null;
         this.Id = -1;
         this._ObjectRef.Dispose();
+        this._Disposed = true;
     }
 }

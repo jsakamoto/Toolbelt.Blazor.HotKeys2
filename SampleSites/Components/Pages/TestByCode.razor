@@ -1,5 +1,5 @@
 @page "/test/bycode"
-@implements IDisposable
+@implements IAsyncDisposable
 @inject HotKeys HotKeys
 
 <h1>Test by Code</h1>
@@ -53,8 +53,8 @@
         _enteredKeyList?.OnEnteredKey(hotKeyEntry, appendLast: true);
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        _hotKeysContext?.Dispose();
+        if (this._hotKeysContext is not null) await this._hotKeysContext.DisposeAsync();
     }
 }

@@ -1,5 +1,5 @@
 ﻿@page "/test/bykeyname"
-@implements IDisposable
+@implements IAsyncDisposable
 @inject HotKeys HotKeys
 
 <h1>Test by Key Name</h1>
@@ -30,5 +30,8 @@
         _enteredKeyList?.OnEnteredKey(hotKeyEntry);
     }
 
-    public void Dispose() => _hotKeysContext?.Dispose();
+    public async ValueTask DisposeAsync()
+    {
+        if (this._hotKeysContext is not null) await this._hotKeysContext.DisposeAsync();
+    }
 }

@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
-    <PrepareForBuildDependsOn>$(PrepareForBuildDependsOn);UpdateILLinkSubstitutionsXml</PrepareForBuildDependsOn>
     <TransformOnBuild>true</TransformOnBuild>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildProjectName).xml</DocumentationFile>
     <NoWarn>$(NoWarn);1591;NU1902</NoWarn>
@@ -15,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>4.1.0.1</Version>
+    <Version>5.0.0-preview.6</Version>
     <Copyright>Copyright © 2022-2024 J.Sakamoto, Mozilla Public License 2.0</Copyright>
     <Authors>J.Sakamoto</Authors>
     <RepositoryType>git</RepositoryType>
@@ -36,12 +35,6 @@
     <Content Update="**\*.json" Pack="false" />
     <None Include="..\.assets\nupkg-icon.png" Pack="true" Visible="false" PackagePath="" />
     <None Include="..\README.md" Visible="false" Pack="true" PackagePath="\" />
-    <None Include="PackageSrc\Build\Toolbelt.Blazor.HotKeys2.targets" Pack="true" PackagePath="build\Toolbelt.Blazor.HotKeys2.targets" />
-    <None Include="PackageSrc\BuildMultiTargeting\Toolbelt.Blazor.HotKeys2.targets" Pack="true" PackagePath="buildMultiTargeting\Toolbelt.Blazor.HotKeys2.targets" />
-    <None Include="PackageSrc\BuildTransitive\Toolbelt.Blazor.HotKeys2.targets" Pack="true" PackagePath="buildTransitive\Toolbelt.Blazor.HotKeys2.targets" />
-    <EmbeddedResource Include="ILLink.Substitutions.xml">
-      <LogicalName>ILLink.Substitutions.xml</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -97,6 +90,8 @@
     </Compile>
   </ItemGroup>
 
+  <Import Project="VersionInfo.targets" />
+  
   <PropertyGroup>
     <TypeScriptTarget>ES2015</TypeScriptTarget>
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
@@ -113,10 +108,6 @@
     <TypeScriptSourceRoot />
   </PropertyGroup>
 
-  <Target Name="UpdateILLinkSubstitutionsXml" Inputs="Toolbelt.Blazor.HotKeys2.csproj" Outputs="ILLink.Substitutions.xml">
-    <XmlPoke XmlInputPath="ILLink.Substitutions.xml" Query="/linker/assembly/type/method[@signature='System.String GetVersionText()']/@value" Value="$(Version)" />
-  </Target>
-
   <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
     <ReadLinesFromFile File="../RELEASE-NOTES.txt">
       <Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
@@ -127,5 +118,5 @@
       <PackageReleaseNotes>$(PackageReleaseNotes)%0a%0aTo see all the change logs, please visit the following URL.%0a- https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/blob/master/RELEASE-NOTES.txt</PackageReleaseNotes>
     </PropertyGroup>
   </Target>
-
+  
 </Project>

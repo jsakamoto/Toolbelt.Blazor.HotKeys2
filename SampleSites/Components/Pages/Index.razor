@@ -1,5 +1,5 @@
 ﻿@page "/"
-@implements IDisposable
+@implements IAsyncDisposable
 @inject HotKeys HotKeys
 
 <h1>@Greeting</h1>
@@ -27,7 +27,7 @@ Welcome to your new app.
 
     private HotKeysContext? _hotKeysContext;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
@@ -37,8 +37,8 @@ Welcome to your new app.
 
             // Check the issue #20.
             var temporaryContext = this.HotKeys.CreateContext()
-                .Add(Code.U, OnHotKey);
-            temporaryContext.Dispose();
+                .Add(Code.V, OnHotKey);
+            await temporaryContext.DisposeAsync();
         }
     }
 
@@ -55,11 +55,14 @@ Welcome to your new app.
         _hotKeysContext?.Remove(Code.G);
     }
 
-    private void OnClickDisposeHotKeyContext()
+    private async Task OnClickDisposeHotKeyContext()
     {
-        _hotKeysContext?.Dispose();
+        if (this._hotKeysContext is not null) await this._hotKeysContext.DisposeAsync();
         _hotKeysContext = null;
     }
 
-    public void Dispose() => _hotKeysContext?.Dispose();
+    public async ValueTask DisposeAsync()
+    {
+        if (this._hotKeysContext is not null) await this._hotKeysContext.DisposeAsync();
+    }
 }

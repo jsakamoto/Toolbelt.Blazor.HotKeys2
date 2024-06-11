@@ -1,32 +1,53 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.ComponentModel;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Toolbelt.Blazor.HotKeys2.Extensions;
 
 namespace Toolbelt.Blazor.HotKeys2;
 
 /// <summary>
 /// Current active hotkeys set.
 /// </summary>
-public partial class HotKeysContext : IDisposable
+public partial class HotKeysContext : IDisposable, IAsyncDisposable
 {
+    private readonly List<HotKeyEntry> _Keys = [];
+
     /// <summary>
     /// The collection of Hotkey entries.
     /// </summary>
-    public List<HotKeyEntry> Keys { get; } = new List<HotKeyEntry>();
+    public IEnumerable<HotKeyEntry> HotKeyEntries => this._Keys;
 
-    private readonly Task<IJSObjectReference> _AttachTask;
+    [Obsolete("Use the HotKeyEntries instead."), EditorBrowsable(EditorBrowsableState.Never)]
+    public List<HotKeyEntry> Keys => this._Keys;
+
+    private readonly IJSRuntime _JSRuntime;
 
     private readonly ILogger _Logger;
 
-    private bool _IsDisposed = false;
+    private readonly SemaphoreSlim _Syncer = new(1, 1);
+
+    private readonly Task<IJSObjectReference> _JSContextTask;
+
+    private bool _Disposed = false;
 
     /// <summary>
     /// Initialize a new instance of the HotKeysContext class.
     /// </summary>
-    internal HotKeysContext(Task<IJSObjectReference> attachTask, ILogger logger)
+    internal HotKeysContext(IJSRuntime jsRuntime, ILogger logger)
     {
-        this._AttachTask = attachTask;
+        this._JSRuntime = jsRuntime;
         this._Logger = logger;
+        this._JSContextTask = this.CreateJSContextAsync();
+    }
+
+    private async Task<IJSObjectReference> CreateJSContextAsync()
+    {
+        return await this._Syncer.InvokeAsync(async () =>
+        {
+            await using var module = await this._JSRuntime.ImportScriptAsync(this._Logger);
+            return await module.InvokeAsync<IJSObjectReference>("Toolbelt.Blazor.HotKeys2.createContext");
+        });
     }
 
     // ===============================================================================================
@@ -593,7 +614,7 @@ public partial class HotKeysContext : IDisposable
 
     private HotKeysContext AddInternal(HotKeyEntry hotkeyEntry)
     {
-        lock (this.Keys) this.Keys.Add(hotkeyEntry);
+        lock (this._Keys) this._Keys.Add(hotkeyEntry);
         this.RegisterAsync(hotkeyEntry);
         hotkeyEntry._NotifyStateChanged = this.OnNotifyStateChanged;
         return this;
@@ -602,44 +623,47 @@ public partial class HotKeysContext : IDisposable
     // ===============================================================================================
 
 
-    private void RegisterAsync(HotKeyEntry hotKeyEntry)
+    private async void RegisterAsync(HotKeyEntry hotKeyEntry)
     {
-        var _ = this.InvokeJsSafeAsync(async () =>
+        await this._Syncer.InvokeAsync(async () =>
         {
-            var module = await this._AttachTask;
-            if (this._IsDisposed) return;
+            if (this._Disposed) return false;
 
-            hotKeyEntry.Id = await module.InvokeAsync<int>(
-                "Toolbelt.Blazor.HotKeys2.register",
-                hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State.Disabled);
+            await JS.InvokeSafeAsync(async () =>
+            {
+                var context = await this._JSContextTask;
+                hotKeyEntry.Id = await context.InvokeAsync<int>(
+                    "register",
+                    hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State.Disabled);
+            }, this._Logger);
+
+            return true;
         });
     }
 
-    private void OnNotifyStateChanged(HotKeyEntry hotKeyEntry)
+    private async void OnNotifyStateChanged(HotKeyEntry hotKeyEntry)
     {
-        var _ = this.InvokeJsSafeAsync(async () =>
+        await this._Syncer.InvokeAsync(async () =>
         {
-            var module = await this._AttachTask;
-            await module.InvokeVoidAsync("Toolbelt.Blazor.HotKeys2.update", hotKeyEntry.Id, hotKeyEntry.State.Disabled);
+            if (this._Disposed) return false;
+
+            await JS.InvokeSafeAsync(async () =>
+            {
+                var context = await this._JSContextTask;
+                await context.InvokeVoidAsync("update", hotKeyEntry.Id, hotKeyEntry.State.Disabled);
+            }, this._Logger);
+            return true;
         });
     }
 
     private async ValueTask UnregisterAsync(HotKeyEntry hotKeyEntry)
     {
-        await this.InvokeJsSafeAsync(async () =>
+        await JS.InvokeSafeAsync(async () =>
         {
-            var module = await this._AttachTask;
-            await module.InvokeVoidAsync("Toolbelt.Blazor.HotKeys2.unregister", hotKeyEntry.Id);
-        });
-
-        await this.InvokeJsSafeAsync(() => { hotKeyEntry.Dispose(); return ValueTask.CompletedTask; });
-    }
-
-    private async ValueTask InvokeJsSafeAsync(Func<ValueTask> action)
-    {
-        try { await action(); }
-        catch (JSDisconnectedException) { } // Ignore this exception because it is thrown when the user navigates to another page.
-        catch (Exception ex) { this._Logger.LogError(ex, ex.Message); }
+            var context = await this._JSContextTask;
+            await context.InvokeVoidAsync("unregister", hotKeyEntry.Id);
+        }, this._Logger);
+        hotKeyEntry.Dispose();
     }
 
     private const string _AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE = "Specified parameters are ambiguous to identify the single hotkey entry that should be removed.";
@@ -739,12 +763,18 @@ public partial class HotKeysContext : IDisposable
     /// <param name="filter"></param>
     public HotKeysContext Remove(Func<IEnumerable<HotKeyEntry>, IEnumerable<HotKeyEntry>> filter)
     {
-        var entries = filter.Invoke(this.Keys).ToArray();
+        var entries = filter.Invoke(this._Keys).ToArray();
         foreach (var entry in entries)
         {
-            var _ = this.UnregisterAsync(entry);
-            lock (this.Keys) this.Keys.Remove(entry);
+            lock (this._Keys) this._Keys.Remove(entry);
             entry._NotifyStateChanged = null;
+
+            var _ = this._Syncer.InvokeAsync(async () =>
+            {
+                if (this._Disposed) return false;
+                await this.UnregisterAsync(entry);
+                return true;
+            }, this._Logger);
         }
         return this;
     }
@@ -752,14 +782,35 @@ public partial class HotKeysContext : IDisposable
     /// <summary>
     /// Deactivate the hot key entry contained in this context.
     /// </summary>
-    public void Dispose()
+    [Obsolete("Use the DisposeAsync instead."), EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+    public void Dispose() { var _ = this.DisposeAsync(); }
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
+
+    /// <summary>
+    /// Deactivate the hot key entry contained in this context.
+    /// </summary>
+    public async ValueTask DisposeAsync()
     {
-        this._IsDisposed = true;
-        foreach (var entry in this.Keys)
+        GC.SuppressFinalize(this);
+        await this._Syncer.InvokeAsync(async () =>
         {
-            var _ = this.UnregisterAsync(entry);
-            entry._NotifyStateChanged = null;
-        }
-        this.Keys.Clear();
+            if (this._Disposed) return false;
+
+            var context = await this._JSContextTask;
+            this._Disposed = true;
+            foreach (var entry in this._Keys)
+            {
+                await this.UnregisterAsync(entry);
+                entry._NotifyStateChanged = null;
+            }
+            lock (this._Keys) this._Keys.Clear();
+            await JS.InvokeSafeAsync(async () =>
+            {
+                await context.InvokeVoidAsync("dispose");
+                await context.DisposeAsync();
+            }, this._Logger);
+            return true;
+        });
     }
 }
