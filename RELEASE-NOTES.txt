@@ -1,3 +1,6 @@
+v.5.0.1
+- Improve: Show the developers the guide message when using the Toolbelt.Blazor.getProperty JavaScript module is not loaded.
+
 v.5.0.0
 - Improve: Support for a round trip for interactive and non-interactive pages on .NET 8.
 - Update: The IDisposable interface of the HotKeyContext class is now obsolete. Instead, use the new "DisposeAsync" method.
