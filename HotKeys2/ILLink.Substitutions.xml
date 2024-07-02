@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<linker>
+  <assembly fullname="Toolbelt.Blazor.HotKeys2">
+    <type fullname="Toolbelt.Blazor.HotKeys2.Extensions.JS" feature="Toolbelt.Blazor.HotKeys2.OptimizeForWasm" featurevalue="true">
+      <method signature="System.Boolean ShowDeveloperGuide()" body="stub" value="false" />
+    </type>
+  </assembly>
+</linker>

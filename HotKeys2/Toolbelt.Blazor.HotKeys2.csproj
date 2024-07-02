@@ -35,6 +35,12 @@
     <Content Update="**\*.json" Pack="false" />
     <None Include="..\.assets\nupkg-icon.png" Pack="true" Visible="false" PackagePath="" />
     <None Include="..\README.md" Visible="false" Pack="true" PackagePath="\" />
+    <None Include="PackageSrc\Build\Toolbelt.Blazor.HotKeys2.targets" Pack="true" PackagePath="build\Toolbelt.Blazor.HotKeys2.targets" />
+    <None Include="PackageSrc\BuildMultiTargeting\Toolbelt.Blazor.HotKeys2.targets" Pack="true" PackagePath="buildMultiTargeting\Toolbelt.Blazor.HotKeys2.targets" />
+    <None Include="PackageSrc\BuildTransitive\Toolbelt.Blazor.HotKeys2.targets" Pack="true" PackagePath="buildTransitive\Toolbelt.Blazor.HotKeys2.targets" />
+    <EmbeddedResource Include="ILLink.Substitutions.xml">
+      <LogicalName>ILLink.Substitutions.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
