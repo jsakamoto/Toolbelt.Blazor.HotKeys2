@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          dotnet-quality: 'preview'
+          dotnet-quality: "preview"
       - name: Install .NET WebAssembly Tools
         run: dotnet workload install wasm-tools
 
@@ -25,9 +25,13 @@ jobs:
       - name: Publish
         run: dotnet publish SampleSites/Client/SampleSite.Client.csproj -c:Release -o:public -p:GHPages=true -f:net8.0
 
+      # Fix the Content Security Policy (CSP)
+      - name: Fix CSP
+        run: sed -i "s|<meta http-equiv=\"content-security-policy\" content=\"default-src 'self'; font-src \*; connect-src 'self' ws://localhost:\* http://localhost:\*; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts\.googleapis\.com data:; img-src 'self' data:\"/>|<meta http-equiv=\"content-security-policy\" content=\"default-src 'self'; font-src *; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts.googleapis.com data:; img-src 'self' data:\"/>|" ./public/wwwroot/index.html
+
       # Deploy the site
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: public/wwwroot
