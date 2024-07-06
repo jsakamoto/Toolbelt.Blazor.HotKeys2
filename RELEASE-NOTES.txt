@@ -1,3 +1,6 @@
+v.5.1.0
+- Improve: Add Numpad and Japanese specific keys and codes.
+
 v.5.0.1
 - Improve: Show the developers the guide message when using the Toolbelt.Blazor.getProperty JavaScript module is not loaded.
 
