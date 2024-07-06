@@ -155,6 +155,29 @@ Caret,^,,Caret (^)
 VerticalLine,|,,Vertical Line (|)
 Tilde,~,,Tilde (~)
 ,,,
+Numpad0,,Numpad0,Numpad0
+Numpad1,,Numpad1,Numpad1
+Numpad2,,Numpad2,Numpad2
+Numpad3,,Numpad3,Numpad3
+Numpad4,,Numpad4,Numpad4
+Numpad5,,Numpad5,Numpad5
+Numpad6,,Numpad6,Numpad6
+Numpad7,,Numpad7,Numpad7
+Numpad8,,Numpad8,Numpad8
+Numpad9,,Numpad9,Numpad9
+NumpadDecimal,,NumpadDecimal,NumpadDecimal (.)
+NumpadAdd,,NumpadAdd,NumpadAdd (+)
+NumpadSubtract,,NumpadSubtract,NumpadSubtract (-)
+NumpadMultiply,,NumpadMultiply,NumpadMultiply (*)
+NumpadDivide,,NumpadDivide,NumpadDivide (/)
+NumpadEnter,,NumpadEnter,NumpadEnter
+,,,
+KanaMode,,KanaMode,KanaMode (カタカナ/ひらがな/ローマ字)
+Convert,,Convert,Convert (変換)
+NonConvert,,NonConvert,NonConvert (無変換)
+Zenkaku,Zenkaku,,Zenkaku (全角)
+Hankaku,Hankaku,,Hankaku (半角)
+,,,
 AudioVolumeMute ,AudioVolumeMute ,,AudioVolumeMute 
 AudioVolumeDown,AudioVolumeDown,,AudioVolumeDown
 AudioVolumeUp,AudioVolumeUp,,AudioVolumeUp

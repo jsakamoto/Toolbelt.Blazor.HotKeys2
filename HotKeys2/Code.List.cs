@@ -251,6 +251,9 @@ public partial struct Code
     /// <summary>ScrollLock</summary>
     public static Code ScrollLock => new("ScrollLock");
 
+    /// <summary>Pause</summary>
+    public static Code Pause => new("Pause");
+
     /// <summary>Equal (=)</summary>
     public static Code Equal => new("Equal");
 
@@ -283,5 +286,62 @@ public partial struct Code
 
     /// <summary>BracketRight (])</summary>
     public static Code BracketRight => new("BracketRight");
+
+    /// <summary>Numpad0</summary>
+    public static Code Numpad0 => new("Numpad0");
+
+    /// <summary>Numpad1</summary>
+    public static Code Numpad1 => new("Numpad1");
+
+    /// <summary>Numpad2</summary>
+    public static Code Numpad2 => new("Numpad2");
+
+    /// <summary>Numpad3</summary>
+    public static Code Numpad3 => new("Numpad3");
+
+    /// <summary>Numpad4</summary>
+    public static Code Numpad4 => new("Numpad4");
+
+    /// <summary>Numpad5</summary>
+    public static Code Numpad5 => new("Numpad5");
+
+    /// <summary>Numpad6</summary>
+    public static Code Numpad6 => new("Numpad6");
+
+    /// <summary>Numpad7</summary>
+    public static Code Numpad7 => new("Numpad7");
+
+    /// <summary>Numpad8</summary>
+    public static Code Numpad8 => new("Numpad8");
+
+    /// <summary>Numpad9</summary>
+    public static Code Numpad9 => new("Numpad9");
+
+    /// <summary>NumpadDecimal (.)</summary>
+    public static Code NumpadDecimal => new("NumpadDecimal");
+
+    /// <summary>NumpadAdd (+)</summary>
+    public static Code NumpadAdd => new("NumpadAdd");
+
+    /// <summary>NumpadSubtract (-)</summary>
+    public static Code NumpadSubtract => new("NumpadSubtract");
+
+    /// <summary>NumpadMultiply (*)</summary>
+    public static Code NumpadMultiply => new("NumpadMultiply");
+
+    /// <summary>NumpadDivide (/)</summary>
+    public static Code NumpadDivide => new("NumpadDivide");
+
+    /// <summary>NumpadEnter</summary>
+    public static Code NumpadEnter => new("NumpadEnter");
+
+    /// <summary>KanaMode (カタカナ/ひらがな/ローマ字)</summary>
+    public static Code KanaMode => new("KanaMode");
+
+    /// <summary>Convert (変換)</summary>
+    public static Code Convert => new("Convert");
+
+    /// <summary>NonConvert (無変換)</summary>
+    public static Code NonConvert => new("NonConvert");
 
 }

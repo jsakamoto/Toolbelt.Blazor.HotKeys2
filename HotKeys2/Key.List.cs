@@ -317,6 +317,9 @@ public partial struct Key
     /// <summary>ScrollLock</summary>
     public static Key ScrollLock => new("ScrollLock");
 
+    /// <summary>Pause</summary>
+    public static Key Pause => new("Pause");
+
     /// <summary>Equal (=)</summary>
     public static Key Equal => new("=");
 
@@ -409,6 +412,12 @@ public partial struct Key
 
     /// <summary>Tilde (~)</summary>
     public static Key Tilde => new("~");
+
+    /// <summary>Zenkaku (全角)</summary>
+    public static Key Zenkaku => new("Zenkaku");
+
+    /// <summary>Hankaku (半角)</summary>
+    public static Key Hankaku => new("Hankaku");
 
     /// <summary>AudioVolumeMute</summary>
     public static Key AudioVolumeMute => new("AudioVolumeMute ");
