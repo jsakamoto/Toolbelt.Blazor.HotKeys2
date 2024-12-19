@@ -64,10 +64,10 @@ export var Toolbelt;
                         (ev.metaKey ? 8 : 0);
                     const key = convertToKeyName(ev);
                     const code = ev.code;
-                    const targetElement = ev.target;
-                    const tagName = targetElement.tagName;
-                    const type = targetElement.getAttribute('type');
-                    const preventDefault = callback(modifiers, key, code, targetElement, tagName, type);
+                    const targets = [ev.target, ev.composedPath()[0]]
+                        .filter(e => e)
+                        .map(e => [e, e.tagName, e.getAttribute('type')]);
+                    const preventDefault = callback(modifiers, key, code, targets);
                     if (preventDefault)
                         ev.preventDefault();
                 };
@@ -75,7 +75,7 @@ export var Toolbelt;
             HotKeys2.createContext = () => {
                 let idSeq = 0;
                 const hotKeyEntries = new Map();
-                const onKeyDown = (modifiers, key, code, targetElement, tagName, type) => {
+                const onKeyDown = (modifiers, key, code, targets) => {
                     let preventDefault = false;
                     hotKeyEntries.forEach(entry => {
                         if (!entry.isDisabled) {
@@ -96,7 +96,7 @@ export var Toolbelt;
                                 entryModKeys |= 8;
                             if (eventModkeys !== entryModKeys)
                                 return;
-                            if (isExcludeTarget(entry, targetElement, tagName, type))
+                            if (targets.some(([targetElement, tagName, type]) => isExcludeTarget(entry, targetElement, tagName, type)))
                                 return;
                             preventDefault = true;
                             entry.action();
@@ -128,7 +128,8 @@ export var Toolbelt;
                 };
             };
             HotKeys2.handleKeyEvent = (hotKeysWrapper, isWasm) => {
-                const onKeyDown = (modifiers, key, code, targetElement, tagName, type) => {
+                const onKeyDown = (modifiers, key, code, targets) => {
+                    const [, tagName, type] = targets[0];
                     if (isWasm) {
                         return hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code);
                     }
