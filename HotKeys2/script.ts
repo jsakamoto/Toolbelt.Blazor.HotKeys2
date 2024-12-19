@@ -86,7 +86,8 @@
         return false;
     }
 
-    type KeyEventHandler = (modifiers: ModCodes, key: string, code: string, targetElement: HTMLElement, tagName: string, type: string | null) => boolean;
+    type KeyEventTarget = [HTMLElement, string, string | null];
+    type KeyEventHandler = (modifiers: ModCodes, key: string, code: string, targets: KeyEventTarget[]) => boolean;
 
     const createKeydownHandler = (callback: KeyEventHandler) => {
         return (ev: KeyboardEvent) => {
@@ -99,11 +100,11 @@
             const key = convertToKeyName(ev);
             const code = ev.code;
 
-            const targetElement = ev.target as HTMLElement;
-            const tagName = targetElement.tagName;
-            const type = targetElement.getAttribute('type');
+            const targets = [ev.target as HTMLElement, ev.composedPath()[0] as HTMLElement | undefined]
+                .filter(e => e)
+                .map<KeyEventTarget>(e => [e!, e!.tagName, e!.getAttribute('type')]);
 
-            const preventDefault = callback(modifiers, key, code, targetElement, tagName, type);
+            const preventDefault = callback(modifiers, key, code, targets);
             if (preventDefault) ev.preventDefault();
         }
     }
@@ -112,7 +113,7 @@
         let idSeq: number = 0;
         const hotKeyEntries = new Map<number, HotkeyEntry>();
 
-        const onKeyDown = (modifiers: ModCodes, key: string, code: string, targetElement: HTMLElement, tagName: string, type: string | null): boolean => {
+        const onKeyDown: KeyEventHandler = (modifiers, key, code, targets) => {
             let preventDefault = false;
 
             hotKeyEntries.forEach(entry => {
@@ -132,7 +133,7 @@
                     if (startsWith(keyEntry, "Meta")) entryModKeys |= ModCodes.Meta;
                     if (eventModkeys !== entryModKeys) return;
 
-                    if (isExcludeTarget(entry, targetElement, tagName, type)) return;
+                    if (targets.some(([targetElement, tagName, type]) => isExcludeTarget(entry, targetElement, tagName, type))) return;
 
                     preventDefault = true;
                     entry.action();
@@ -171,7 +172,8 @@
 
     export const handleKeyEvent = (hotKeysWrapper: any, isWasm: boolean) => {
 
-        const onKeyDown = (modifiers: ModCodes, key: string, code: string, targetElement: HTMLElement, tagName: string, type: string | null): boolean => {
+        const onKeyDown: KeyEventHandler = (modifiers, key, code, targets: KeyEventTarget[]) => {
+            const [, tagName, type] = targets[0];
             if (isWasm) {
                 return hotKeysWrapper.invokeMethod(OnKeyDownMethodName, modifiers, tagName, type, key, code);
             } else {

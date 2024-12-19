@@ -521,4 +521,48 @@ public class HotKeysOnBrowserTest
         await Task.Delay(500);
         await page.WaitForAsync(async _ => (await h1.TextContentAsync()) == "Hello, world!");
     }
+
+    public record CustomElementTestCase(string TargetSelector, string ExcludedKey, string AvailableKey, string ExpectedURL);
+
+    private static readonly IEnumerable<CustomElementTestCase> CustomElementTestCases = [
+        new(TargetSelector: "#input-1", ExcludedKey: "f", AvailableKey: "h", ExpectedURL: "/" ),
+        new(TargetSelector: "#text-area-1", ExcludedKey: "f", AvailableKey: "t", ExpectedURL: "/test/bykeyname" ),
+        new(TargetSelector: "#select-1", ExcludedKey: "s", AvailableKey: "f", ExpectedURL: "/fetchdata" ),
+        new(TargetSelector: "#checkbox-1", ExcludedKey: "f", AvailableKey: "c", ExpectedURL: "/counter" ),
+        new(TargetSelector: "#radio-group-1", ExcludedKey: "t", AvailableKey: "h", ExpectedURL: "/" ),
+        new(TargetSelector: "#button-1", ExcludedKey: "s", AvailableKey: "f", ExpectedURL: "/fetchdata" ),
+        new(TargetSelector: "#input-button-1", ExcludedKey: "t", AvailableKey: "c", ExpectedURL: "/counter" ),
+    ];
+
+    private static IEnumerable<object[]> AllCustomElementTestCases { get; } =
+        from testCase in CustomElementTestCases
+        from hostingModel in AllHostingModels
+        select new object[] { testCase, hostingModel };
+
+    [Test]
+    [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllCustomElementTestCases))]
+    public async Task ExcludeCustomElements_Test(CustomElementTestCase testCase, HostingModel hostingModel)
+    {
+        var context = TestContext.Instance;
+        var host = await context.StartHostAsync(hostingModel);
+
+        // Navigate to the "Test Custom Elements" page,
+        var page = await context.GetPageAsync();
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/test/custom-elements"));
+
+        // Set focus to test target element.
+        // (NOTE: Playwright's `FocusAsync` method does not work for custom elements, so we need to use custom implementation.) 
+        await page.FocusByScriptAsync(testCase.TargetSelector);
+
+        // Enter the excluded hot key, but the excluded hokey should not be worked,
+        // so it stays on the current page.
+        await page.Keyboard.DownAsync(testCase.ExcludedKey);
+        await page.Keyboard.UpAsync(testCase.ExcludedKey);
+        await page.AssertUrlIsAsync(host.GetUrl("/test/custom-elements"));
+
+        // But, enter the available key, then the available hokey should be worked.(go to the expected page.)
+        await page.Keyboard.DownAsync(testCase.AvailableKey);
+        await page.Keyboard.UpAsync(testCase.AvailableKey);
+        await page.AssertUrlIsAsync(host.GetUrl(testCase.ExpectedURL));
+    }
 }

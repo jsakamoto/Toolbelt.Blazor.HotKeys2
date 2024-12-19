@@ -87,6 +87,16 @@ public static class PlaywrightExtensions
         await Task.Delay(100);
     }
 
+    /// <summary>
+    /// This is an alternative to the <see cref="IPage.FocusAsync(string)"/> method, which does not work well in custom elements cases.<br/>
+    /// This method doesn't use Playwright's <see cref="IPage.FocusAsync(string)"/> method, but uses JavaScript to focus on the element.
+    /// </summary>
+    public static async ValueTask FocusByScriptAsync(this IPage page, string selector)
+    {
+        await page.WaitForSelectorAsync(selector);
+        await page.EvaluateAsync($"document.querySelector(\"{selector}\").focus()");
+    }
+
     //public static void Counter_Should_Be(this IWebDriver driver, int count)
     //{
     //    var expectedCounterText = $"Current count: {count}";
