@@ -9,16 +9,15 @@ public class TestContext
 {
     public static TestContext Instance { get; private set; } = null!;
 
-    private readonly IReadOnlyDictionary<HostingModel, SampleSite> SampleSites = new Dictionary<HostingModel, SampleSite> {
-            { HostingModel.Wasm60, new SampleSite(5012, "Client", "net6.0") },
-            { HostingModel.Wasm70, new SampleSite(5013, "Client", "net7.0") },
-            { HostingModel.Wasm80, new SampleSite(5014, "Client", "net8.0") },
-            { HostingModel.Server60, new SampleSite(5015, "Server", "net6.0") },
-            { HostingModel.Server70, new SampleSite(5016, "Server", "net7.0") },
-            { HostingModel.Server80, new SampleSite(5017, "Server", "net8.0") },
-        };
+    private readonly IReadOnlyDictionary<HostingModel, SampleSite> SampleSites = new Dictionary<HostingModel, SampleSite>
+    {
+        [HostingModel.Wasm80] = new(5014, "Client", "net8.0"),
+        [HostingModel.Wasm90] = new(5015, "Client", "net9.0"),
+        [HostingModel.Server80] = new(5017, "Server", "net8.0"),
+        [HostingModel.Server90] = new(5018, "Server", "net9.0"),
+    };
 
-    private IPlaywright? _Playwrite;
+    private IPlaywright? _Playwright;
 
     private IBrowser? _Browser;
 
@@ -53,14 +52,14 @@ public class TestContext
 
         if (!this._Options.SkipInstallBrowser)
         {
-            Microsoft.Playwright.Program.Main(new[] { "install" });
+            Microsoft.Playwright.Program.Main(["install"]);
         }
     }
 
     public async ValueTask<IPage> GetPageAsync()
     {
-        this._Playwrite ??= await Playwright.CreateAsync();
-        this._Browser ??= await this.LaunchBrowserAsync(this._Playwrite);
+        this._Playwright ??= await Playwright.CreateAsync();
+        this._Browser ??= await this.LaunchBrowserAsync(this._Playwright);
         this._Page ??= await this._Browser.NewPageAsync();
         return this._Page;
     }
@@ -91,7 +90,7 @@ public class TestContext
     public async Task OneTimeTearDownAsync()
     {
         if (this._Browser != null) await this._Browser.DisposeAsync();
-        this._Playwrite?.Dispose();
+        this._Playwright?.Dispose();
         Parallel.ForEach(this.SampleSites.Values, sampleSite => sampleSite.Stop());
     }
 }

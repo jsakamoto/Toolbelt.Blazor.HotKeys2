@@ -4,20 +4,17 @@ namespace Toolbelt.Blazor.HotKeys2.E2ETest;
 
 public class HotKeysOnBrowserTest
 {
-    public static IEnumerable<HostingModel> AllHostingModels { get; } = new[] {
-            HostingModel.Wasm60,
-            HostingModel.Wasm70,
-            HostingModel.Wasm80,
-            HostingModel.Server60,
-            HostingModel.Server70,
-            HostingModel.Server80,
-        };
+    public static IEnumerable<HostingModel> AllHostingModels { get; } = [
+        HostingModel.Wasm80,
+        HostingModel.Wasm90,
+        HostingModel.Server80,
+        HostingModel.Server90,
+    ];
 
-    public static IEnumerable<HostingModel> WasmHostingModels { get; } = new[] {
-            HostingModel.Wasm60,
-            HostingModel.Wasm70,
-            HostingModel.Wasm80,
-        };
+    public static IEnumerable<HostingModel> WasmHostingModels { get; } = [
+        HostingModel.Wasm80,
+        HostingModel.Wasm90,
+    ];
 
     [Test]
     [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
@@ -57,19 +54,19 @@ public class HotKeysOnBrowserTest
         await page.Keyboard.UpAsync("u");
         await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 2");
 
-        // Show and hide the cheatSeetElement by entering "?" and ESC key.
-        var cheatSeetElement = page.Locator(".popup-container");
-        (await cheatSeetElement.IsVisibleAsync()).IsFalse();
+        // Show and hide the cheatSheetElement by entering "?" and ESC key.
+        var cheatSheetElement = page.Locator(".popup-container");
+        (await cheatSheetElement.IsVisibleAsync()).IsFalse();
 
         await page.Keyboard.DownAsync("Shift"); // Enter "?"
         await page.Keyboard.DownAsync("Slash");
         await page.Keyboard.UpAsync("Slash");
         await page.Keyboard.UpAsync("Shift");
-        await page.AssertEqualsAsync(_ => cheatSeetElement.IsVisibleAsync(), true);
+        await page.AssertEqualsAsync(_ => cheatSheetElement.IsVisibleAsync(), true);
 
         await page.Keyboard.DownAsync("Escape");
         await page.Keyboard.UpAsync("Escape");
-        await page.AssertEqualsAsync(_ => cheatSeetElement.IsVisibleAsync(), false);
+        await page.AssertEqualsAsync(_ => cheatSheetElement.IsVisibleAsync(), false);
 
         // Double hit of Ctrl key makes jump to the "Home" page.
         await page.AssertUrlIsAsync(host.GetUrl("/counter"));
@@ -93,12 +90,12 @@ public class HotKeysOnBrowserTest
         await page.AssertUrlIsAsync(host.GetUrl("/test/onkeydown"));
 
         // and shows cheat sheet.
-        var cheatSeetElement = page.Locator(".popup-container");
+        var cheatSheetElement = page.Locator(".popup-container");
         await page.Keyboard.DownAsync("Shift"); // Enter "?"
         await page.Keyboard.DownAsync("Slash");
         await page.Keyboard.UpAsync("Slash");
         await page.Keyboard.UpAsync("Shift");
-        await page.AssertEqualsAsync(_ => cheatSeetElement.IsVisibleAsync(), true);
+        await page.AssertEqualsAsync(_ => cheatSheetElement.IsVisibleAsync(), true);
 
         // Entering "C", "F", "Shift+H" in an input element has no effect.
         var inputElement = page.Locator(".hot-keys-cheat-sheet input[type=text]");
@@ -135,12 +132,12 @@ public class HotKeysOnBrowserTest
         await page.AssertUrlIsAsync(host.GetUrl("/test/onkeydown"));
 
         // and shows cheat sheet.
-        var cheatSeetElement = page.Locator(".popup-container");
+        var cheatSheetElement = page.Locator(".popup-container");
         await page.Keyboard.DownAsync("Shift"); // Enter "?"
         await page.Keyboard.DownAsync("Slash");
         await page.Keyboard.UpAsync("Slash");
         await page.Keyboard.UpAsync("Shift");
-        await page.AssertEqualsAsync(_ => cheatSeetElement.IsVisibleAsync(), true);
+        await page.AssertEqualsAsync(_ => cheatSheetElement.IsVisibleAsync(), true);
 
         // Entering "F" key in an input element has no effect.
         var inputElement = page.Locator(".hot-keys-cheat-sheet input[type=checkbox]");
@@ -209,7 +206,7 @@ public class HotKeysOnBrowserTest
         var page = await context.GetPageAsync();
         await page.GotoAndWaitForReadyAsync(host.GetUrl("/save-text"));
 
-        // Input random text into the testbox,
+        // Input random text into the text box,
         var text = Guid.NewGuid().ToString("N");
         await page.FocusAsync("#text-box-1");
         foreach (var c in text) { await page.Keyboard.DownAsync(c.ToString()); }
@@ -325,12 +322,7 @@ public class HotKeysOnBrowserTest
 
         // Set focus to the "Hotkeys are enabled in this field" input element, and type "U" key.
         // Then the counter should not be incremented.
-        var inputElement1 = await page.QuerySelectorAsync(".disabled-state-hotkeys");
-        if (inputElement1 == null)
-        {
-            throw new InvalidOperationException("Test element is missing");
-        }
-
+        var inputElement1 = await page.QuerySelectorAsync(".disabled-state-hotkeys") ?? throw new InvalidOperationException("Test element is missing");
         await inputElement1.FocusAsync();
         await page.Keyboard.DownAsync("y");
         await page.Keyboard.UpAsync("y");
@@ -358,12 +350,7 @@ public class HotKeysOnBrowserTest
 
         // Set focus to the "Hotkeys are enabled in this field" input element, and type "U" key.
         // Then the counter should not be incremented.
-        var inputElement1 = await page.QuerySelectorAsync(".disabled-state-hotkeys");
-        if (inputElement1 == null)
-        {
-            throw new InvalidOperationException("Test element is missing");
-        }
-
+        var inputElement1 = await page.QuerySelectorAsync(".disabled-state-hotkeys") ?? throw new InvalidOperationException("Test element is missing");
         await inputElement1.FocusAsync();
         await page.Keyboard.DownAsync("y");
         await page.Keyboard.UpAsync("y");
