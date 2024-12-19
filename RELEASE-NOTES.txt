@@ -1,3 +1,8 @@
+v.6.0.0
+- Improve: Excluding now will work better even if an element is inside a shadow DOM. This change improves hotkey behavior on some UI component libraries, such as Fluent UI Blazor.
+- Update: Added support for .NET 9.
+- Breaking Change: Discontinued support for .NET 6 and 7.
+
 v.5.1.0
 - Improve: Add Numpad and Japanese specific keys and codes.
 

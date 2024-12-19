@@ -16,14 +16,13 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
-          dotnet-quality: "preview"
+          dotnet-version: 9.0.x
       - name: Install .NET WebAssembly Tools
         run: dotnet workload install wasm-tools
 
       # Publish the site
       - name: Publish
-        run: dotnet publish SampleSites/Client/SampleSite.Client.csproj -c:Release -o:public -p:GHPages=true -f:net8.0
+        run: dotnet publish SampleSites/Client/SampleSite.Client.csproj -c:Release -o:public -p:GHPages=true -f:net9.0
 
       # Fix the Content Security Policy (CSP)
       - name: Fix CSP
