@@ -50,7 +50,7 @@
                 .Add(Code.C, () => GoTo("/counter"), "Go to Counter page.", Exclude.InputText | Exclude.TextArea)
                 .Add(Code.F, () => GoTo("/fetchdata"), "Go to Fetch data page.")
                 .Add(Code.T, () => GoTo("/test/bykeyname"), "Go to \"Test by Key Name\" page.", Exclude.InputText | Exclude.InputNonText)
-                .Add(Code.S, () => GoTo("/save-text"), new HotKeyOptions { Description = "Go to \"Save Text\" page.", ExcludeSelector = "button" })
+                .Add(Code.S, () => GoTo("/save-text"), new HotKeyOptions { Description = "Go to \"Save Text\" page.", ExcludeSelector = "button,select,option", Exclude = Exclude.None })
                 .Add(Key.Control, OnCtrlKeyDown, "Double tap to go to Home.");
         }
     }
