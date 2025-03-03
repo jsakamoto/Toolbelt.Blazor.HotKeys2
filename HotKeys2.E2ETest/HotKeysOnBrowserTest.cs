@@ -565,4 +565,69 @@ public class HotKeysOnBrowserTest
         await page.Keyboard.UpAsync(testCase.AvailableKey);
         await page.AssertUrlIsAsync(host.GetUrl(testCase.ExpectedURL));
     }
+
+    [Test]
+    [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
+    public async Task Numpad_NumLock_Shift_Keys_Test(HostingModel hostingModel)
+    {
+        var context = TestContext.Instance;
+        var host = await context.StartHostAsync(hostingModel);
+
+        // Navigate to the "Counter" page,
+        var page = await context.GetPageAsync();
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/counter"));
+
+        // Verify the counter is 0.
+        var counterText = page.Locator("h1+p");
+        await page.AssertEqualsAsync(_ => counterText.TextContentAsync(), "Current count: 0");
+
+        // The key list of the number pad keys.
+        var numPadKeys = new[] {
+            new{ Code = "Numpad0",       KeyA = "0", KeyB = "Insert" },
+            new{ Code = "Numpad1",       KeyA = "1", KeyB = "End" },
+            new{ Code = "Numpad2",       KeyA = "2", KeyB = "ArrowDown" },
+            new{ Code = "Numpad3",       KeyA = "3", KeyB = "PageDown" },
+            new{ Code = "Numpad4",       KeyA = "4", KeyB = "ArrowLeft" },
+            new{ Code = "Numpad5",       KeyA = "5", KeyB = "Clear" },
+            new{ Code = "Numpad6",       KeyA = "6", KeyB = "ArrowRight" },
+            new{ Code = "Numpad7",       KeyA = "7", KeyB = "Home" },
+            new{ Code = "Numpad8",       KeyA = "8", KeyB = "ArrowUp" },
+            new{ Code = "Numpad9",       KeyA = "9", KeyB = "PageUp" },
+            new{ Code = "NumpadDecimal", KeyA = ".", KeyB = "Delete" },
+        };
+
+        var counter = 0;
+
+        // NumLock ON & enter number pad keys -> increment counter
+        foreach (var key in numPadKeys)
+        {
+            await page.FireOnKeyDown(numLock: true, key: key.KeyA, code: key.Code, keyCode: 0);
+            counter++;
+            await page.AssertEqualsAsync(_ => counterText.TextContentAsync(), $"Current count: {counter}");
+        }
+
+        // NumLock ON & enter number pad keys with SHIFT -> decrement counter
+        foreach (var key in numPadKeys)
+        {
+            await page.FireOnKeyDown(numLock: true, key: key.KeyB, code: key.Code, keyCode: 0);
+            counter--;
+            await page.AssertEqualsAsync(_ => counterText.TextContentAsync(), $"Current count: {counter}");
+        }
+
+        // NumLock OFF & enter number pad keys -> increment counter
+        foreach (var key in numPadKeys)
+        {
+            await page.FireOnKeyDown(numLock: false, key: key.KeyB, code: key.Code, keyCode: 0);
+            counter++;
+            await page.AssertEqualsAsync(_ => counterText.TextContentAsync(), $"Current count: {counter}");
+        }
+
+        // NumLock OFF & enter number pad keys with SHIFT -> decrement counter
+        foreach (var key in numPadKeys)
+        {
+            await page.FireOnKeyDown(numLock: false, key: key.KeyA, code: key.Code, keyCode: 0, shiftKey: true);
+            counter--;
+            await page.AssertEqualsAsync(_ => counterText.TextContentAsync(), $"Current count: {counter}");
+        }
+    }
 }

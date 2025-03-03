@@ -54,7 +54,33 @@
         {
             _hotKeysContext = this.HotKeys.CreateContext()
                 .Add(Code.U, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = ".disabled-hotkeys *" })
-                .Add(Code.Y, this.IncrementCount, new() { Exclude = Exclude.None, State = _hotKeyEntryState });
+                .Add(Code.Y, this.IncrementCount, new() { Exclude = Exclude.None, State = _hotKeyEntryState })
+
+                // Test for Number Pad
+                .Add(Code.Numpad0, this.IncrementCount)
+                .Add(Code.Numpad1, this.IncrementCount)
+                .Add(Code.Numpad2, this.IncrementCount)
+                .Add(Code.Numpad3, this.IncrementCount)
+                .Add(Code.Numpad4, this.IncrementCount)
+                .Add(Code.Numpad5, this.IncrementCount)
+                .Add(Code.Numpad6, this.IncrementCount)
+                .Add(Code.Numpad7, this.IncrementCount)
+                .Add(Code.Numpad8, this.IncrementCount)
+                .Add(Code.Numpad9, this.IncrementCount)
+                .Add(Code.NumpadDecimal, this.IncrementCount)
+                
+                .Add(ModCode.Shift, Code.Numpad0, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad1, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad2, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad3, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad4, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad5, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad6, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad7, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad8, this.DecrementCount)
+                .Add(ModCode.Shift, Code.Numpad9, this.DecrementCount)
+                .Add(ModCode.Shift, Code.NumpadDecimal, this.DecrementCount);
+
             this.HotKeys.KeyDown += HotKeys_KeyDown;
         }
     }
@@ -62,6 +88,11 @@
     private void IncrementCount()
     {
         _currentCount++;
+    }
+
+    private void DecrementCount()
+    {
+        _currentCount--;
     }
 
     private void OnTriggerDisabledState()
