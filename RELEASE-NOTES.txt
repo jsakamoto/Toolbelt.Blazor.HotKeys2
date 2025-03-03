@@ -1,3 +1,6 @@
+v.6.0.1
+- Fix: The shift key state was not detected correctly when the shift + number pad keys were pressed with the Num Lock on. (Issue #32)
+
 v.6.0.0
 - Improve: Excluding now will work better even if an element is inside a shadow DOM. This change improves hotkey behavior on some UI component libraries, such as Fluent UI Blazor.
 - Update: Added support for .NET 9.
