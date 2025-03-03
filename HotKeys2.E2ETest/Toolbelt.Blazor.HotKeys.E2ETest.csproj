@@ -6,6 +6,19 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <!--
+    2025-03-03 REMARK!: 
+    When the TestingPlatformDotnetTestSupport was enabled, 
+    the "ExcludeCustomElements_Test" test cases were not executed 
+    with unknown reasons.
+    -->
+    
+    <!--
+    <EnableNUnitRunner>true</EnableNUnitRunner>
+    <OutputType>Exe</OutputType>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,13 +27,13 @@
 
   <ItemGroup>
     <PackageReference Include="ChainingAssertion-NUnit.Bin" Version="4.0.1" />
-    <PackageReference Include="NUnit" Version="4.3.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="Microsoft.Playwright.NUnit" Version="1.49.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
-    <PackageReference Include="Toolbelt.WorkDirectory" Version="1.0.0" />
+    <PackageReference Include="NUnit" Version="4.3.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Microsoft.Playwright.NUnit" Version="1.50.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.2" />
+    <PackageReference Include="Toolbelt.WorkDirectory" Version="1.1.0.1" />
     <PackageReference Include="XProcess" Version="1.4.0" />
   </ItemGroup>
 
