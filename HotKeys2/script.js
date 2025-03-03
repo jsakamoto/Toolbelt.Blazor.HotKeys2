@@ -58,7 +58,9 @@ export var Toolbelt;
                 return (ev) => {
                     if (typeof (ev["altKey"]) === 'undefined')
                         return;
-                    const modifiers = (ev.shiftKey ? 1 : 0) +
+                    const numLock = ev.getModifierState('NumLock');
+                    const shiftKey = (numLock && ev.code.match(/^Numpad([0-9]|Decimal)$/) && !ev.key.match(/^[0-9\.]$/)) ? true : ev.shiftKey;
+                    const modifiers = (shiftKey ? 1 : 0) +
                         (ev.ctrlKey ? 2 : 0) +
                         (ev.altKey ? 4 : 0) +
                         (ev.metaKey ? 8 : 0);

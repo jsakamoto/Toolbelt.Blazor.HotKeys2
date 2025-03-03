@@ -92,8 +92,13 @@
     const createKeydownHandler = (callback: KeyEventHandler) => {
         return (ev: KeyboardEvent) => {
             if (typeof (ev["altKey"]) === 'undefined') return;
+
+            // Check if NumLock is active and adjust shiftKey accordingly for Numpad keys (Issue #32 (https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/issues/32))
+            const numLock = ev.getModifierState('NumLock');
+            const shiftKey = (numLock && ev.code.match(/^Numpad([0-9]|Decimal)$/) && !ev.key.match(/^[0-9\.]$/)) ? true : ev.shiftKey;
+
             const modifiers =
-                (ev.shiftKey ? ModCodes.Shift : 0) +
+                (shiftKey ? ModCodes.Shift : 0) +
                 (ev.ctrlKey ? ModCodes.Control : 0) +
                 (ev.altKey ? ModCodes.Alt : 0) +
                 (ev.metaKey ? ModCodes.Meta : 0);
