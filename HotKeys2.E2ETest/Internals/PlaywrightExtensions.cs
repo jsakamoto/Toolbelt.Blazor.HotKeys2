@@ -77,11 +77,13 @@ public static class PlaywrightExtensions
         bool ctrlKey = false,
         bool altKey = false,
         bool metaKey = false,
+        bool? numLock = null,
         string selector = "body")
     {
         await page.EvaluateAsync("Toolbelt.Blazor.fireOnKeyDown", new
         {
             selector,
+            numLock,
             options = new { key, code, keyCode, shiftKey, ctrlKey, altKey, metaKey }
         });
         await Task.Delay(100);
