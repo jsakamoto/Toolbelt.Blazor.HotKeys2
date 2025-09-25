@@ -1,0 +1,9 @@
+/* _content/SampleSite.Components/Shared/EnteredKeyList.razor.rz.scp.css */
+.entered-keys th[b-1re0doem26],
+.entered-keys td[b-1re0doem26] {
+    padding: 4px 8px;
+}
+
+.entered-keys td[b-1re0doem26] {
+    font-family: monospace;
+}
