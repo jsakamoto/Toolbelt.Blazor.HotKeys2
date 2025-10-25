@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/README/">
+    <File Path="README.md" />
+    <File Path="RELEASE-NOTES.txt" />
+  </Folder>
+  <Folder Name="/SampleSites/">
+    <Project Path="SampleSites/Client/SampleSite.Client.csproj" />
+    <Project Path="SampleSites/Components/SampleSite.Components.csproj" />
+    <Project Path="SampleSites/Server/SampleSite.Server.csproj" />
+    <Project Path="SampleSites/Server8/SampleSite.Server8.csproj" />
+  </Folder>
+  <Project Path="HotKeys2.E2ETest/Toolbelt.Blazor.HotKeys.E2ETest.csproj" />
+  <Project Path="HotKeys2.Test/Toolbelt.Blazor.HotKeys2.Test.csproj" />
+  <Project Path="HotKeys2/Toolbelt.Blazor.HotKeys2.csproj" />
+</Solution>
