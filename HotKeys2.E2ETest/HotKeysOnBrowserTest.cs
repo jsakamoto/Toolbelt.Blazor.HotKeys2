@@ -348,9 +348,10 @@ public class HotKeysOnBrowserTest
         var counter = page.Locator("h1+p");
         await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
 
-        // Set focus to the "Hotkeys are enabled in this field" input element, and type "U" key.
+        // Set focus to the "Hotkeys are enabled in this field" input element, and type "y" key.
         // Then the counter should not be incremented.
         var inputElement1 = await page.QuerySelectorAsync(".disabled-state-hotkeys") ?? throw new InvalidOperationException("Test element is missing");
+        await page.AssertEqualsAsync(_ => inputElement1.GetAttributeAsync("placeholder"), "Hotkey 'Y' is disabled in C#");
         await inputElement1.FocusAsync();
         await page.Keyboard.DownAsync("y");
         await page.Keyboard.UpAsync("y");
@@ -362,6 +363,7 @@ public class HotKeysOnBrowserTest
 
         // Trigger disabled state
         await page.ClickAsync(".state-trigger-button");
+        await page.AssertEqualsAsync(_ => inputElement1.GetAttributeAsync("placeholder"), "Hotkey 'Y' is enabled in C#");
 
         // Refocus and test again
         // This time counter should increment

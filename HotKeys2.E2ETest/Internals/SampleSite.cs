@@ -30,7 +30,7 @@ public class SampleSite
     {
         if (this.dotnetCLI != null) return this;
 
-        var solutionDir = FileIO.FindContainerDirToAncestor("*.sln");
+        var solutionDir = FileIO.FindContainerDirToAncestor("*.slnx");
         var sampleSiteDir = Path.Combine(solutionDir, "SampleSites");
         this.WorkDir = WorkDirectory.CreateCopyFrom(sampleSiteDir, arg => arg.Name is not "obj" and not "bin");
         var projDir = Path.Combine(this.WorkDir, this.ProjectSubFolder);
