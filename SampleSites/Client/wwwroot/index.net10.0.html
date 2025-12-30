@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="content-security-policy" content="default-src 'self'; font-src *; connect-src 'self' ws://localhost:* http://localhost:*; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com data:; img-src 'self' data:" />
     <title>Sample Site</title>
     <base href="/" />
     <link rel="preload" id="webassembly" />
@@ -13,7 +14,6 @@
     <link href="_content/SampleSite.Components/css/site-custom.css" rel="stylesheet" />
     <link href="_content/SampleSite.Components/css/hot-keys-cheat-sheet.css" rel="stylesheet" />
     <link href="SampleSite.Client.styles.css" rel="stylesheet" />
-    <!--<meta http-equiv="content-security-policy" content="default-src 'self'; font-src *; connect-src 'self' ws://localhost:* http://localhost:*; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts.googleapis.com data:; img-src 'self' data:" />-->
     <script type="importmap"></script>
 </head>
 
