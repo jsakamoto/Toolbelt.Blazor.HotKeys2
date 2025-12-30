@@ -2,10 +2,15 @@
 
   <PropertyGroup>
     <ToolbeltBlazorHotKeys2OptimizeForWasm Condition=" '$(ToolbeltBlazorHotKeys2OptimizeForWasm)' == '' ">true</ToolbeltBlazorHotKeys2OptimizeForWasm>
+    <ToolbeltBlazorHotKeys2JavaScriptCacheBusting Condition=" '$(ToolbeltBlazorHotKeys2JavaScriptCacheBusting)' == '' ">true</ToolbeltBlazorHotKeys2JavaScriptCacheBusting>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'browser-wasm' AND '$(ToolbeltBlazorHotKeys2OptimizeForWasm)' == 'true' ">
     <RuntimeHostConfigurationOption Include="Toolbelt.Blazor.HotKeys2.OptimizeForWasm" Value="true" Trim="true" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'browser-wasm' AND '$(ToolbeltBlazorHotKeys2JavaScriptCacheBusting)' != '' ">
+    <RuntimeHostConfigurationOption Include="Toolbelt.Blazor.HotKeys2.JavaScriptCacheBusting" Value="$(ToolbeltBlazorHotKeys2JavaScriptCacheBusting)" Trim="true" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
@@ -9,6 +9,20 @@ internal static class JS
 {
     private static bool ShowDeveloperGuide() => true;
 
+    private static bool CacheBustingEnabled() => Environment.GetEnvironmentVariable("TOOLBELT_BLAZOR_HOTKEYS_JSCACHEBUSTING") != "0";
+
+#if NET10_0_OR_GREATER
+    public static Task<IJSObjectReference> ImportScriptAsync(this IJSRuntime jsRuntime, ILogger logger)
+    {
+        var cacheBustingQueryAsync = CacheBustingEnabled() ?
+            jsRuntime.GetValueAsync<bool>("navigator.onLine").AsTask().ContinueWith(static task => task.Result ? "?v=" + VersionInfo.VersionText : "") :
+            Task.FromResult("");
+
+        return cacheBustingQueryAsync
+            .ContinueWith(task => jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Toolbelt.Blazor.HotKeys2/script.min.js" + task.Result).AsTask())
+            .Unwrap();
+    }
+#else
     public static async ValueTask<IJSObjectReference> ImportScriptAsync(this IJSRuntime jsRuntime, ILogger logger)
     {
         var scriptPath = "./_content/Toolbelt.Blazor.HotKeys2/script.min.js";
@@ -33,6 +47,7 @@ internal static class JS
 
         return await jsRuntime.InvokeAsync<IJSObjectReference>("import", scriptPath);
     }
+#endif
 
     public static async ValueTask InvokeSafeAsync(Func<ValueTask> action, ILogger logger)
     {

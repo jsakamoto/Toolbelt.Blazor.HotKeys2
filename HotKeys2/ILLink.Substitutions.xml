@@ -1,8 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <linker>
   <assembly fullname="Toolbelt.Blazor.HotKeys2">
-    <type fullname="Toolbelt.Blazor.HotKeys2.Extensions.JS" feature="Toolbelt.Blazor.HotKeys2.OptimizeForWasm" featurevalue="true">
+    <type feature="Toolbelt.Blazor.HotKeys2.OptimizeForWasm" featurevalue="true" fullname="Toolbelt.Blazor.HotKeys2.Extensions.JS">
       <method signature="System.Boolean ShowDeveloperGuide()" body="stub" value="false" />
+    </type>
+    <type feature="Toolbelt.Blazor.HotKeys2.JavaScriptCacheBusting" featurevalue="true" fullname="Toolbelt.Blazor.HotKeys2.Extensions.JS">
+      <method signature="System.Boolean CacheBustingEnabled()" body="stub" value="true" />
+    </type>
+    <type feature="Toolbelt.Blazor.HotKeys2.JavaScriptCacheBusting" featurevalue="false" fullname="Toolbelt.Blazor.HotKeys2.Extensions.JS">
+      <method signature="System.Boolean CacheBustingEnabled()" body="stub" value="false" />
     </type>
   </assembly>
 </linker>
