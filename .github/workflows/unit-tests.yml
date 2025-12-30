@@ -19,12 +19,8 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
-            10.0.100-rc.1.25451.107
+            10.0.x
 
       # Perform unit tests
-      - name: Perform unit tests on net8.0
-        run: dotnet run --project HotKeys2.Test -f net8.0 --output detailed
-      - name: Perform unit tests on net9.0
-        run: dotnet run --project HotKeys2.Test -f net9.0 --output detailed
-      - name: Perform unit tests on net10.0
-        run: dotnet run --project HotKeys2.Test -f net10.0 --output detailed
+      - name: Perform unit tests
+        run: dotnet test --project ./HotKeys2.Test/Toolbelt.Blazor.HotKeys2.Test.csproj --output detailed
