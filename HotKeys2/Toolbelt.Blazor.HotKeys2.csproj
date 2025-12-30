@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>6.0.1</Version>
+    <Version>6.1.0</Version>
     <Copyright>Copyright © 2022-2025 J.Sakamoto, Mozilla Public License 2.0</Copyright>
     <Authors>J.Sakamoto</Authors>
     <RepositoryType>git</RepositoryType>
@@ -95,7 +95,7 @@
   </ItemGroup>
 
   <Import Project="VersionInfo.targets" />
-  
+
   <PropertyGroup>
     <TypeScriptTarget>ES2015</TypeScriptTarget>
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
@@ -122,5 +122,5 @@
       <PackageReleaseNotes>$(PackageReleaseNotes)%0aTo see all the change logs, please visit the following URL.%0a- https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/blob/master/RELEASE-NOTES.txt</PackageReleaseNotes>
     </PropertyGroup>
   </Target>
-  
+
 </Project>

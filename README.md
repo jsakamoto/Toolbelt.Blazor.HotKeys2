@@ -1,4 +1,4 @@
-﻿# Blazor HotKeys2
+# Blazor HotKeys2
 
 [![NuGet Package](https://img.shields.io/nuget/v/Toolbelt.Blazor.HotKeys2.svg)](https://www.nuget.org/packages/Toolbelt.Blazor.HotKeys2/) [![unit tests](https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2/actions/workflows/unit-tests.yml) [![Discord](https://img.shields.io/discord/798312431893348414?style=flat&logo=discord&logoColor=white&label=Blazor%20Community&labelColor=5865f2&color=gray)](https://discord.com/channels/798312431893348414/1202165955900473375)
 
@@ -24,7 +24,7 @@ _hotKeysContext = this.HotKeys.CreateContext()
 
 ## Supported Blazor versions
 
-This library suppots ASP.NET Core Blazor version 8.0, 9.0, or later.
+This library suppots ASP.NET Core Blazor version 8.0, 9.0, 10.0 or later.
 
 ## How to install and use?
 
@@ -308,6 +308,45 @@ I recommend using the `Key` class for hotkeys registration in the following case
 
 - The hotkeys are based on symbols, such as `?`, `@`, `#`, etc.
 - The hotkeys don't mind whether the Shift key is pressed or not.
+
+## JavaScript file cache busting
+
+This library includes and uses a JavaScript file to handle keyboard events. 
+When you update this library to a newer version, the browser may use the cached previous version of the JavaScript file, leading to unexpected behavior. To prevent this issue, the library appends a version query string to the JavaScript file URL when loading it.
+
+### .NET 8 and 9
+
+A version query string will always be appended to the HotKeys2 JavaScript file URL regardless of the Blazor hosting model you are using.
+
+### .NET 10 or later
+
+By default, a version query string will be appended to the JavaScript file URL that HotKeys2 loads. If you want to disable appending a version query string to the JavaScript file URL that HotKeys2 loads, you can do so by setting the `TOOLBELT_BLAZOR_HOTKEYS_JSCACHEBUSTING` environment variable to `0`.
+
+```csharp
+// Program.cs
+...
+using Toolbelt.Blazor.Extensions.DependencyInjection;
+
+// 👇 Add this line to disable appending a version query string for the HotKeys2 JavaScript file.
+Environment.SetEnvironmentVariable("TOOLBELT_BLAZOR_HOTKEYS_JSCACHEBUSTING", "0");
+
+var builder = WebApplication.CreateBuilder(args);
+...
+```
+
+**However,** when you publish a .NET 10 Blazor WebAssembly app, a version query string will always be appended to the JavaScript file URL that HotKeys2 loads regardless of the `TOOLBELT_BLAZOR_HOTKEYS_JSCACHEBUSTING` environment variable setting. The reason is that published Blazor WebAssembly standalone apps don't include import map entries for JavaScript files from NuGet packages. If you want to avoid appending a version query string to the JavaScript file URL in published Blazor WebAssembly apps, you need to set the `ToolbeltBlazorHotKeys2JavaScriptCachebusting` MSBuild property to `false` in the project file of the Blazor WebAssembly app, like this:
+
+```xml
+<PropertyGroup>
+  <ToolbeltBlazorHotKeys2JavaScriptCacheBusting>false</ToolbeltBlazorHotKeys2JavaScriptCacheBusting>
+</PropertyGroup>
+```
+
+### Why do we append a version query string to the JavaScript file URL regardless of whether the import map is available or not?
+
+We know that .NET 9 or later allows us to use import maps to import JavaScript files with a fingerprint in their file names. Therefore, in .NET 10 or later Blazor apps, you may want to avoid appending a version query string to the JavaScript file URL that HotKeys2 loads.
+
+However, we recommend keeping the default behavior of appending a version query string to the JavaScript file URL. The reason is that published Blazor WebAssembly standalone apps don't include import map entries for JavaScript files from NuGet packages. This inconsistent behavior between development and production environments and hosting models may lead to unexpected issues that are hard to diagnose, particularly in AutoRender mode apps.
 
 ## Limitations
 
