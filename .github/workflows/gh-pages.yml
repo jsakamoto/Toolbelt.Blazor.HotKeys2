@@ -16,17 +16,17 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 10.0.100-rc.1.25451.107
+          dotnet-version: 10.0.x
       - name: Install .NET WebAssembly Tools
         run: dotnet workload install wasm-tools
 
       # Publish the site
       - name: Publish
-        run: dotnet publish SampleSites/Client/SampleSite.Client.csproj -c:Release -o:public -p:GHPages=true -f:net9.0
+        run: dotnet publish SampleSites/Client/SampleSite.Client.csproj -o:public -p:GHPages=true -f:net10.0
 
       # Fix the Content Security Policy (CSP)
       - name: Fix CSP
-        run: sed -i "s|<meta http-equiv=\"content-security-policy\" content=\"default-src 'self'; font-src \*; connect-src 'self' ws://localhost:\* http://localhost:\*; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts\.googleapis\.com data:; img-src 'self' data:\"/>|<meta http-equiv=\"content-security-policy\" content=\"default-src 'self'; font-src *; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts.googleapis.com data:; img-src 'self' data:\"/>|" ./public/wwwroot/index.html
+        run: sed -i "s|<meta http-equiv=\"content-security-policy\" content=\"default-src 'self'; font-src \*; connect-src 'self' ws://localhost:\* http://localhost:\*; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts\.googleapis\.com data:; img-src 'self' data:\"/>|<meta http-equiv=\"content-security-policy\" content=\"default-src 'self'; font-src *; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com data:; img-src 'self' data:\"/>|" ./public/wwwroot/index.html
 
       # Deploy the site
       - name: Deploy
