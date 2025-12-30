@@ -14,9 +14,9 @@ public class TestContext
         [HostingModel.Wasm80] = new("Client", "net8.0"),
         [HostingModel.Wasm90] = new("Client", "net9.0"),
         [HostingModel.Wasm100] = new("Client", "net10.0"),
-        [HostingModel.Server80] = new("Server8", "net8.0"),
-        [HostingModel.Server90] = new("Server8", "net9.0"),
-        [HostingModel.Server100] = new("Server8", "net10.0"),
+        [HostingModel.Server80] = new("Server", "net8.0"),
+        [HostingModel.Server90] = new("Server", "net9.0"),
+        [HostingModel.Server100] = new("Server", "net10.0"),
     };
 
     private IPlaywright? _Playwright;

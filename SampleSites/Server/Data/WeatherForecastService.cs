@@ -4,10 +4,7 @@ namespace SampleSite.Server.Data;
 
 public class WeatherForecastService : IWeatherForecastService
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+    private static readonly string[] Summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
 
     public Task<WeatherForecast[]?> GetForecastAsync()
     {
