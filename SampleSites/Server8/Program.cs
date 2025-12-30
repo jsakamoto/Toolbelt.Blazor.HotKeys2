@@ -27,7 +27,11 @@ else
 }
 
 app.UseHttpsRedirection();
+#if NET9_0_OR_GREATER
+app.MapStaticAssets();
+#else
 app.UseStaticFiles();
+#endif
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()

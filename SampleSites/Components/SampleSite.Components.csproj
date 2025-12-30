@@ -1,27 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.22" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.11" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(BuildMode)' != 'test' ">
-    <PackageReference Include="Toolbelt.Blazor.HotKeys2" Version="6.0.1" />
-    <!--<ProjectReference Include="..\..\HotKeys2\Toolbelt.Blazor.HotKeys2.csproj" />-->
+    <PackageReference Include="Toolbelt.Blazor.HotKeys2" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(BuildMode)' == 'test' ">
-    <ProjectReference Include="..\..\..\..\..\..\HotKeys2\Toolbelt.Blazor.HotKeys2.csproj" />
+    <ProjectReference Include="..\..\HotKeys2\Toolbelt.Blazor.HotKeys2.csproj" />
   </ItemGroup>
 
 </Project>

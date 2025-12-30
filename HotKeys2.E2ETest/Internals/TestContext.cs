@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Playwright;
 using Toolbelt.Blazor.HotKeys2.E2ETest.Internals;
 
@@ -11,10 +11,12 @@ public class TestContext
 
     private readonly IReadOnlyDictionary<HostingModel, SampleSite> SampleSites = new Dictionary<HostingModel, SampleSite>
     {
-        [HostingModel.Wasm80] = new(5014, "Client", "net8.0"),
-        [HostingModel.Wasm90] = new(5015, "Client", "net9.0"),
-        [HostingModel.Server80] = new(5017, "Server", "net8.0"),
-        [HostingModel.Server90] = new(5018, "Server", "net9.0"),
+        [HostingModel.Wasm80] = new("Client", "net8.0"),
+        [HostingModel.Wasm90] = new("Client", "net9.0"),
+        [HostingModel.Wasm100] = new("Client", "net10.0"),
+        [HostingModel.Server80] = new("Server8", "net8.0"),
+        [HostingModel.Server90] = new("Server8", "net9.0"),
+        [HostingModel.Server100] = new("Server8", "net10.0"),
     };
 
     private IPlaywright? _Playwright;

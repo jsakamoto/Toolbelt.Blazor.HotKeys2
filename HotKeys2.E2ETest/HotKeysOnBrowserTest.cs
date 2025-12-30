@@ -1,4 +1,4 @@
-﻿using Toolbelt.Blazor.HotKeys2.E2ETest.Internals;
+using Toolbelt.Blazor.HotKeys2.E2ETest.Internals;
 
 namespace Toolbelt.Blazor.HotKeys2.E2ETest;
 
@@ -7,13 +7,16 @@ public class HotKeysOnBrowserTest
     public static IEnumerable<HostingModel> AllHostingModels { get; } = [
         HostingModel.Wasm80,
         HostingModel.Wasm90,
+        HostingModel.Wasm100,
         HostingModel.Server80,
         HostingModel.Server90,
+        HostingModel.Server100,
     ];
 
     public static IEnumerable<HostingModel> WasmHostingModels { get; } = [
         HostingModel.Wasm80,
         HostingModel.Wasm90,
+        HostingModel.Wasm100,
     ];
 
     [Test]
