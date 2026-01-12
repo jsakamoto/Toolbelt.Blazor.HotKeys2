@@ -43,9 +43,7 @@
 
     private HotKeysContext? _hotKeysContext;
 
-    private readonly HotKeyEntryState _hotKeyEntryState = new() { Disabled = true };
-
-    private string HotKeyState => _hotKeyEntryState.Disabled ? "disabled" : "enabled";
+    private string HotKeyState => _hotKeysContext?.GetHotKey(Code.Y).State.Disabled == true ? "disabled" : "enabled";
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -53,7 +51,7 @@
         {
             _hotKeysContext = this.HotKeys.CreateContext()
                 .Add(Code.U, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = ".disabled-hotkeys *" })
-                .Add(Code.Y, this.IncrementCount, new() { Exclude = Exclude.None, State = _hotKeyEntryState })
+                .Add(Code.Y, this.IncrementCount, new() { Exclude = Exclude.None, Disabled = true })
 
                 // Test for Number Pad
                 .Add(Code.Numpad0, this.IncrementCount)
@@ -81,6 +79,7 @@
                 .Add(ModCode.Shift, Code.NumpadDecimal, this.DecrementCount);
 
             this.HotKeys.KeyDown += HotKeys_KeyDown;
+            this.StateHasChanged();
         }
     }
 
@@ -96,7 +95,9 @@
 
     private void OnTriggerDisabledState()
     {
-        _hotKeyEntryState.Disabled = !_hotKeyEntryState.Disabled;
+        if (_hotKeysContext is null) return;
+        var hotKeyY = _hotKeysContext.GetHotKey(Code.Y);
+        hotKeyY.State.Disabled = !hotKeyY.State.Disabled;
     }
 
     private void HotKeys_KeyDown(object? sender, HotKeyDownEventArgs e)
