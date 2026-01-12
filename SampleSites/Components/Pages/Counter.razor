@@ -1,4 +1,4 @@
-﻿@page "/counter"
+@page "/counter"
 @using System.Runtime.InteropServices
 @implements IAsyncDisposable
 @inject HotKeys HotKeys
@@ -17,20 +17,19 @@
     </div>
 }
 
-<div>
+<div class="mt-2">
     <input type="text" class="form-control" placeholder="Hotkeys are enabled in this field" />
 </div>
 
-<div class="mt-4 disabled-hotkeys">
+<div class="mt-2 disabled-hotkeys">
     <input type="text" class="form-control" placeholder="Hotkeys are disabled in this field" />
 </div>
 
-<div class="mt-4">
+<div class="mt-2 d-flex">
     <input type="text" class="form-control disabled-state-hotkeys" placeholder="Hotkey 'Y' is @HotKeyState in C#" />
-</div>
-
-<div class="mt-4">
-    <button class="form-control state-trigger-button" @onclick="OnTriggerDisabledState">Trigger state</button>
+    <button class="state-trigger-button btn btn-secondary text-nowrap ml-2" @onclick="OnTriggerDisabledState">
+        Trigger state
+    </button>
 </div>
 
 <div class="mt-1">
