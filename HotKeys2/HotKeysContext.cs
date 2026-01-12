@@ -666,7 +666,71 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
         hotKeyEntry.Dispose();
     }
 
-    private const string _AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE = "Specified parameters are ambiguous to identify the single hotkey entry that should be removed.";
+    private const string _AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE = "Specified parameters are ambiguous to identify the single hotkey entry.";
+
+    private TKeyEntryType FindHotKeyEntry<TKeyEntryType, TModifiers, TKeyEntry>(Enum modifiers, TKeyEntry keyEntry, string description, Exclude exclude, string excludeSelector)
+        where TKeyEntryType : HotKeyEntry
+        where TModifiers : Enum
+    {
+        var keyEntryString = keyEntry?.ToString();
+        var modifiresInt = Convert.ToInt32(modifiers);
+        var filteredKeys = this._Keys.OfType<TKeyEntryType>().ToArray();
+
+        filteredKeys = filteredKeys.Where(k => k._Modifiers == modifiresInt && k._KeyEntry == keyEntryString).ToArray();
+        if (filteredKeys.Length == 0) throw new KeyNotFoundException();
+
+        if (filteredKeys.Length > 1) filteredKeys = filteredKeys.Where(k => k.ExcludeSelector == excludeSelector && k.Exclude == exclude).ToArray();
+        if (filteredKeys.Length > 1) filteredKeys = filteredKeys.Where(k => k.Description == description).ToArray();
+        if (filteredKeys.Length == 1) return filteredKeys.First();
+        throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
+    }
+
+    /// <summary>
+    /// Retrieves the hot key entry associated with the specified key, and optional criteria.
+    /// </summary>
+    /// <param name="key">The key for which to retrieve the hot key entry.</param>
+    /// <param name="description">An optional description to associate with the hot key entry. If not specified, the description is empty.</param>
+    /// <param name="exclude">Specifies exclusion criteria for the search. The default is <see cref="Exclude.Default"/>.</param>
+    /// <param name="excludeSelector">An optional selector string used to further refine the exclusion criteria. If not specified, no additional selector is applied.</param>
+    /// <returns>A <see cref="HotKeyEntryByKey"/> instance that matches the specified criteria, or throws <see cref="KeyNotFoundException"/> if no matching entry is found.</returns>
+    public HotKeyEntryByKey GetHotKey(Key key, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
+        => this.GetHotKey(ModKey.None, key, description, exclude, excludeSelector);
+
+    /// <summary>
+    /// Retrieves a hotkey entry that matches the specified modifier, key, and optional criteria.
+    /// </summary>
+    /// <param name="modifiers">The modifier key to match. Specify <see cref="ModKey.None"/> to indicate no modifier.</param>
+    /// <param name="key">The primary key to match for the hotkey entry.</param>
+    /// <param name="description">An optional description to further filter the hotkey entry. If not specified, all descriptions are considered.</param>
+    /// <param name="exclude">Specifies exclusion criteria for the search. The default is <see cref="Exclude.Default"/>.</param>
+    /// <param name="excludeSelector">An optional selector string used to refine the exclusion logic. If not specified, no additional exclusion is applied.</param>
+    /// <returns>A <see cref="HotKeyEntryByKey"/> instance that matches the specified criteria, or throws <see cref="KeyNotFoundException"/> if no matching entry is found.</returns>
+    public HotKeyEntryByKey GetHotKey(ModKey modifiers, Key key, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
+        => this.FindHotKeyEntry<HotKeyEntryByKey, ModKey, Key>(modifiers, key, description, exclude, excludeSelector);
+
+    /// <summary>
+    /// Retrieves the hot key entry associated with the specified code, and optional criteria.
+    /// </summary>
+    /// <param name="code">The code representing the hot key to retrieve.</param>
+    /// <param name="description">An optional description to associate with the hot key. If not specified, the description is empty.</param>
+    /// <param name="exclude">Specifies exclusion criteria for the search. The default is <see cref="Exclude.Default"/>.</param>
+    /// <param name="excludeSelector">An optional selector string used to refine the exclusion logic. If not specified, no additional exclusion is applied.</param>
+    /// <returns>A <see cref="HotKeyEntryByCode"/> instance that matches the specified criteria, or throws <see cref="KeyNotFoundException"/> if no matching entry is found.</returns>
+    public HotKeyEntryByCode GetHotKey(Code code, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
+        => this.GetHotKey(ModCode.None, code, description, exclude, excludeSelector);
+
+    /// <summary>
+    /// Retrieves the hotkey entry that matches the specified modifier, code, and optional criteria.
+    /// </summary>
+    /// <param name="none">The modifier code to match. Represents the required modifier keys (such as Ctrl, Alt, or Shift) for the hotkey.</param>
+    /// <param name="code">The key code to match. Specifies the primary key for the hotkey combination.</param>
+    /// <param name="description">An optional description used to further filter or identify the hotkey entry. The default is an empty string.</param>
+    /// <param name="exclude">Specifies exclusion criteria for the search. The default is <see cref="Exclude.Default"/>.</param>
+    /// <param name="excludeSelector">An optional selector string used to refine the exclusion logic. If not specified, no additional exclusion is applied.</param>
+    /// <returns>A <see cref="HotKeyEntryByCode"/> instance that matches the specified criteria, or throws <see cref="KeyNotFoundException"/> if no matching entry is found.</returns>
+    public HotKeyEntryByCode GetHotKey(ModCode none, Code code, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
+        => this.FindHotKeyEntry<HotKeyEntryByCode, ModCode, Code>(none, code, description, exclude, excludeSelector);
+
 
     /// <summary>
     /// Remove a hotkey entriy from this context.<br/>
@@ -680,9 +744,8 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     /// <param name="exclude">The combination of HTML element flags that will be not allowed hotkey works.</param>
     /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <returns>This context.</returns>
-    public HotKeysContext Remove(Key key, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "") =>
-        this.Remove(ModKey.None, key, description, exclude, excludeSelector);
-
+    public HotKeysContext Remove(Key key, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
+        => this.Remove(ModKey.None, key, description, exclude, excludeSelector);
 
     /// <summary>
     /// Remove a hotkey entriy from this context.<br/>
@@ -698,20 +761,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Remove(ModKey modifiers, Key key, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-    {
-        var keyEntry = key.ToString();
-        return this.Remove(keys =>
-        {
-            var removeCandidates = keys.OfType<HotKeyEntryByKey>().Where(k => k.Modifiers == modifiers && k.Key.ToString() == keyEntry).ToArray();
-            if (removeCandidates.Length <= 1) return removeCandidates;
-            removeCandidates = removeCandidates.Where(k => k.Exclude == exclude && k.ExcludeSelector == excludeSelector).ToArray();
-            if (removeCandidates.Length == 1) return removeCandidates;
-            if (removeCandidates.Length == 0) throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
-            removeCandidates = removeCandidates.Where(k => k.Description == description).ToArray();
-            if (removeCandidates.Length == 1) return removeCandidates;
-            throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
-        });
-    }
+        => this.Remove(this.GetHotKey(modifiers, key, description, exclude, excludeSelector));
 
     /// <summary>
     /// Remove a hotkey entriy from this context.<br/>
@@ -742,20 +792,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     /// <param name="excludeSelector">Additional CSS selector for HTML elements that will not allow hotkey to work.</param>
     /// <returns>This context.</returns>
     public HotKeysContext Remove(ModCode modifiers, Code code, string description = "", Exclude exclude = Exclude.Default, string excludeSelector = "")
-    {
-        var keyEntry = code.ToString();
-        return this.Remove(keys =>
-        {
-            var removeCandidates = keys.OfType<HotKeyEntryByCode>().Where(k => k.Modifiers == modifiers && k.Code.ToString() == keyEntry).ToArray();
-            if (removeCandidates.Length <= 1) return removeCandidates;
-            removeCandidates = removeCandidates.Where(k => k.ExcludeSelector == excludeSelector && k.Exclude == exclude).ToArray();
-            if (removeCandidates.Length == 1) return removeCandidates;
-            if (removeCandidates.Length == 0) throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
-            removeCandidates = removeCandidates.Where(k => k.Description == description).ToArray();
-            if (removeCandidates.Length == 1) return removeCandidates;
-            throw new ArgumentException(_AMBIGUOUS_PARAMETER_EXCEPTION_MESSAGE);
-        });
-    }
+        => this.Remove(this.GetHotKey(modifiers, code, description, exclude, excludeSelector));
 
     /// <summary>
     /// Remove all hotkey entries from this context where the <paramref name="filter"/> function returns <c>true</c>.
@@ -764,18 +801,21 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     public HotKeysContext Remove(Func<IEnumerable<HotKeyEntry>, IEnumerable<HotKeyEntry>> filter)
     {
         var entries = filter.Invoke(this._Keys).ToArray();
-        foreach (var entry in entries)
-        {
-            lock (this._Keys) this._Keys.Remove(entry);
-            entry._NotifyStateChanged = null;
+        foreach (var entry in entries) this.Remove(entry);
+        return this;
+    }
 
-            var _ = this._Syncer.InvokeAsync(async () =>
-            {
-                if (this._Disposed) return false;
-                await this.UnregisterAsync(entry);
-                return true;
-            }, this._Logger);
-        }
+    private HotKeysContext Remove(HotKeyEntry entry)
+    {
+        lock (this._Keys) this._Keys.Remove(entry);
+        entry._NotifyStateChanged = null;
+
+        var _ = this._Syncer.InvokeAsync(async () =>
+        {
+            if (this._Disposed) return false;
+            await this.UnregisterAsync(entry);
+            return true;
+        }, this._Logger);
         return this;
     }
 
