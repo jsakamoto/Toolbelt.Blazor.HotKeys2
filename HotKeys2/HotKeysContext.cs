@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -46,7 +46,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
         return await this._Syncer.InvokeAsync(async () =>
         {
             await using var module = await this._JSRuntime.ImportScriptAsync(this._Logger);
-            return await module.InvokeAsync<IJSObjectReference>("Toolbelt.Blazor.HotKeys2.createContext");
+            return await module.InvokeAsync<IJSObjectReference>("createContext");
         });
     }
 

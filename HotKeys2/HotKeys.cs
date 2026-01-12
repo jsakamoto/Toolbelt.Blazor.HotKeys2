@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -61,7 +61,7 @@ public class HotKeys : IAsyncDisposable
             {
                 await using var module = await this._JSRuntime.ImportScriptAsync(this._Logger);
                 this._KeyEventHandler = await module.InvokeAsync<IJSObjectReference>(
-                    "Toolbelt.Blazor.HotKeys2.handleKeyEvent",
+                    "handleKeyEvent",
                     this._ObjectRef,
                     OperatingSystem.IsBrowser());
             }, this._Logger);
