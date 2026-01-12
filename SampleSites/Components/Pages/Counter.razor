@@ -25,6 +25,10 @@
     <input type="text" class="form-control" placeholder="Hotkeys are disabled in this field" />
 </div>
 
+<div class="mt-2 allow-default">
+    <input type="text" class="form-control" placeholder="Tab key is a hotkey in this field, but focus will move to next field." />
+</div>
+
 <div class="mt-2 d-flex">
     <input type="text" class="form-control disabled-state-hotkeys" placeholder="Hotkey 'Y' is @HotKeyState in C#" />
     <button class="state-trigger-button btn btn-secondary text-nowrap ml-2" @onclick="OnTriggerDisabledState">
@@ -53,6 +57,8 @@
                 .Add(Code.U, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = ".disabled-hotkeys *" })
                 .Add(Code.Y, this.IncrementCount, new() { Exclude = Exclude.None, Disabled = true })
 
+                .Add(Code.Tab, this.IncrementCount, new() { Exclude = Exclude.None, ExcludeSelector = "*:not(.allow-default input)", PreventDefault = false })
+
                 // Test for Number Pad
                 .Add(Code.Numpad0, this.IncrementCount)
                 .Add(Code.Numpad1, this.IncrementCount)
@@ -65,7 +71,7 @@
                 .Add(Code.Numpad8, this.IncrementCount)
                 .Add(Code.Numpad9, this.IncrementCount)
                 .Add(Code.NumpadDecimal, this.IncrementCount)
-                
+
                 .Add(ModCode.Shift, Code.Numpad0, this.DecrementCount)
                 .Add(ModCode.Shift, Code.Numpad1, this.DecrementCount)
                 .Add(ModCode.Shift, Code.Numpad2, this.DecrementCount)

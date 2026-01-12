@@ -41,7 +41,7 @@ class HotkeyEntry {
         public keyEntry: string,
         public exclude: Exclude,
         public excludeSelector: string,
-        public isDisabled: boolean
+        public state: HotKeyEntryState
     ) { }
 
     public action(): void {
@@ -87,6 +87,7 @@ const isExcludeTarget = (entry: HotkeyEntry, targetElement: HTMLElement, tagName
 
 type KeyEventTarget = [HTMLElement, string, string | null];
 type KeyEventHandler = (modifiers: ModCodes, key: string, code: string, targets: KeyEventTarget[]) => boolean;
+type HotKeyEntryState = { disabled: boolean, preventDefault: boolean };
 
 const createKeydownHandler = (callback: KeyEventHandler) => {
     return (ev: KeyboardEvent) => {
@@ -122,7 +123,7 @@ export const createContext = () => {
 
         hotKeyEntries.forEach(entry => {
 
-            if (!entry.isDisabled) {
+            if (!entry.state.disabled) {
                 const byCode = entry.mode === HotKeyMode.ByCode;
                 const eventKeyEntry = byCode ? code : key;
                 const keyEntry = entry.keyEntry;
@@ -139,7 +140,7 @@ export const createContext = () => {
 
                 if (targets.some(([targetElement, tagName, type]) => isExcludeTarget(entry, targetElement, tagName, type))) return;
 
-                preventDefault = true;
+                preventDefault = preventDefault || entry.state.preventDefault;
                 entry.action();
             }
         });
@@ -152,17 +153,17 @@ export const createContext = () => {
     addKeyDownEventListener(keydownHandler);
 
     return {
-        register: (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string, isDisabled: boolean): number => {
+        register: (dotNetObj: any, mode: HotKeyMode, modifiers: ModCodes, keyEntry: string, exclude: Exclude, excludeSelector: string, initialState: HotKeyEntryState): number => {
             const id = idSeq++;
-            const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, isDisabled);
+            const hotKeyEntry = new HotkeyEntry(dotNetObj, mode, modifiers, keyEntry, exclude, excludeSelector, initialState);
             hotKeyEntries.set(id, hotKeyEntry);
             return id;
         },
 
-        update: (id: number, isDisabled: boolean): void => {
+        update: (id: number, state: HotKeyEntryState): void => {
             const hotkeyEntry = hotKeyEntries.get(id);
             if (!hotkeyEntry) return;
-            hotkeyEntry.isDisabled = isDisabled;
+            hotkeyEntry.state = state;
         },
 
         unregister: (id: number): void => {

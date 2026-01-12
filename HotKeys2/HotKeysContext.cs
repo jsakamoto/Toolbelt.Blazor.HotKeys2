@@ -634,7 +634,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
                 var context = await this._JSContextTask;
                 hotKeyEntry.Id = await context.InvokeAsync<int>(
                     "register",
-                    hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State.Disabled);
+                    hotKeyEntry._ObjectRef, hotKeyEntry.Mode, hotKeyEntry._Modifiers, hotKeyEntry._KeyEntry, hotKeyEntry.Exclude, hotKeyEntry.ExcludeSelector, hotKeyEntry.State);
             }, this._Logger);
 
             return true;
@@ -650,7 +650,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
             await JS.InvokeSafeAsync(async () =>
             {
                 var context = await this._JSContextTask;
-                await context.InvokeVoidAsync("update", hotKeyEntry.Id, hotKeyEntry.State.Disabled);
+                await context.InvokeVoidAsync("update", hotKeyEntry.Id, hotKeyEntry.State);
             }, this._Logger);
             return true;
         });
