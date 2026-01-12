@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -623,6 +624,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
     // ===============================================================================================
 
 
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(HotKeyEntryState))]
     private async void RegisterAsync(HotKeyEntry hotKeyEntry)
     {
         await this._Syncer.InvokeAsync(async () =>
@@ -641,6 +643,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
         });
     }
 
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(HotKeyEntryState))]
     private async void OnNotifyStateChanged(HotKeyEntry hotKeyEntry)
     {
         await this._Syncer.InvokeAsync(async () =>
