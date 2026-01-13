@@ -187,45 +187,34 @@ You can also specify the elements that are disabled hotkeys by CSS query selecto
 
 And you can specify the `Exclude.ContentEditable` to register the unavailable hotkey when any "contenteditable" applied elements have focus.
 
-### How to enable / disable hotkeys depending on application states
+### `PreventDefault` and `Disabled` properties of the option object
 
-You can also specify enabling/disabling hotkeys depending on the application states through the `Disabled` property of the `HotKeyEntryState` object included by a `HotKeyEntry` as its `State` property. You can initialize the `State` property of the `HotKeyEntry` object when you call the `HotKeysContext.Add()` method.
+You can also specify the `PreventDefault` and `Disabled` properties of the option object argument of the `HotKeysContext.Add()` method.
 
 ```csharp
-...
-private HotKeyEntryState _state = new() { Disabled = true };
-
-protected override void OnAfterRender(bool firstRender)
-{
-  if (firstRender) {
-    _hotKeysContext = this.HotKeys.CreateContext()
-      // 👇 Specify the "State" property of the option object.
-      .Add(Code.A, OnHotKeyA, new() { State = _state });
-  }
-}
-...
+// 👇 Specify the "PreventDefault" and "Disabled" properties of the options.
+_hotKeysContext = this.HotKeys.CreateContext()
+  .Add(ModCode.Ctrl, Code.A, OnCtrlA, new() { PreventDefault = false })
+  .Add(ModCode.Ctrl, Code.S, OnCtrlS, new() { Disabled = true });
 ```
 
-And you can change the `Disabled` property of the `HotKeyEntryState` object to enable/disable the hotkey whenever you want.
+According to the above code, the `OnCtrlA` method will be invoked when the user types the "Ctrl + A" key combination, but the default browser action for that key combination will **not** be prevented.
+
+On the other hand, the `OnCtrlS` method will **not** be invoked when the user types the "Ctrl + S" key combination because the hotkey is initially disabled.
+
+These properties can be changed dynamically by retrieving the `HotKeyEntry` object after registration and updating its `PreventDefault` and `Disabled` properties.
+
 
 ```csharp
-private void OnClickEnableHotKeyA()
-{
-  _state.Disabled = false;
-}
-```
+// Retrieve the HotKeyEntry objects you need after the registration.
+var hotKeyCtrlA = _hotKeysContext.GetHotKey(ModCode.Ctrl, Code.A);
+var hotKeyCtrlS = _hotKeysContext.GetHotKey(ModCode.Ctrl, Code.S);
 
-You can also control enable/disable a hotkey more declaratively by updating the `Disabled` property in the `OnAfterRender()` lifecycle method.
+// Update the PreventDefault property of the Ctrl+A hotkey to true.
+hotKeyCtrlA.PreventDefault = true;
 
-```csharp
-protected override void OnAfterRender(bool firstRender)
-{
-  // Update the state of the hotkey entry every time 
-  // the component is rendered.
-  // Because the causing of rendering means that
-  // some of the states of the component have been changed.
-  _state.Disabled = _showDialog || _panelPopuped;
-}
+// Enable the hotkey by setting Disabled property of the Ctrl+S hotkey to false.
+hotKeyCtrlS.Disabled = false;
 ```
 
 ### How to remove hotkeys
