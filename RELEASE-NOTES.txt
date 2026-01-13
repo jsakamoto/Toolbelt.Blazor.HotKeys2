@@ -1,3 +1,8 @@
+v.6.2.0
+- Improve: Added support for controlling the "PreventDefault" option for each hotkey entry.
+- Improve: Added the GetHotKey() method to retrieve a hotkey entry by its key combination.
+- Improve: Deprecated the "State" property of HotKeyOptions to simplify the syntax. Use the new "Disabled" property of the options and each HotKeyEntry instead.
+
 v.6.1.0
 - Update: Added support for .NET 10.
 - Improve: Removed the dependency on the Toolbelt.Blazor.GetProperty.Script NuGet package for .NET 10 or later projects.
