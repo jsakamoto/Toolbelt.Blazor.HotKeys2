@@ -87,7 +87,7 @@ public class HotKeysOnBrowserTest
         var context = TestContext.Instance;
         var host = await context.StartHostAsync(hostingModel);
 
-        // Navigate to the "Test All Keys" page,
+        // Navigate to the "Test OnKeyDown" page,
         var page = await context.GetPageAsync();
         await page.GotoAndWaitForReadyAsync(host.GetUrl("/test/onkeydown"));
         await page.AssertUrlIsAsync(host.GetUrl("/test/onkeydown"));
