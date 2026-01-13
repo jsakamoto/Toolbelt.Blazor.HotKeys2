@@ -1,4 +1,4 @@
-﻿using Microsoft.Playwright;
+using Microsoft.Playwright;
 
 namespace Toolbelt.Blazor.HotKeys2.E2ETest.Internals;
 
@@ -97,6 +97,20 @@ public static class PlaywrightExtensions
     {
         await page.WaitForSelectorAsync(selector);
         await page.EvaluateAsync($"document.querySelector(\"{selector}\").focus()");
+    }
+
+    /// <summary>
+    /// Asynchronously asserts that the element matching the specified selector is currently focused on the page.
+    /// </summary>
+    public static async ValueTask AssertIsFocusedAsync(this IPage page, string selector)
+    {
+        var isFocused = false;
+        await page.WaitForAsync(async p =>
+        {
+            isFocused = await p.EvaluateAsync<bool>($"document.activeElement.matches('{selector}')");
+            return isFocused;
+        }, throwOnTimeout: false);
+        isFocused.IsTrue($"Expected element '{selector}' to be focused, but it was not.");
     }
 
     //public static void Counter_Should_Be(this IWebDriver driver, int count)

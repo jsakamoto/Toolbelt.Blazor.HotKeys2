@@ -87,7 +87,7 @@ public class HotKeysOnBrowserTest
         var context = TestContext.Instance;
         var host = await context.StartHostAsync(hostingModel);
 
-        // Navigate to the "Test All Keys" page,
+        // Navigate to the "Test OnKeyDown" page,
         var page = await context.GetPageAsync();
         await page.GotoAndWaitForReadyAsync(host.GetUrl("/test/onkeydown"));
         await page.AssertUrlIsAsync(host.GetUrl("/test/onkeydown"));
@@ -164,7 +164,7 @@ public class HotKeysOnBrowserTest
 
     [Test]
     [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(WasmHostingModels))]
-    public async Task PreventDefault_Test(HostingModel hostingModel)
+    public async Task KeyDownEvent_PreventDefault_Test(HostingModel hostingModel)
     {
         var context = TestContext.Instance;
         var host = await context.StartHostAsync(hostingModel);
@@ -196,6 +196,37 @@ public class HotKeysOnBrowserTest
         await page.Keyboard.UpAsync("Control");
         await Task.Delay(200);
         await page.AssertEqualsAsync(_ => page.IsContentsSelectedAsync(), true);
+    }
+
+    [Test]
+    [TestCaseSource(typeof(HotKeysOnBrowserTest), nameof(AllHostingModels))]
+    public async Task HotKeyOptions_NotToPreventDefault_Test(HostingModel hostingModel)
+    {
+        var context = TestContext.Instance;
+        var host = await context.StartHostAsync(hostingModel);
+
+        // Navigate to the "Counter" page,
+        var page = await context.GetPageAsync();
+        await page.GotoAndWaitForReadyAsync(host.GetUrl("/counter"));
+        await page.AssertUrlIsAsync(host.GetUrl("/counter"));
+        var counter = page.Locator("h1+p");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+
+        // Set initial focus position
+        var inputElement = page.Locator(".disabled-hotkeys input");
+        await inputElement.FocusAsync();
+
+        // Enter Tab key in the ".disabled-hotkeys" input element, then the focus will move to the next element.
+        await page.Keyboard.PressAsync("Tab");
+        await page.AssertIsFocusedAsync(".allow-default input");
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 0");
+
+        // Enter Tab key in the ".allow-default" input element. Tab key is registered as hotkey to increment the counter,
+        await page.Keyboard.PressAsync("Tab");
+        // so the counter will be incremented,
+        await page.AssertEqualsAsync(_ => counter.TextContentAsync(), "Current count: 1");
+        // but this hot key is registered with the PreventDefault = false option, so the focus will move to the next element as usual.
+        await page.AssertIsFocusedAsync("input.disabled-state-hotkeys");
     }
 
     [Test]

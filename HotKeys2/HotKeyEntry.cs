@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
@@ -89,7 +89,9 @@ public abstract class HotKeyEntry : IDisposable
         this.Description = options.Description;
         this.Exclude = options.Exclude;
         this.ExcludeSelector = options.ExcludeSelector;
+#pragma warning disable CS0618 // Type or member is obsolete
         this.State = options.State;
+#pragma warning restore CS0618 // Type or member is obsolete
         this.State._NotifyStateChanged = () => this._NotifyStateChanged?.Invoke(this);
         this._ObjectRef = DotNetObjectReference.Create(this);
     }
