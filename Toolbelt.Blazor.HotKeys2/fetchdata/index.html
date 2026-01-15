@@ -1,0 +1,105 @@
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <meta http-equiv="content-security-policy" content="default-src 'self'; font-src *; connect-src 'self' ws://localhost:* http://localhost:*; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com data:; img-src 'self' data:"/>
+    <title>Sample Site</title>
+    <base href="/Toolbelt.Blazor.HotKeys2/"/>
+    <link href="_framework/dotnet.o51cmw8a0j.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-JBmMKiOFnDKzAQG8rm3NbgGyT+l520zvT65iDNLTcu8="/>
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <link href="_content/SampleSite.Components/css/bootstrap/bootstrap.min.css" rel="stylesheet"/>
+    <link href="_content/SampleSite.Components/css/site.css" rel="stylesheet"/>
+    <link href="_content/SampleSite.Components/css/site-custom.css" rel="stylesheet"/>
+    <link href="_content/SampleSite.Components/css/hot-keys-cheat-sheet.css" rel="stylesheet"/>
+    <link href="SampleSite.Client.styles.css" rel="stylesheet"/>
+    <script type="importmap">{
+  "imports": {
+    "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.66stpp682q.js",
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.g9li5j1nxv.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.o51cmw8a0j.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.2tx45g8lli.js"
+  },
+  "scopes": {},
+  "integrity": {
+    "./_framework/blazor.webassembly.66stpp682q.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
+    "./_framework/blazor.webassembly.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
+    "./_framework/dotnet.js": "sha256-JBmMKiOFnDKzAQG8rm3NbgGyT+l520zvT65iDNLTcu8=",
+    "./_framework/dotnet.native.g9li5j1nxv.js": "sha256-JF27ymGBozp0bkZd8WKypdXXLg4HnUObqOyuu07G+8A=",
+    "./_framework/dotnet.native.js": "sha256-JF27ymGBozp0bkZd8WKypdXXLg4HnUObqOyuu07G+8A=",
+    "./_framework/dotnet.o51cmw8a0j.js": "sha256-JBmMKiOFnDKzAQG8rm3NbgGyT+l520zvT65iDNLTcu8=",
+    "./_framework/dotnet.runtime.2tx45g8lli.js": "sha256-2lZh9yO0fnzm3Xt7yV+Kox3DH3nK7L8hDhm84VT1xco=",
+    "./_framework/dotnet.runtime.js": "sha256-2lZh9yO0fnzm3Xt7yV+Kox3DH3nK7L8hDhm84VT1xco="
+  }
+}</script>
+
+<!-- %%-PRERENDERING-HEADOUTLET-BEGIN-%% -->
+
+<!-- %%-PRERENDERING-HEADOUTLET-END-%% -->
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%"></circle>
+            <circle r="40%" cx="50%" cy="50%"></circle>
+        </svg>
+        <div class="loading-progress-text"></div>
+    
+<!-- %%-PRERENDERING-BEGIN-%% -->
+<div style="opacity: 0; position: fixed; z-index: -1; top: 0; left: 0; bottom: 0; right: 0;">
+    <div class="page"><div class="sidebar"><div class="top-row pl-4 navbar navbar-dark"><a class="navbar-brand" href><div class="site-title">Blazor Hotkeys2 Demo</div>
+        <div class="framework-description">.NET 10.0.2 / X64</div></a>
+    <button class="navbar-toggler"><span class="navbar-toggler-icon"></span></button></div>
+
+<div class="collapse"><ul class="nav flex-column"><li class="nav-item px-3"><a href="" class="nav-link"><span class="material-icons" aria-hidden="true">home</span> Home
+            </a></li>
+        <li class="nav-item px-3"><a href="counter" class="nav-link"><span class="material-icons" aria-hidden="true">add_circle_outline</span> Counter
+            </a></li>
+        <li class="nav-item px-3"><a href="fetchdata" class="nav-link"><span class="material-icons" aria-hidden="true">view_list</span> Fetch data
+            </a></li>
+        <li class="nav-item px-3"><a href="save-text" class="nav-link"><span class="material-icons" aria-hidden="true">download</span> Save text
+            </a></li>
+        <li class="nav-item px-3"><a href="test/bykeyname" class="nav-link"><span class="material-icons" aria-hidden="true">keyboard</span> Test by Key Name
+            </a></li>
+        <li class="nav-item px-3"><a href="test/bycode" class="nav-link"><span class="material-icons" aria-hidden="true">keyboard</span> Test by Code
+            </a></li>
+        <li class="nav-item px-3"><a href="test/onkeydown" class="nav-link"><span class="material-icons" aria-hidden="true">keyboard</span> Test OnKeyDown
+            </a></li>
+        <li class="nav-item px-3"><a href="test/exclude-contenteditable" class="nav-link"><span class="material-icons md-36" aria-hidden="true">keyboard</span> Test Exclude Content Editable
+            </a></li>
+        <li class="nav-item px-3"><a href="test/custom-elements" class="nav-link"><span class="material-icons md-36" aria-hidden="true">keyboard</span> Test Custom Elements
+            </a></li></ul></div></div>
+
+    <div class="main"><div class="top-row px-4"><a href="https://github.com/jsakamoto/Toolbelt.Blazor.HotKeys2" target="_blank" class="ml-md-auto about-link">About Blazor HotKeys2</a></div>
+
+        <div class="content px-4"><div><p>Sorry, there's nothing at this address.</p></div>
+
+            <div class="hot-keys-cheat-sheet alert alert-secondary mt-4"><span class="key">?</span> ... <span class="description">Open the Hot keys cheat sheet.</span></div>
+
+            <div class="popup-container "><div class="pop-item hot-keys-cheat-sheet alert alert-secondary mt-4" __internal_stopPropagation_onclick><div><strong>Hot keys cheat sheet</strong></div>
+    <ul><li><span class="key">@</span> ... <span class="description">(only "Home") change greeting message.</span></li>
+        <li><span class="key">U</span> ... <span class="description">(only "Counter") Increment counter.</span></li>
+        <li><span class="key">Y</span> ... <span class="description">(only "Counter") Increment counter (with state set from C#).</span></li></ul>
+    <p>The hot key <span class="key">H</span> will work even if input element has focus.</p>
+    <p>
+        * Input element for the hot key <span class="key">H</span>: <input type="text" value class="form-control-sm"></p>
+    <p>The hot key <span class="key">C</span> will work when a non-text input element, like a checkbox or radio, has focus.</p>
+    <p>
+        * Input element for the hot key <span class="key">C</span>: <input type="checkbox" value class="form-control-sm"></p></div></div></div></div></div>
+
+</div>
+<!-- %%-PRERENDERING-END-%% -->
+</div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.66stpp682q.js" autostart="false"></script>
+    <script src="_content/SampleSite.Components/helper.js"></script>
+    <script src="_content/SampleSite.Components/custom-elements.js"></script>
+    <script src="brotliloader.min.js" type="module"></script>
+
+
+
+</body></html>
