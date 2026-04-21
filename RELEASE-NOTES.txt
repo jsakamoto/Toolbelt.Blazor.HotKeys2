@@ -1,3 +1,6 @@
+v.6.2.1
+- Fix: Silenced harmless TaskCanceledException and OperationCanceledException that were logged as errors when a Blazor Server circuit disconnected during JS interop (PR #38 contributed by @lboyarsky).
+
 v.6.2.0
 - Improve: Added support for controlling the "PreventDefault" option for each hotkey entry.
 - Improve: Added the GetHotKey() method to retrieve a hotkey entry by its key combination.
