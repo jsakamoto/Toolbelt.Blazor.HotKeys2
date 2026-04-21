@@ -52,7 +52,9 @@ internal static class JS
     public static async ValueTask InvokeSafeAsync(Func<ValueTask> action, ILogger logger)
     {
         try { await action(); }
-        catch (JSDisconnectedException) { } // Ignore this exception because it is thrown when the user navigates to another page.
+        catch (JSDisconnectedException) { }
+        catch (OperationCanceledException) { }
+        catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is OperationCanceledException or AggregateException { InnerException: OperationCanceledException })) { }
         catch (Exception ex) { logger.LogError(ex, ex.Message); }
     }
 }

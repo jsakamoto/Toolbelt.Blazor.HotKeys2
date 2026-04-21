@@ -8,6 +8,8 @@ internal static class SemaphoreSlimExtensions
     {
         await semaphore.WaitAsync();
         try { return await asyncAction.Invoke(); }
+        catch (OperationCanceledException) { return default!; }
+        catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is OperationCanceledException or AggregateException { InnerException: OperationCanceledException })) { return default!; }
         catch (Exception ex)
         {
             if (logger != null)
