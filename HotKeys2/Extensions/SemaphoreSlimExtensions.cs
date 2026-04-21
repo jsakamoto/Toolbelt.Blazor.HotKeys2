@@ -8,6 +8,9 @@ internal static class SemaphoreSlimExtensions
     {
         await semaphore.WaitAsync();
         try { return await asyncAction.Invoke(); }
+        // NOTE: The following catches assume cancellations only originate from Blazor circuit disconnect.
+        // If a public API that accepts a user-supplied CancellationToken is ever added,
+        // these catches will also silently swallow user-driven cancellations - redesign required.
         catch (OperationCanceledException) { return default!; }
         catch (AggregateException ex) when (ex.Flatten().InnerExceptions.All(e => e is OperationCanceledException)) { return default!; }
         catch (Exception ex)
