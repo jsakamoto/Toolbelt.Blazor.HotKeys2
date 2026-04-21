@@ -844,7 +844,6 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
             if (this._Disposed) return false;
 
             var context = await this._JSContextTask;
-            if (context is null) return true;
             this._Disposed = true;
             foreach (var entry in this._Keys)
             {
@@ -852,6 +851,7 @@ public partial class HotKeysContext : IDisposable, IAsyncDisposable
                 entry._NotifyStateChanged = null;
             }
             lock (this._Keys) this._Keys.Clear();
+            if (context is null) return true;
             await JS.InvokeSafeAsync(async () =>
             {
                 await context.InvokeVoidAsync("dispose");

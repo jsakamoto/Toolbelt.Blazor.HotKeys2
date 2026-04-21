@@ -54,7 +54,7 @@ internal static class JS
         try { await action(); }
         catch (JSDisconnectedException) { }
         catch (OperationCanceledException) { }
-        catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is OperationCanceledException or AggregateException { InnerException: OperationCanceledException })) { }
+        catch (AggregateException ex) when (ex.Flatten().InnerExceptions.All(e => e is OperationCanceledException)) { }
         catch (Exception ex) { logger.LogError(ex, ex.Message); }
     }
 }
