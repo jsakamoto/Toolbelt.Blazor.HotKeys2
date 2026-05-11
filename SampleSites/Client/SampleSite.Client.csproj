@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="PublishSPAforGitHubPages.Build" Version="3.0.3" />
-    <PackageReference Include="BlazorWasmPreRendering.Build" Version="7.2.0" />
+    <PackageReference Include="BlazorWasmPreRendering.Build" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
